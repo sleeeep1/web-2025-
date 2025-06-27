@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苹果文化 - 探索苹果的文化魅力</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="main.js"></script>
+    <style>
+        /* 视频播放器样式 */
+        .video-container {
+            position: relative;
+            width: 100%;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+        
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-container:hover .video-overlay {
+            opacity: 1;
+        }
+        
+        .video-play-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 59, 48, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-play-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .video-play-btn i {
+            color: white;
+            font-size: 36px;
+            margin-left: 5px; /* 调整播放图标的位置 */
+        }
+        
+        /* 画中画样式 */
+        .pip-active {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 169px;
+            z-index: 1000;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 视频控制栏样式 */
+        .video-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-container:hover .video-controls {
+            opacity: 1;
+        }
+        
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin: 0 10px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #FF3B30;
+            border-radius: 2px;
+            width: 0%;
+        }
+        
+        .video-control-btn {
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="w-10 h-10 flex items-center justify-center text-primary">
+                        <i class="ri-apple-fill ri-2x"></i>
+                    </div>
+                    <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+                    <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+                    <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+                    <a href="AppleCulture.html" class="text-primary font-medium transition-colors">文学文化</a>
+                    <a href="Community.html" class="text-gray-700 hover:text-primary font-medium transition-colors">互动社区</a>
+                    <a href="SnakeGame.html" class="text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+                    <a href="ContactUs.html" class="text-gray-700 hover:text-primary font-medium transition-colors">联系我们</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="favorite-btn w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-heart-line"></i>
+                </button>
+                <button id="userButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-user-line"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-8">
+        <div class="container mx-auto px-4">
+            <!-- 苹果在文学中的地位 -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">苹果在文学中的地位</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">经典著作中的苹果</h3>
+                        <div class="prose max-w-none text-gray-600">
+                            <p>从《圣经》中亚当和夏娃的禁果，到牛顿发现万有引力的启示，苹果在无数经典著作中扮演着重要角色。在中国古代诗词中，"蓬莱文章建安骨，中间小谢又清发。俱怀逸兴壮思飞，欲上青天览明月。抽刀断水水更流，举杯销愁愁更愁。人生在世不称意，明朝散发弄扁舟。"陆游的这首诗虽未直接提及苹果，但展现了自然与人文的交融，正如苹果之于文学的象征意义。</p>
+                            <p>在现代文学作品中，苹果往往象征着知识、诱惑、原罪或新生活的开始。许多作家通过苹果这一意象，传递深刻的哲理和情感。</p>
+                        </div>
+                        <div class="mt-6">
+                            <h4 class="font-medium mb-2">著名引用</h4>
+                            <blockquote class="border-l-4 border-primary pl-4 italic text-gray-600">
+                                "一日一苹果，医生远离我。" ——英国谚语
+                            </blockquote>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="rounded-lg overflow-hidden mb-6">
+                            <img src="https://images.unsplash.com/photo-1544733422-251e532ca221?w=800&auto=format&fit=crop" alt="苹果与书籍" class="w-full h-64 object-cover">
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h4 class="font-semibold mb-2">文学作品中的苹果意象</h4>
+                            <ul class="space-y-3 text-gray-600">
+                                <li class="flex gap-2">
+                                    <div class="text-primary shrink-0">
+                                        <i class="ri-book-open-line"></i>
+                                    </div>
+                                    <span>《白雪公主》中的毒苹果 - 象征嫉妒与欺骗</span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <div class="text-primary shrink-0">
+                                        <i class="ri-book-open-line"></i>
+                                    </div>
+                                    <span>《圣经》中的禁果 - 象征知识与诱惑</span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <div class="text-primary shrink-0">
+                                        <i class="ri-book-open-line"></i>
+                                    </div>
+                                    <span>《伊利亚特》中的金苹果 - 象征美丽与冲突</span>
+                                </li>
+                                <li class="flex gap-2">
+                                    <div class="text-primary shrink-0">
+                                        <i class="ri-book-open-line"></i>
+                                    </div>
+                                    <span>现代小说中的苹果 - 象征单纯与自然</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 苹果在艺术中的表现 -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">苹果在艺术中的表现</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1579613832125-5d34a13ffe2a?w=800&auto=format&fit=crop" alt="塞尚的苹果静物画" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-2">塞尚的苹果静物画</h3>
+                            <p class="text-gray-600 text-sm">保罗·塞尚的苹果静物画作品以其对形体的简化和空间的重构而闻名，被认为是现代艺术的开端之一。</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1516546453174-5e1098a4b4af?w=800&auto=format&fit=crop" alt="中国传统水墨画中的苹果" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-2">中国传统绘画中的果实</h3>
+                            <p class="text-gray-600 text-sm">在中国传统绘画中，果实常象征丰收与吉祥。苹果因其"平安"的谐音，在民间艺术中尤为常见。</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+                        <div class="h-48 overflow-hidden">
+                            <img src="https://images.unsplash.com/photo-1541447554742-4b7eff548fe1?w=800&auto=format&fit=crop" alt="现代艺术中的苹果" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-semibold mb-2">现代艺术中的苹果意象</h3>
+                            <p class="text-gray-600 text-sm">从超现实主义到波普艺术，苹果作为一种简单而丰富的意象，被无数现代艺术家所采用，表达多样化的主题。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">艺术创作中的苹果灵感</h3>
+                    <p class="text-gray-600 mb-4">无论是画家、雕塑家还是摄影师，苹果的完美形态都为他们提供了丰富的创作灵感。其圆润的外形、鲜艳的色彩和多变的表面质感，使其成为艺术家们钟爱的创作主题。</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div class="bg-white p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">著名艺术作品</h4>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li>马格利特《儿子》中的苹果面孔</li>
+                                <li>安迪·沃霍尔的《苹果》系列</li>
+                                <li>古斯塔夫·克里姆特《生命树》中的果实</li>
+                                <li>达利超现实主义作品中的悬浮苹果</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <h4 class="font-medium mb-2">创作技法与表现</h4>
+                            <ul class="space-y-2 text-gray-600 text-sm">
+                                <li>光影处理 - 捕捉苹果表面的高光与阴影</li>
+                                <li>色彩运用 - 从青绿到鲜红的渐变表现</li>
+                                <li>纹理探索 - 表现果皮的细腻质感</li>
+                                <li>构图技巧 - 利用苹果创造视觉重心</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 苹果的象征与文化意义 -->
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">苹果的象征与文化意义</h2>
+                <div class="prose max-w-none text-gray-600 bg-white p-6 rounded-lg shadow-sm mb-8">
+                    <p>苹果作为一种普遍存在的水果，在不同文化中承载着丰富而多样的象征意义。它不仅是自然界的产物，更是人类文化构建的重要元素。从东方到西方，苹果贯穿了神话传说、宗教故事、民间习俗和现代文化。</p>
+                    <p>在西方文化中，苹果与知识、诱惑和原罪紧密相连。《圣经》中的禁果虽未明确指明是苹果，但在欧洲中世纪的艺术表现中，常被描绘为苹果。同时，希腊神话中的金苹果象征着美丽与冲突，引发了特洛伊战争。</p>
+                    <p>在东方文化，特别是中国文化中，苹果因其"平安"的谐音，常被视为安康幸福的象征。在传统习俗中，苹果常作为贺礼赠送，寓意平安健康。而在现代社会，苹果更多地与健康、活力以及简约优雅的生活方式联系在一起。</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold mb-4">全球文化中的苹果象征</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <h4 class="font-medium text-gray-800">西方文化</h4>
+                                    <p class="text-gray-600 text-sm">知识与诱惑的象征，同时也代表健康与医疗智慧（"一日一苹果，医生远离我"）</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">东方文化</h4>
+                                    <p class="text-gray-600 text-sm">平安、和谐与幸福的象征，常在重要节日作为礼品赠送</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">北欧神话</h4>
+                                    <p class="text-gray-600 text-sm">伊登的金苹果象征着永恒的青春与生命力</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">现代文化</h4>
+                                    <p class="text-gray-600 text-sm">科技创新与简约设计美学的代表，尤其体现在苹果公司的品牌形象中</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-4">苹果在当代社会的象征价值</h3>
+                        <p class="text-gray-600 mb-6">随着全球化的发展，苹果的象征意义也在不断演变。在当代社会，苹果已经超越了传统文化中的象征，融入到了人们的日常生活和社会认知中。</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-primary mb-2">
+                                    <i class="ri-heart-pulse-line text-xl"></i>
+                                </div>
+                                <h4 class="font-medium mb-1">健康生活</h4>
+                                <p class="text-gray-600 text-sm">苹果象征着健康饮食和均衡生活方式</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-primary mb-2">
+                                    <i class="ri-lightbulb-line text-xl"></i>
+                                </div>
+                                <h4 class="font-medium mb-1">创新思维</h4>
+                                <p class="text-gray-600 text-sm">苹果代表着创新精神和"另辟蹊径"的思维方式</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-primary mb-2">
+                                    <i class="ri-earth-line text-xl"></i>
+                                </div>
+                                <h4 class="font-medium mb-1">环保意识</h4>
+                                <p class="text-gray-600 text-sm">有机苹果成为环保、可持续生活的象征</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-primary mb-2">
+                                    <i class="ri-palette-line text-xl"></i>
+                                </div>
+                                <h4 class="font-medium mb-1">简约美学</h4>
+                                <p class="text-gray-600 text-sm">苹果的简洁形态代表着现代设计美学</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+                    <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-wechat-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-weibo-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-instagram-line"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                        <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+                        <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+                        <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">社区交流</a></li>
+                        <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+                        <li><a href="ContactUs.html" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-map-pin-line w-5"></i>
+                            <span>中国·陕西·延安</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-phone-line w-5"></i>
+                            <span>400-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-mail-line w-5"></i>
+                            <span>contact@appleway.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+                    <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="bg-primary hover:bg-opacity-90 transition-colors px-4 py-2 rounded-r-lg">
+                            <i class="ri-send-plane-line"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化视频播放器功能
+            initVideoPlayers();
+        });
+        
+        // 初始化视频播放器
+        function initVideoPlayers() {
+            const videoContainers = document.querySelectorAll('.video-container');
+            
+            videoContainers.forEach(container => {
+                const video = container.querySelector('video');
+                const overlay = container.querySelector('.video-overlay');
+                const playBtn = container.querySelector('.video-play-btn');
+                const playPauseBtn = container.querySelector('.play-pause');
+                const progressBar = container.querySelector('.progress-bar');
+                const progress = container.querySelector('.progress');
+                const pipBtn = container.querySelector('.pip-btn');
+                const fullscreenBtn = container.querySelector('.fullscreen-btn');
+                
+                // 点击播放按钮
+                if (playBtn) {
+                    playBtn.addEventListener('click', () => {
+                        if (video.paused) {
+                            video.play();
+                            playPauseBtn.innerHTML = '<i class="ri-pause-fill"></i>';
+                            overlay.style.opacity = '0';
+                        } else {
+                            video.pause();
+                            playPauseBtn.innerHTML = '<i class="ri-play-fill"></i>';
+                            overlay.style.opacity = '1';
+                        }
+                    });
+                }
+                
+                // 点击视频区域
+                video.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                        playPauseBtn.innerHTML = '<i class="ri-pause-fill"></i>';
+                        overlay.style.opacity = '0';
+                    } else {
+                        video.pause();
+                        playPauseBtn.innerHTML = '<i class="ri-play-fill"></i>';
+                        overlay.style.opacity = '1';
+                    }
+                });
+                
+                // 播放/暂停按钮
+                playPauseBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (video.paused) {
+                        video.play();
+                        playPauseBtn.innerHTML = '<i class="ri-pause-fill"></i>';
+                        overlay.style.opacity = '0';
+                    } else {
+                        video.pause();
+                        playPauseBtn.innerHTML = '<i class="ri-play-fill"></i>';
+                        overlay.style.opacity = '1';
+                    }
+                });
+                
+                // 进度条更新
+                video.addEventListener('timeupdate', () => {
+                    const percentage = (video.currentTime / video.duration) * 100;
+                    progress.style.width = `${percentage}%`;
+                });
+                
+                // 进度条点击
+                progressBar.addEventListener('click', (e) => {
+                    const progressBarRect = progressBar.getBoundingClientRect();
+                    const clickPosition = e.clientX - progressBarRect.left;
+                    const percentage = clickPosition / progressBarRect.width;
+                    video.currentTime = percentage * video.duration;
+                });
+                
+                // 视频结束时
+                video.addEventListener('ended', () => {
+                    playPauseBtn.innerHTML = '<i class="ri-play-fill"></i>';
+                    overlay.style.opacity = '1';
+                });
+                
+                // 画中画功能
+                if (pipBtn && document.pictureInPictureEnabled) {
+                    pipBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (document.pictureInPictureElement !== video) {
+                            video.requestPictureInPicture()
+                                .then(() => {
+                                    container.classList.add('pip-active');
+                                })
+                                .catch(error => {
+                                    console.error('画中画模式出错:', error);
+                                });
+                        } else {
+                            document.exitPictureInPicture()
+                                .then(() => {
+                                    container.classList.remove('pip-active');
+                                })
+                                .catch(error => {
+                                    console.error('退出画中画模式出错:', error);
+                                });
+                        }
+                    });
+                    
+                    // 监听画中画状态变化
+                    video.addEventListener('enterpictureinpicture', () => {
+                        container.classList.add('pip-active');
+                    });
+                    
+                    video.addEventListener('leavepictureinpicture', () => {
+                        container.classList.remove('pip-active');
+                    });
+                } else if (pipBtn) {
+                    pipBtn.style.display = 'none';
+                }
+                
+                // 全屏功能
+                if (fullscreenBtn) {
+                    fullscreenBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (!document.fullscreenElement) {
+                            container.requestFullscreen()
+                                .catch(error => {
+                                    console.error('全屏模式出错:', error);
+                                });
+                        } else {
+                            document.exitFullscreen();
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

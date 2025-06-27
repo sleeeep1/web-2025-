@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单历史 - 苹果世界</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="main.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="w-10 h-10 flex items-center justify-center text-primary">
+                        <i class="ri-apple-fill ri-2x"></i>
+                    </div>
+                    <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+                    <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+                    <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+                    <a href="AppleCulture.html" class="text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+                    <a href="Community.html" class="text-gray-700 hover:text-primary font-medium transition-colors">互动社区</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="Favorites.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-heart-line"></i>
+                </a>
+                <div class="relative group">
+                    <button class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                        <i class="ri-user-line"></i>
+                    </button>
+                    <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                        <a href="UserProfile.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                            <i class="ri-user-line"></i>
+                            <span>个人资料</span>
+                        </a>
+                        <a href="Favorites.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                            <i class="ri-heart-line"></i>
+                            <span>我的收藏</span>
+                        </a>
+                        <a href="OrderHistory.html" class="flex items-center gap-2 px-4 py-2 text-primary bg-gray-50">
+                            <i class="ri-file-list-line"></i>
+                            <span>订单历史</span>
+                        </a>
+                        <hr class="my-2">
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                            <i class="ri-logout-box-line"></i>
+                            <span>退出登录</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="py-8">
+        <div class="container mx-auto px-4">
+            <!-- 页面标题 -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900">订单历史</h1>
+                <p class="text-gray-600 mt-2">查看您的所有购买记录</p>
+            </div>
+
+            <!-- 订单筛选 -->
+            <div class="mb-8">
+                <div class="flex flex-wrap gap-4">
+                    <button class="px-4 py-2 bg-primary text-white rounded-button font-medium status-btn" data-status="全部订单">全部订单</button>
+                    <button class="px-4 py-2 bg-white text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors status-btn" data-status="待付款">待付款</button>
+                    <button class="px-4 py-2 bg-white text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors status-btn" data-status="待发货">待发货</button>
+                    <button class="px-4 py-2 bg-white text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors status-btn" data-status="待收货">待收货</button>
+                    <button class="px-4 py-2 bg-white text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors status-btn" data-status="已完成">已完成</button>
+                </div>
+            </div>
+
+            <!-- 订单列表 -->
+            <div class="space-y-6">
+                <!-- 订单项 1 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <span class="text-gray-500">订单号：20240301001</span>
+                                <span class="text-gray-500">2024-03-01 14:30</span>
+                            </div>
+                            <span class="text-primary font-medium">待发货</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-start gap-4">
+                            <img src="./images/蜜脆苹果.jpg" alt="蜜脆苹果" class="w-20 h-20 object-cover rounded">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">蜜脆苹果</h3>
+                                <p class="text-gray-600 text-sm">规格：5kg装</p>
+                                <p class="text-gray-600 text-sm">产地：山东烟台</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-gray-900">¥ 128.00</p>
+                                <p class="text-gray-600 text-sm">x1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="text-gray-600">
+                                共1件商品 实付款：<span class="text-lg font-bold text-primary">¥ 128.00</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-4 py-2 text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors detail-btn">查看详情</button>
+                                <button class="px-4 py-2 bg-primary text-white rounded-button font-medium hover:bg-primary/90 transition-colors action-btn">确认收货</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订单项 2 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <span class="text-gray-500">订单号：20240228001</span>
+                                <span class="text-gray-500">2024-02-28 10:15</span>
+                            </div>
+                            <span class="text-green-600 font-medium">已完成</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-start gap-4">
+                            <img src="./images/粉红女士苹果.jpg" alt="粉红女士苹果" class="w-20 h-20 object-cover rounded">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">粉红女士苹果</h3>
+                                <p class="text-gray-600 text-sm">规格：3kg装</p>
+                                <p class="text-gray-600 text-sm">产地：新西兰</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-gray-900">¥ 99.00</p>
+                                <p class="text-gray-600 text-sm">x2</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="text-gray-600">
+                                共2件商品 实付款：<span class="text-lg font-bold text-primary">¥ 198.00</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-4 py-2 text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors detail-btn">查看详情</button>
+                                <button class="px-4 py-2 text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors action-btn">再次购买</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 订单项 3 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <span class="text-gray-500">订单号：20240225001</span>
+                                <span class="text-gray-500">2024-02-25 16:45</span>
+                            </div>
+                            <span class="text-green-600 font-medium">已完成</span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-start gap-4">
+                            <img src="./images/嘎啦苹果.jpg" alt="嘎啦苹果" class="w-20 h-20 object-cover rounded">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-gray-900">嘎啦苹果</h3>
+                                <p class="text-gray-600 text-sm">规格：10kg装</p>
+                                <p class="text-gray-600 text-sm">产地：陕西洛川</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-gray-900">¥ 158.00</p>
+                                <p class="text-gray-600 text-sm">x1</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="text-gray-600">
+                                共1件商品 实付款：<span class="text-lg font-bold text-primary">¥ 158.00</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-4 py-2 text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors detail-btn">查看详情</button>
+                                <button class="px-4 py-2 text-gray-700 rounded-button font-medium border border-gray-200 hover:border-primary hover:text-primary transition-colors action-btn">再次购买</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-between mt-8">
+                <div class="text-gray-600">共 3 个订单</div>
+                <div class="flex items-center gap-2">
+                    <button class="w-10 h-10 flex items-center justify-center text-gray-400 border border-gray-200 rounded-lg" disabled>
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                    <button class="w-10 h-10 flex items-center justify-center text-white bg-primary rounded-lg">1</button>
+                    <button class="w-10 h-10 flex items-center justify-center text-gray-400 border border-gray-200 rounded-lg" disabled>
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <a href="#" class="flex items-center gap-2 mb-4">
+                        <div class="w-10 h-10 flex items-center justify-center text-white">
+                            <i class="ri-apple-fill ri-2x"></i>
+                        </div>
+                        <span class="text-2xl font-['Pacifico'] text-white">苹果世界</span>
+                    </a>
+                    <p class="text-gray-400 mb-4">探索苹果的无限魅力，从品种到文化，从美食到文学，一起发现苹果的多彩世界。</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                        <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美食食谱</a></li>
+                        <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">文学文化</a></li>
+                        <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">互动社区</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2">
+                            <i class="ri-map-pin-line text-gray-400"></i>
+                            <span class="text-gray-400">北京市朝阳区农业展览馆南路</span>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="ri-mail-line text-gray-400"></i>
+                            <a href="mailto:info@appleworld.com" class="text-gray-400 hover:text-white transition-colors">info@appleworld.com</a>
+                        </li>
+                        <li class="flex items-center gap-2">
+                            <i class="ri-phone-line text-gray-400"></i>
+                            <a href="tel:+8610123456789" class="text-gray-400 hover:text-white transition-colors">+86 10 1234 5678</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 mb-4 md:mb-0">© 2024 苹果世界. 保留所有权利.</p>
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">使用条款</a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">Cookie 政策</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast消息提示 -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white py-2 px-4 rounded-lg opacity-0 transition-opacity duration-300 z-50" style="pointer-events: none;"></div>
+</body>
+</html> 

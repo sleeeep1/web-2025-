@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互动社区 - 分享苹果的乐趣</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="main.js"></script>
+    <!-- 添加微交互动效相关样式 -->
+    <style>
+        /* 按钮涟漪效果 */
+        .ripple-btn {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+        
+        /* 收藏按钮跳动动画 */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        .favorite-btn.active i {
+            animation: heartbeat 0.6s ease-in-out;
+            color: #FF3B30;
+        }
+        
+        /* 导航菜单悬停效果 */
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #FF3B30;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-item:hover::after,
+        .nav-item.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="w-10 h-10 flex items-center justify-center text-primary">
+                        <i class="ri-apple-fill ri-2x"></i>
+                    </div>
+                    <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="nav-item text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+                    <a href="DetailsofAppleVarieties.html" class="nav-item text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+                    <a href="ListofAppleRecipes.html" class="nav-item text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+                    <a href="AppleCulture.html" class="nav-item text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+                    <a href="Community.html" class="nav-item active text-primary font-medium transition-colors">互动社区</a>
+                    <a href="SnakeGame.html" class="nav-item text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="favorite-btn w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-heart-line"></i>
+                </button>
+                <button id="userButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-user-line"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8">苹果爱好者社区</h1>
+            
+            <!-- 发帖区域 -->
+            <section class="mb-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center">
+                            <i class="ri-user-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium" id="current-user">当前用户</h3>
+                        </div>
+                    </div>
+                    <textarea id="post-content" placeholder="分享你的苹果故事..." class="w-full p-4 border border-gray-200 rounded-lg resize-none focus:outline-none focus:border-primary" rows="4"></textarea>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex items-center gap-2">
+                            <button class="ripple-btn p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100">
+                                <i class="ri-image-line"></i>
+                            </button>
+                            <button class="ripple-btn p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100">
+                                <i class="ri-emotion-line"></i>
+                            </button>
+                            <button class="ripple-btn p-2 text-gray-500 hover:text-primary rounded-full hover:bg-gray-100">
+                                <i class="ri-attachment-2"></i>
+                            </button>
+                        </div>
+                        <button id="publish-btn" class="ripple-btn px-6 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors flex items-center gap-2">
+                            <i class="ri-send-plane-line"></i>
+                            <span>发布</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 帖子过滤 -->
+            <section class="mb-6">
+                <div class="bg-white p-4 rounded-lg shadow-sm flex items-center justify-between">
+                    <div class="flex gap-4">
+                        <button class="ripple-btn filter-btn px-4 py-2 rounded-lg text-primary bg-red-50 font-medium">
+                            全部帖子
+                        </button>
+                        <button class="ripple-btn filter-btn px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">
+                            热门讨论
+                        </button>
+                        <button class="ripple-btn filter-btn px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 font-medium">
+                            最新发布
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="搜索内容..." class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <i class="ri-search-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- 帖子列表 -->
+            <section id="post-list" class="space-y-6">
+                <!-- 已有的帖子将显示在这里 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm" data-post-id="1001">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="ri-user-fill text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">苹果达人</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">2小时前</span>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">ID: 1001</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">分享一个关于苹果的小知识：苹果的营养价值非常丰富，含有丰富的膳食纤维和维生素C...</p>
+                    <div class="flex items-center gap-6 text-gray-500">
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors like-btn">
+                            <i class="ri-thumb-up-line"></i>
+                            <span>23</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors comment-btn">
+                            <i class="ri-message-2-line"></i>
+                            <span>12</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors share-btn">
+                            <i class="ri-share-line"></i>
+                            <span>分享</span>
+                        </button>
+                    </div>
+                    <div class="comment-section mt-4 hidden">
+                        <div class="border-t pt-4">
+                            <div class="flex gap-3 mb-4">
+                                <input type="text" placeholder="写下你的评论..." class="comment-input flex-grow px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+                                <button class="submit-comment ripple-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">发布</button>
+                            </div>
+                            <div class="comments-container space-y-3">
+                                <!-- 示例评论 -->
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium text-sm">园艺小能手</span>
+                                        <span class="text-xs text-gray-500">1小时前</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700">确实，苹果富含抗氧化物质，对心脏健康非常有益！</p>
+                                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                        <button class="comment-like-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-thumb-up-line"></i>
+                                            <span>点赞</span>
+                                        </button>
+                                        <button class="comment-reply-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-reply-line"></i>
+                                            <span>回复</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-sm" data-post-id="1002">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i class="ri-user-fill text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">果园主人</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">5小时前</span>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">ID: 1002</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">今天刚从果园采摘的新鲜红富士，看起来特别诱人...</p>
+                    <div class="flex items-center gap-6 text-gray-500">
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors like-btn">
+                            <i class="ri-thumb-up-line"></i>
+                            <span>45</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors comment-btn">
+                            <i class="ri-message-2-line"></i>
+                            <span>18</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors share-btn">
+                            <i class="ri-share-line"></i>
+                            <span>分享</span>
+                        </button>
+                    </div>
+                    <div class="comment-section mt-4 hidden">
+                        <div class="border-t pt-4">
+                            <div class="flex gap-3 mb-4">
+                                <input type="text" placeholder="写下你的评论..." class="comment-input flex-grow px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+                                <button class="submit-comment ripple-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">发布</button>
+                            </div>
+                            <div class="comments-container space-y-3">
+                                <!-- 示例评论 -->
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium text-sm">苹果控</span>
+                                        <span class="text-xs text-gray-500">3小时前</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700">太漂亮了！果农朋友们辛苦了，请问这种苹果哪里可以买到呢？</p>
+                                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                        <button class="comment-like-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-thumb-up-line"></i>
+                                            <span>点赞</span>
+                                        </button>
+                                        <button class="comment-reply-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-reply-line"></i>
+                                            <span>回复</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="font-medium text-sm">果园主人</span>
+                                        <span class="text-xs text-gray-500">2小时前</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700">您可以关注我们的小店，直接从果园发货，保证新鲜~</p>
+                                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                        <button class="comment-like-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-thumb-up-line"></i>
+                                            <span>点赞</span>
+                                        </button>
+                                        <button class="comment-reply-btn flex items-center gap-1 hover:text-primary transition-colors">
+                                            <i class="ri-reply-line"></i>
+                                            <span>回复</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+                    <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-wechat-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-weibo-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-instagram-line"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                        <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+                        <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+                        <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">社区交流</a></li>
+                        <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-map-pin-line w-5"></i>
+                            <span>中国·陕西·延安</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-phone-line w-5"></i>
+                            <span>400-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-mail-line w-5"></i>
+                            <span>contact@appleway.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+                    <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="ripple-btn bg-primary hover:bg-opacity-90 transition-colors px-4 py-2 rounded-r-lg">
+                            <i class="ri-send-plane-line"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 分享对话框 -->
+    <div id="share-dialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">分享到</h3>
+                <button class="close-dialog p-1 hover:bg-gray-100 rounded-full">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-4 gap-4 mb-6">
+                <a href="#" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 bg-green-500 text-white rounded-full flex items-center justify-center">
+                        <i class="ri-wechat-fill text-xl"></i>
+                    </div>
+                    <span class="text-sm">微信</span>
+                </a>
+                <a href="#" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center">
+                        <i class="ri-weibo-fill text-xl"></i>
+                    </div>
+                    <span class="text-sm">微博</span>
+                </a>
+                <a href="#" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                        <i class="ri-qq-fill text-xl"></i>
+                    </div>
+                    <span class="text-sm">QQ</span>
+                </a>
+                <a href="#" class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 bg-gray-700 text-white rounded-full flex items-center justify-center">
+                        <i class="ri-link text-xl"></i>
+                    </div>
+                    <span class="text-sm">复制链接</span>
+                </a>
+            </div>
+            <div class="border-t pt-4">
+                <input type="text" value="https://apple-world.com/post/123456" class="w-full px-4 py-2 border border-gray-200 rounded-lg mb-3" readonly>
+                <button class="w-full py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">复制链接</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加JavaScript代码 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 随机生成用户名
+            const userNames = ['苹果爱好者', '果园达人', '苹果控', '红富士粉丝', '青苹果控'];
+            const randomName = userNames[Math.floor(Math.random() * userNames.length)];
+            document.getElementById('current-user').textContent = randomName;
+
+            // 初始化帖子ID计数器 - 从1003开始，因为前两个示例帖子已有ID
+            let postIdCounter = 1003;
+            
+            // 发布按钮点击事件
+            document.getElementById('publish-btn').addEventListener('click', function() {
+                const content = document.getElementById('post-content').value.trim();
+                
+                // 检查内容是否为空
+                if (content === '') {
+                    alert('请输入内容后再发布');
+                    return;
+                }
+                
+                // 获取当前用户名
+                const userName = document.getElementById('current-user').textContent;
+                
+                // 创建新帖子
+                createNewPost({
+                    id: postIdCounter++,
+                    userName: userName,
+                    content: content,
+                    time: new Date(),
+                    likes: 0,
+                    comments: 0
+                });
+                
+                // 清空输入框
+                document.getElementById('post-content').value = '';
+                
+                // 提示发布成功
+                showToast('发布成功！');
+            });
+            
+            // 创建新帖子的函数
+            function createNewPost(post) {
+                // 格式化时间
+                const timeStr = formatTime(post.time);
+                
+                // 创建帖子元素
+                const postElement = document.createElement('div');
+                postElement.className = 'bg-white p-6 rounded-lg shadow-sm';
+                postElement.setAttribute('data-post-id', post.id);
+                postElement.innerHTML = `
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center">
+                            <i class="ri-user-fill"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium">${post.userName}</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm text-gray-500">${timeStr}</span>
+                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">ID: ${post.id}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">${post.content}</p>
+                    <div class="flex items-center gap-6 text-gray-500">
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors like-btn">
+                            <i class="ri-thumb-up-line"></i>
+                            <span>${post.likes}</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors comment-btn">
+                            <i class="ri-message-2-line"></i>
+                            <span>${post.comments}</span>
+                        </button>
+                        <button class="ripple-btn flex items-center gap-2 hover:text-primary transition-colors share-btn">
+                            <i class="ri-share-line"></i>
+                            <span>分享</span>
+                        </button>
+                    </div>
+                    <div class="comment-section mt-4 hidden">
+                        <div class="border-t pt-4">
+                            <div class="flex gap-3 mb-4">
+                                <input type="text" placeholder="写下你的评论..." class="comment-input flex-grow px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+                                <button class="submit-comment ripple-btn px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors">发布</button>
+                            </div>
+                            <div class="comments-container space-y-3">
+                                <!-- 评论将显示在这里 -->
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // 点赞按钮事件
+                const likeBtn = postElement.querySelector('.like-btn');
+                likeBtn.addEventListener('click', function() {
+                    if (!this.classList.contains('liked')) {
+                        const likeCount = this.querySelector('span');
+                        const currentLikes = parseInt(likeCount.textContent);
+                        likeCount.textContent = currentLikes + 1;
+                        
+                        // 添加喜欢动画
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('ri-thumb-up-line');
+                        icon.classList.add('ri-thumb-up-fill', 'text-primary');
+                        
+                        // 标记为已点赞
+                        this.classList.add('liked');
+                    } else {
+                        const likeCount = this.querySelector('span');
+                        const currentLikes = parseInt(likeCount.textContent);
+                        likeCount.textContent = currentLikes - 1;
+                        
+                        // 恢复图标
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('ri-thumb-up-fill', 'text-primary');
+                        icon.classList.add('ri-thumb-up-line');
+                        
+                        // 移除已点赞标记
+                        this.classList.remove('liked');
+                    }
+                });
+                
+                // 评论按钮事件
+                const commentBtn = postElement.querySelector('.comment-btn');
+                const commentSection = postElement.querySelector('.comment-section');
+                commentBtn.addEventListener('click', function() {
+                    commentSection.classList.toggle('hidden');
+                });
+                
+                // 提交评论事件
+                const submitCommentBtn = postElement.querySelector('.submit-comment');
+                const commentInput = postElement.querySelector('.comment-input');
+                const commentsContainer = postElement.querySelector('.comments-container');
+                
+                submitCommentBtn.addEventListener('click', function() {
+                    const commentText = commentInput.value.trim();
+                    if (commentText) {
+                        addComment(commentsContainer, {
+                            userName: document.getElementById('current-user').textContent,
+                            content: commentText,
+                            time: new Date()
+                        });
+                        
+                        // 更新评论数
+                        const commentCountElement = commentBtn.querySelector('span');
+                        const currentComments = parseInt(commentCountElement.textContent);
+                        commentCountElement.textContent = currentComments + 1;
+                        
+                        // 清空输入框
+                        commentInput.value = '';
+                    }
+                });
+                
+                // 分享按钮事件
+                const shareBtn = postElement.querySelector('.share-btn');
+                shareBtn.addEventListener('click', function() {
+                    const shareDialog = document.getElementById('share-dialog');
+                    shareDialog.classList.remove('hidden');
+                    
+                    // 更新分享链接
+                    const postId = postElement.getAttribute('data-post-id');
+                    const shareLink = shareDialog.querySelector('input');
+                    shareLink.value = `https://apple-world.com/post/${postId}`;
+                });
+                
+                // 为新创建的按钮添加涟漪效果
+                addRippleEffectToButtons(postElement.querySelectorAll('.ripple-btn'));
+                
+                // 将新帖子添加到列表顶部
+                const postList = document.getElementById('post-list');
+                postList.insertBefore(postElement, postList.firstChild);
+                
+                // 添加进入动画
+                postElement.style.opacity = '0';
+                postElement.style.transform = 'translateY(20px)';
+                postElement.style.transition = 'all 0.3s ease';
+                
+                // 触发重绘以应用初始样式
+                postElement.offsetHeight;
+                
+                // 应用最终样式
+                postElement.style.opacity = '1';
+                postElement.style.transform = 'translateY(0)';
+            }
+            
+            // 添加评论函数
+            function addComment(container, comment) {
+                const commentElement = document.createElement('div');
+                commentElement.className = 'p-3 bg-gray-50 rounded-lg';
+                
+                commentElement.innerHTML = `
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="font-medium text-sm">${comment.userName}</span>
+                        <span class="text-xs text-gray-500">${formatTime(comment.time)}</span>
+                    </div>
+                    <p class="text-sm text-gray-700">${comment.content}</p>
+                    <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                        <button class="comment-like-btn flex items-center gap-1 hover:text-primary transition-colors">
+                            <i class="ri-thumb-up-line"></i>
+                            <span>点赞</span>
+                        </button>
+                        <button class="comment-reply-btn flex items-center gap-1 hover:text-primary transition-colors">
+                            <i class="ri-reply-line"></i>
+                            <span>回复</span>
+                        </button>
+                    </div>
+                `;
+                
+                // 评论点赞事件
+                const likeBtnComment = commentElement.querySelector('.comment-like-btn');
+                likeBtnComment.addEventListener('click', function() {
+                    const span = this.querySelector('span');
+                    const icon = this.querySelector('i');
+                    
+                    if (!this.classList.contains('liked')) {
+                        span.textContent = '已点赞';
+                        icon.classList.remove('ri-thumb-up-line');
+                        icon.classList.add('ri-thumb-up-fill', 'text-primary');
+                        this.classList.add('liked');
+                    } else {
+                        span.textContent = '点赞';
+                        icon.classList.remove('ri-thumb-up-fill', 'text-primary');
+                        icon.classList.add('ri-thumb-up-line');
+                        this.classList.remove('liked');
+                    }
+                });
+                
+                // 将评论添加到容器
+                container.appendChild(commentElement);
+                
+                // 添加进入动画
+                commentElement.style.opacity = '0';
+                commentElement.style.transform = 'translateY(10px)';
+                commentElement.style.transition = 'all 0.2s ease';
+                
+                // 触发重绘以应用初始样式
+                commentElement.offsetHeight;
+                
+                // 应用最终样式
+                commentElement.style.opacity = '1';
+                commentElement.style.transform = 'translateY(0)';
+            }
+            
+            // 格式化时间的函数
+            function formatTime(date) {
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000); // 时间差（秒）
+                
+                if (diff < 60) {
+                    return '刚刚';
+                } else if (diff < 3600) {
+                    return Math.floor(diff / 60) + '分钟前';
+                } else if (diff < 86400) {
+                    return Math.floor(diff / 3600) + '小时前';
+                } else if (diff < 2592000) {
+                    return Math.floor(diff / 86400) + '天前';
+                } else {
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1;
+                    const day = date.getDate();
+                    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+                }
+            }
+            
+            // 显示提示信息
+            function showToast(message) {
+                // 创建提示元素
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                toast.textContent = message;
+                
+                // 添加到页面
+                document.body.appendChild(toast);
+                
+                // 3秒后自动消失
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translate(-50%, -20px)';
+                    toast.style.transition = 'all 0.5s ease';
+                    
+                    // 动画完成后移除元素
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 500);
+                }, 3000);
+            }
+            
+            // 添加过滤按钮事件
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // 移除所有按钮的激活样式
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('text-primary', 'bg-red-50');
+                        btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+                    });
+                    
+                    // 添加当前按钮的激活样式
+                    this.classList.remove('text-gray-600', 'hover:bg-gray-50');
+                    this.classList.add('text-primary', 'bg-red-50');
+                });
+            });
+            
+            // 实现按钮涟漪效果
+            function addRippleEffect(button) {
+                button.addEventListener('click', function(e) {
+                    // 获取点击位置相对于按钮的坐标
+                    const rect = button.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    // 创建涟漪元素
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple-effect');
+                    
+                    // 设置涟漪元素的直径和位置
+                    const diameter = Math.max(rect.width, rect.height);
+                    ripple.style.width = ripple.style.height = `${diameter}px`;
+                    ripple.style.left = `${x - diameter / 2}px`;
+                    ripple.style.top = `${y - diameter / 2}px`;
+                    
+                    // 添加到按钮
+                    button.appendChild(ripple);
+                    
+                    // 动画结束后移除涟漪元素
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            }
+            
+            // 为所有具有ripple-btn类的按钮添加涟漪效果
+            function addRippleEffectToButtons(buttons) {
+                buttons.forEach(button => {
+                    addRippleEffect(button);
+                });
+            }
+            
+            // 初始化时为已有的ripple按钮添加效果
+            addRippleEffectToButtons(document.querySelectorAll('.ripple-btn'));
+            
+            // 收藏按钮点击动画
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const icon = this.querySelector('i');
+                    
+                    if (this.classList.contains('active')) {
+                        icon.classList.remove('ri-heart-line');
+                        icon.classList.add('ri-heart-fill');
+                    } else {
+                        icon.classList.remove('ri-heart-fill');
+                        icon.classList.add('ri-heart-line');
+                    }
+                });
+            });
+            
+            // 为已有的帖子添加点赞、评论和分享功能
+            document.querySelectorAll('#post-list > div').forEach(post => {
+                // 点赞按钮事件
+                const likeBtn = post.querySelector('.like-btn');
+                likeBtn.addEventListener('click', function() {
+                    if (!this.classList.contains('liked')) {
+                        const likeCount = this.querySelector('span');
+                        const currentLikes = parseInt(likeCount.textContent);
+                        likeCount.textContent = currentLikes + 1;
+                        
+                        // 添加喜欢动画
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('ri-thumb-up-line');
+                        icon.classList.add('ri-thumb-up-fill', 'text-primary');
+                        
+                        // 标记为已点赞
+                        this.classList.add('liked');
+                    } else {
+                        const likeCount = this.querySelector('span');
+                        const currentLikes = parseInt(likeCount.textContent);
+                        likeCount.textContent = currentLikes - 1;
+                        
+                        // 恢复图标
+                        const icon = this.querySelector('i');
+                        icon.classList.remove('ri-thumb-up-fill', 'text-primary');
+                        icon.classList.add('ri-thumb-up-line');
+                        
+                        // 移除已点赞标记
+                        this.classList.remove('liked');
+                    }
+                });
+                
+                // 评论按钮事件
+                const commentBtn = post.querySelector('.comment-btn');
+                const commentSection = post.querySelector('.comment-section');
+                commentBtn.addEventListener('click', function() {
+                    commentSection.classList.toggle('hidden');
+                });
+                
+                // 提交评论事件
+                const submitCommentBtn = post.querySelector('.submit-comment');
+                const commentInput = post.querySelector('.comment-input');
+                const commentsContainer = post.querySelector('.comments-container');
+                
+                submitCommentBtn.addEventListener('click', function() {
+                    const commentText = commentInput.value.trim();
+                    if (commentText) {
+                        addComment(commentsContainer, {
+                            userName: document.getElementById('current-user').textContent,
+                            content: commentText,
+                            time: new Date()
+                        });
+                        
+                        // 更新评论数
+                        const commentCountElement = commentBtn.querySelector('span');
+                        const currentComments = parseInt(commentCountElement.textContent);
+                        commentCountElement.textContent = currentComments + 1;
+                        
+                        // 清空输入框
+                        commentInput.value = '';
+                    }
+                });
+                
+                // 分享按钮事件
+                const shareBtn = post.querySelector('.share-btn');
+                shareBtn.addEventListener('click', function() {
+                    const shareDialog = document.getElementById('share-dialog');
+                    shareDialog.classList.remove('hidden');
+                    
+                    // 更新分享链接
+                    const postId = post.getAttribute('data-post-id');
+                    const shareLink = shareDialog.querySelector('input');
+                    shareLink.value = `https://apple-world.com/post/${postId}`;
+                });
+                
+                // 为评论点赞按钮添加事件
+                post.querySelectorAll('.comment-like-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const span = this.querySelector('span');
+                        const icon = this.querySelector('i');
+                        
+                        if (!this.classList.contains('liked')) {
+                            span.textContent = '已点赞';
+                            icon.classList.remove('ri-thumb-up-line');
+                            icon.classList.add('ri-thumb-up-fill', 'text-primary');
+                            this.classList.add('liked');
+                        } else {
+                            span.textContent = '点赞';
+                            icon.classList.remove('ri-thumb-up-fill', 'text-primary');
+                            icon.classList.add('ri-thumb-up-line');
+                            this.classList.remove('liked');
+                        }
+                    });
+                });
+            });
+            
+            // 分享对话框关闭按钮
+            const shareDialog = document.getElementById('share-dialog');
+            const closeDialogBtn = shareDialog.querySelector('.close-dialog');
+            
+            closeDialogBtn.addEventListener('click', function() {
+                shareDialog.classList.add('hidden');
+            });
+            
+            // 点击对话框外部关闭
+            shareDialog.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+            
+            // 复制链接按钮
+            const copyLinkBtn = shareDialog.querySelector('button:last-child');
+            copyLinkBtn.addEventListener('click', function() {
+                const linkInput = shareDialog.querySelector('input');
+                linkInput.select();
+                document.execCommand('copy');
+                
+                // 显示复制成功提示
+                const originalText = this.textContent;
+                this.textContent = '复制成功！';
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html> 

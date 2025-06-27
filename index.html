@@ -1,0 +1,5008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>苹果世界 - 首页</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap">
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px'}}}};</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+  <script src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="nutrition.js"></script>
+  <script src="debug.js"></script>
+  <style>
+    :where([class^="ri-"])::before { content: "\f3c2"; }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    @keyframes growApple {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+    .favorite-btn.active i {
+      color: #FF3B30;
+      animation: growApple 0.3s ease-out;
+    }
+    .dragging {
+      opacity: 0.5;
+    }
+    .dragging-card {
+      opacity: 0.6;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      transform: scale(0.98);
+      transition: all 0.3s ease;
+    }
+    #favoriteList {
+      min-height: 200px;
+      border: 2px dashed #e5e7eb;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      background-color: #f9fafb;
+      position: relative;
+    }
+    #favoriteList.drag-over {
+      border-color: #FF3B30;
+      background: rgba(255, 59, 48, 0.05);
+      transform: scale(1.01);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    #favoriteList.drag-over::after {
+      content: "释放鼠标添加到收藏";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(255, 59, 48, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .favorite-item {
+      width: 100%;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+    .favorite-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .favorite-item i {
+      color: #FF3B30;
+    }
+    /* 收藏项目类型标签 */
+    .favorite-item .w-24 {
+      position: relative;
+    }
+    /* 拖拽提示样式 */
+    #dragTip {
+      animation: fadeInOut 1.5s ease infinite;
+    }
+    @keyframes fadeInOut {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { opacity: 0.8; }
+    }
+    /* 拖拽卡片时鼠标样式 */
+    .apple-card[draggable="true"],
+    .recipe-card[draggable="true"] {
+      cursor: grab;
+    }
+    .apple-card[draggable="true"]:active,
+    .recipe-card[draggable="true"]:active {
+      cursor: grabbing;
+    }
+    /* 收藏项目hover效果 */
+    .favorite-item > div {
+      transition: all 0.2s ease;
+    }
+    .favorite-item > div:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    /* 超出文本截断 */
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    /* Timeline Animation */
+    .timeline-item {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease-out;
+    }
+    .timeline-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* Picture in Picture */
+    .recipe-video {
+      cursor: pointer;
+    }
+    .pip-active {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 300px;
+      height: 169px;
+      z-index: 1000;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    /* Login Status */
+    .login-status {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      padding: 8px 16px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease-out;
+    }
+    .login-status.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .login-status i {
+      color: #4CD964;
+    }
+    
+    /* 下拉菜单样式 */
+    .relative {
+      position: relative;
+    }
+    #appleSelectorDropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      width: 160px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+      z-index: 1000;
+      transition: all 0.2s ease;
+    }
+    #appleSelectorDropdown.hidden {
+      display: none;
+    }
+    #appleSelectorDropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px 16px;
+      color: #333;
+      transition: background-color 0.2s;
+    }
+    #appleSelectorDropdown button:hover {
+      background-color: #f3f4f6;
+    }
+    
+    /* 季节选择器样式 */
+    .season-selector #seasonToggleBtn {
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .season-selector #seasonToggleBtn i {
+      font-size: 1.25rem;
+      transition: all 0.3s ease;
+    }
+    
+    .season-selector #seasonToggleBtn::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.1;
+      transform: scale(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .season-selector #seasonToggleBtn:hover::after {
+      transform: scale(1);
+    }
+    
+    #seasonDropdownPanel {
+      transform-origin: top right;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    
+    #seasonDropdownPanel.hidden {
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+    }
+    
+    .season-option {
+      transition: all 0.2s ease;
+    }
+    
+    .season-option:hover {
+      transform: translateY(-2px);
+    }
+    
+    .season-option i {
+      transition: transform 0.3s ease;
+    }
+    
+    .season-option:hover i {
+      transform: scale(1.2);
+    }
+
+    .hero-section {
+      background-image: url('./images/backgroud.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+    .apple-card:hover .apple-card-overlay {
+      opacity: 1;
+    }
+    .apple-card:hover img {
+      transform: scale(1.05);
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .custom-checkbox {
+      position: relative;
+      padding-left: 30px;
+      cursor: pointer;
+    }
+    .custom-checkbox input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .checkmark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 20px;
+      width: 20px;
+      background-color: #fff;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+    }
+    .custom-checkbox:hover input ~ .checkmark {
+      border-color: #ccc;
+    }
+    .custom-checkbox input:checked ~ .checkmark {
+      background-color: #FF3B30;
+      border-color: #FF3B30;
+    }
+    .checkmark:after {
+      content: "";
+      position: absolute;
+      display: none;
+    }
+    .custom-checkbox input:checked ~ .checkmark:after {
+      display: block;
+    }
+    .custom-checkbox .checkmark:after {
+      left: 6px;
+      top: 2px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .custom-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .custom-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #FF3B30;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    /* 购物车按钮效果 */
+    .cart-btn-container:hover .cart-tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .cart-btn.adding {
+      animation: cart-pulse 0.5s ease;
+    }
+    @keyframes cart-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .cart-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #FF3B30;
+      color: white;
+      font-size: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      transform: scale(0);
+      transition: transform 0.3s ease;
+    }
+    .cart-badge.show {
+      transform: scale(1);
+    }
+  </style>
+  <script>
+    console.log('加载index.html页面，调试模式');
+    // 全局变量，用于调试
+    window.debugInfo = {};
+  </script>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-10 h-10 flex items-center justify-center text-primary">
+          <i class="ri-apple-fill ri-2x"></i>
+        </div>
+        <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+      </a>
+      <nav class="hidden md:flex items-center space-x-8">
+        <a href="index.html" class="text-primary font-medium transition-colors">首页</a>
+        <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+        <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+        <a href="#nutrition" class="text-gray-700 hover:text-primary font-medium transition-colors">营养分析</a>
+        <a href="AppleCulture.html" class="text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+        <a href="SnakeGame.html" class="text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+        <a href="ContactUs.html" class="text-gray-700 hover:text-primary font-medium transition-colors">联系我们</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <div class="relative hidden md:block">
+        <input type="text" placeholder="搜索苹果品种、食谱..." class="pl-10 pr-4 py-2 rounded border border-gray-200 focus:outline-none focus:border-primary text-sm">
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+          <i class="ri-search-line"></i>
+        </div>
+      </div>
+      <!-- 添加季节切换按钮 -->
+      <div class="relative season-selector">
+        <button id="seasonToggleBtn" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors relative">
+          <i class="fas fa-leaf"></i>
+        </button>
+        <div id="seasonDropdownPanel" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50">
+          <!-- 小三角形指示器 -->
+          <div class="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+          <!-- 季节标题 -->
+          <div class="px-4 py-2 border-b border-gray-100">
+            <p class="font-medium text-gray-900">切换季节主题</p>
+            <p class="text-sm text-gray-500">选择不同季节，体验不同的主题风格</p>
+          </div>
+          <!-- 季节选项 -->
+          <div class="p-3 grid grid-cols-2 gap-2">
+            <button data-season="spring" class="season-option flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <i class="fas fa-seedling text-green-500 text-xl mb-1"></i>
+              <span class="text-sm">春季</span>
+            </button>
+            <button data-season="summer" class="season-option flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <i class="fas fa-sun text-orange-500 text-xl mb-1"></i>
+              <span class="text-sm">夏季</span>
+            </button>
+            <button data-season="autumn" class="season-option flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <i class="fas fa-leaf text-red-500 text-xl mb-1"></i>
+              <span class="text-sm">秋季</span>
+            </button>
+            <button data-season="winter" class="season-option flex flex-col items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+              <i class="fas fa-snowflake text-blue-500 text-xl mb-1"></i>
+              <span class="text-sm">冬季</span>
+            </button>
+          </div>
+          <!-- 季节历史记录 -->
+          <div class="px-4 py-2 mt-1 border-t border-gray-100">
+            <p class="text-xs text-gray-500 mb-2">最近使用的主题</p>
+            <div id="seasonHistory" class="flex gap-2"></div>
+          </div>
+        </div>
+      </div>
+      <a href="ShoppingCart.html" class="w-10 h-10 flex items-center justify-center text-primary rounded-full bg-red-50 transition-colors relative">
+        <i class="ri-shopping-cart-line"></i>
+        <span id="headerCartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs flex items-center justify-center rounded-full">0</span>
+      </a>
+      <a href="Favorites.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+        <i class="ri-heart-line"></i>
+      </a>
+      <div class="relative group">
+        <button id="userButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+          <i class="ri-user-line"></i>
+        </button>
+        <div id="userDropdown" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 py-2 hidden">
+          <!-- 添加一个小三角形指示器 -->
+          <div class="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+          <!-- 用户信息部分 -->
+          <div class="px-4 py-3 border-b border-gray-100">
+            <p class="font-medium text-gray-900" id="userDropdownName">张三</p>
+            <p class="text-sm text-gray-500" id="userDropdownEmail">zhangsan@example.com</p>
+          </div>
+          <!-- 菜单选项 -->
+          <div class="py-2">
+            <a href="UserProfile.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+              <i class="ri-user-line w-5 h-5"></i>
+              <span>个人资料</span>
+            </a>
+            <a href="Favorites.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+              <i class="ri-heart-line w-5 h-5"></i>
+              <span>我的收藏</span>
+            </a>
+            <a href="OrderHistory.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+              <i class="ri-file-list-line w-5 h-5"></i>
+              <span>订单历史</span>
+            </a>
+            <hr class="my-2">
+            <button id="logoutButton" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 w-full text-left">
+              <i class="ri-logout-box-line w-5 h-5"></i>
+              <span>退出登录</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="loginDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-md p-6 relative">
+          <button id="closeLoginDialog" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+            <div class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-close-line"></i>
+            </div>
+          </button>
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold">欢迎回来</h3>
+            <p class="text-gray-600 mt-2">登录您的账号以获取更多功能</p>
+          </div>
+          <form id="loginForm" class="space-y-4">
+            <div>
+              <label for="loginUsername" class="block text-gray-700 font-medium mb-2">用户名/邮箱</label>
+              <input type="text" id="loginUsername" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入用户名或邮箱">
+            </div>
+            <div>
+              <label for="loginPassword" class="block text-gray-700 font-medium mb-2">密码</label>
+              <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入密码">
+            </div>
+            <div class="flex items-center justify-between">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="rememberMe">
+                <span class="checkmark"></span>
+                <span class="text-gray-700">记住我</span>
+              </label>
+              <a href="#" class="text-primary hover:underline text-sm">忘记密码？</a>
+            </div>
+            <button type="submit" class="w-full bg-primary text-white px-4 py-2 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">登录</button>
+          </form>
+          <div class="mt-6 text-center">
+            <p class="text-gray-600">还没有账号？ <button id="showRegister" class="text-primary hover:underline">立即注册</button></p>
+          </div>
+        </div>
+      </div>
+      <div id="registerDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg w-full max-w-md p-6 relative">
+          <button id="closeRegisterDialog" class="absolute right-4 top-4 text-gray-400 hover:text-gray-600">
+            <div class="w-6 h-6 flex items-center justify-center">
+              <i class="ri-close-line"></i>
+            </div>
+          </button>
+          <div class="text-center mb-6">
+            <h3 class="text-2xl font-bold">创建账号</h3>
+            <p class="text-gray-600 mt-2">加入我们的苹果爱好者社区</p>
+          </div>
+          <form id="registerForm" class="space-y-4">
+            <div>
+              <label for="registerUsername" class="block text-gray-700 font-medium mb-2">用户名</label>
+              <input type="text" id="registerUsername" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入用户名">
+            </div>
+            <div>
+              <label for="registerEmail" class="block text-gray-700 font-medium mb-2">邮箱</label>
+              <input type="email" id="registerEmail" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入邮箱">
+            </div>
+            <div>
+              <label for="registerPassword" class="block text-gray-700 font-medium mb-2">密码</label>
+              <input type="password" id="registerPassword" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入密码">
+            </div>
+            <div>
+              <label for="confirmPassword" class="block text-gray-700 font-medium mb-2">确认密码</label>
+              <input type="password" id="confirmPassword" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请再次输入密码">
+            </div>
+            <div>
+              <label class="custom-checkbox">
+                <input type="checkbox" id="agreeTerms">
+                <span class="checkmark"></span>
+                <span class="text-gray-700">我同意服务条款和隐私政策</span>
+              </label>
+            </div>
+            <button type="submit" class="w-full bg-primary text-white px-4 py-2 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">注册</button>
+          </form>
+          <div class="mt-6 text-center">
+            <p class="text-gray-600">已有账号？ <button id="showLogin" class="text-primary hover:underline">立即登录</button></p>
+          </div>
+        </div>
+      </div>
+      <button class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+        <i class="ri-menu-line"></i>
+      </button>
+    </div>
+  </div>
+</header>
+<main>
+  <!-- 季节横幅 -->
+  <div class="header-banner w-full py-4 relative bg-cover bg-center hidden">
+    <div class="container mx-auto px-4 py-3 relative">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-center md:text-left">
+          <h3 class="text-lg font-bold text-gray-800">季节主题</h3>
+          <p id="seasonBannerDesc" class="text-gray-700 max-w-xl"></p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button data-season="spring" class="season-btn bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-button flex items-center gap-2">
+            <i class="ri-seedling-line text-green-500"></i>
+            <span>春季</span>
+          </button>
+          <button data-season="summer" class="season-btn bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-button flex items-center gap-2">
+            <i class="ri-sun-line text-orange-500"></i>
+            <span>夏季</span>
+          </button>
+          <button data-season="autumn" class="season-btn bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-button flex items-center gap-2">
+            <i class="ri-leaf-line text-red-500"></i>
+            <span>秋季</span>
+          </button>
+          <button data-season="winter" class="season-btn bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-button flex items-center gap-2">
+            <i class="ri-snowy-line text-blue-500"></i>
+            <span>冬季</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hero Section -->
+  <section class="hero-section relative">
+    <div class="absolute inset-0 bg-gradient-to-r from-white/90 to-white/20"></div>
+    <div class="container mx-auto px-4 py-24 md:py-32 relative">
+      <div class="max-w-2xl">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">探索苹果的无限魅力</h1>
+        <p class="text-lg md:text-xl text-gray-700 mb-8">从古老品种到现代美食，从文学作品到文化交流，一起探索苹果世界的多彩魅力。</p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#varieties" class="bg-primary text-white px-6 py-3 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">探索品种</a>
+          <a href="#recipes" class="bg-white text-primary border border-primary px-6 py-3 rounded-button font-medium hover:bg-gray-50 transition-colors whitespace-nowrap">美食食谱</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Varieties Section -->
+  <section id="varieties" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">精选苹果品种</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">探索来自世界各地的优质苹果品种，了解它们独特的口感、风味和适用场景。</p>
+      </div>
+      <!-- 搜索和筛选 -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex-1 min-w-[250px]">
+          <div class="relative">
+            <input type="text" placeholder="搜索苹果品种、口感或特点..." class="w-full px-4 py-2 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:border-primary" id="searchInput">
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <i class="ri-search-line"></i>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="filter-tag active bg-primary text-white px-4 py-2 rounded-button whitespace-nowrap" data-type="all">全部品种</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="甜">甜味</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="酸">酸味</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="脆">脆甜</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="多汁">多汁</button>
+          </div>
+          <button id="advancedFilterBtn" class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-gray-700 whitespace-nowrap hover:border-primary transition-colors">
+            <i class="ri-filter-line"></i>
+            <span>高级筛选</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 高级筛选面板 -->
+      <div id="advancedFilterPanel" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+        <h3 class="text-lg font-semibold mb-4">高级筛选</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 产地筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">产地</h4>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="origin" value="国产" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>国产</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="origin" value="进口" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>进口</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 价格筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">价格区间</h4>
+            <div class="flex items-center gap-2">
+              <input type="number" placeholder="最低价" class="w-24 px-3 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary">
+              <span>-</span>
+              <input type="number" placeholder="最高价" class="w-24 px-3 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary">
+              <span>元/斤</span>
+            </div>
+          </div>
+          
+          <!-- 季节筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">上市季节</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="season" value="春季" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>春季</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="season" value="夏季" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>夏季</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="season" value="秋季" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>秋季</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="season" value="冬季" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>冬季</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-4 mt-6">
+          <button id="resetFilter" class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button hover:border-gray-400 transition-colors">重置</button>
+          <button id="applyFilter" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90 transition-colors">应用筛选</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Apple Card 1 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="国产" data-season="秋季" data-price="15">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/红富士.jpg" alt="红富士苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">红富士</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.8</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">红富士苹果甜脆多汁，果肉细腻，香气浓郁，是最受欢迎的苹果品种之一。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">甜脆</span>
+                <span class="bg-green-50 text-green-600 px-2 py-1 rounded text-xs">多汁</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Apple Card 2 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="夏季" data-price="20">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/青苹果.jpg" alt="青苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">青苹果</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.6</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">青苹果酸甜可口，果肉坚实，口感清脆，是烘焙和沙拉的理想选择。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-green-50 text-green-600 px-2 py-1 rounded text-xs">酸甜</span>
+                <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs">清脆</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Apple Card 3 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="秋季" data-price="30">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/蜜脆苹果.jpg" alt="蜜脆苹果" class="w-full h-full object-cover object-top transition-transform duration-300">            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">蜜脆苹果</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.9</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">蜜脆苹果汁水丰富，甜度适中，口感极佳，是近年来备受欢迎的高端品种。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs">香甜</span>
+                <span class="bg-purple-50 text-purple-600 px-2 py-1 rounded text-xs">多汁</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Apple Card 4 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="秋季" data-price="30">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/粉红女士苹果.jpg" alt="粉红女士苹果" class="w-full h-full object-cover object-top transition-transform duration-300">            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">粉红女士</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.7</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">粉红女士苹果口感脆爽，甜中带酸，香气独特，是高端水果市场的明星产品。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-xs">香脆</span>
+                <span class="bg-orange-50 text-orange-600 px-2 py-1 rounded text-xs">甜酸</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Apple Card 5 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="国产" data-season="秋季" data-price="18">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/嘎啦苹果.jpg" alt="嘎啦苹果" class="w-full h-full object-cover object-top transition-transform duration-300">            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">嘎啦苹果</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.5</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">嘎啦苹果甜度高，香气浓郁，果肉细腻，是生食和制作果汁的理想选择。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">香甜</span>
+                <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs">细腻</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Apple Card 6 -->
+        <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="国产" data-season="秋季" data-price="15">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/陕西洛川苹果.jpg" alt="陕西洛川苹果" class="w-full h-full object-cover object-top transition-transform duration-300">            <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+              <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">洛川苹果</h3>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700">4.8</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">洛川苹果色泽鲜艳，果肉细腻，甜度高，是中国优质苹果的代表品种之一。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">甘甜</span>
+                <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs">脆嫩</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                  <i class="ri-heart-line"></i>
+                </button>
+                <div class="cart-btn-container relative">
+                  <button class="cart-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-secondary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-shopping-cart-line"></i>
+                  </button>
+                  <div class="cart-tooltip absolute right-0 bottom-full mb-2 bg-secondary text-white text-xs py-1 px-2 rounded opacity-0 pointer-events-none whitespace-nowrap transform translate-y-2 transition-all">
+                    加入购物车
+                    <div class="absolute -bottom-1 right-3 w-2 h-2 bg-secondary transform rotate-45"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="DetailsofAppleVarieties.html" class="inline-block bg-white text-primary border border-primary px-6 py-3 rounded-button font-medium hover:bg-gray-50 transition-colors whitespace-nowrap">查看更多品种</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipes Section -->
+  <section id="recipes" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">苹果美食食谱</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">发现丰富多样的苹果美食创意，从经典甜点到创新料理，满足您的味蕾享受。</p>
+      </div>
+      
+      <!-- 搜索和筛选 -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <div class="flex-1 min-w-[250px]">
+          <div class="relative">
+            <input type="text" placeholder="搜索食谱名称、食材或烹饪方式..." class="w-full px-4 py-2 pl-10 border border-gray-200 rounded-lg focus:outline-none focus:border-primary" id="recipeSearchInput">
+            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <i class="ri-search-line"></i>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="filter-tag active bg-primary text-white px-4 py-2 rounded-button whitespace-nowrap" data-type="all">全部食谱</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="甜点">甜点</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="主食">主食</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="饮品">饮品</button>
+            <button class="filter-tag bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-button hover:bg-gray-50 whitespace-nowrap" data-type="烘焙">烘焙</button>
+          </div>
+          <button id="recipeAdvancedFilterBtn" class="flex items-center gap-2 border border-gray-200 rounded-lg px-4 py-2 text-gray-700 whitespace-nowrap hover:border-primary transition-colors">
+            <i class="ri-filter-line"></i>
+            <span>高级筛选</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- 高级筛选面板 -->
+      <div id="recipeAdvancedFilterPanel" class="bg-white p-6 rounded-lg shadow-md mb-8 hidden">
+        <h3 class="text-lg font-semibold mb-4">高级筛选</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- 难度筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">难度</h4>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="difficulty" value="简单" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>简单</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="difficulty" value="中等" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>中等</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="difficulty" value="困难" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>困难</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 烹饪时间筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">烹饪时间</h4>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="cookTime" value="15分钟以内" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>15分钟以内</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="cookTime" value="15-30分钟" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>15-30分钟</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="cookTime" value="30-60分钟" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>30-60分钟</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="checkbox" name="cookTime" value="60分钟以上" class="w-4 h-4 text-primary focus:ring-primary rounded">
+                <span>60分钟以上</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 评分筛选 -->
+          <div>
+            <h4 class="font-medium mb-3">评分</h4>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2">
+                <input type="radio" name="rating" value="all" checked class="w-4 h-4 text-primary focus:ring-primary rounded-full">
+                <span>全部</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="radio" name="rating" value="4.5分以上" class="w-4 h-4 text-primary focus:ring-primary rounded-full">
+                <span>4.5分以上</span>
+              </label>
+              <label class="flex items-center gap-2">
+                <input type="radio" name="rating" value="4.0分以上" class="w-4 h-4 text-primary focus:ring-primary rounded-full">
+                <span>4.0分以上</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex justify-end gap-4 mt-6">
+          <button id="recipeResetFilter" class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button hover:border-gray-400 transition-colors">重置</button>
+          <button id="recipeApplyFilter" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90 transition-colors">应用筛选</button>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Recipe Card 1 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="中等" data-cooktime="60分钟以上" data-rating="4.9" data-type="烘焙">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/经典苹果派.jpg" alt="经典苹果派" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>60 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">经典苹果派</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.9</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">香酥的派皮搭配肉桂苹果馅，是最经典的美式甜点，温暖而充满家的味道。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-orange-50 text-orange-600 px-2 py-1 rounded text-xs">中等难度</span>
+                <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs">烘焙</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Recipe Card 2 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="简单" data-cooktime="15分钟以内" data-rating="4.7" data-type="凉菜">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/鲜苹果沙拉.jpg" alt="鲜苹果沙拉" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>15 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">鲜苹果沙拉</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.7</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">清爽的苹果沙拉搭配坚果和蔓越莓，营养丰富，是健康轻食的绝佳选择。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-green-50 text-green-600 px-2 py-1 rounded text-xs">简单</span>
+                <span class="bg-blue-50 text-blue-600 px-2 py-1 rounded text-xs">凉菜</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Recipe Card 3 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="中等" data-cooktime="30-60分钟" data-rating="4.8" data-type="饮品">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/香料苹果酒.jpg" alt="香料苹果酒" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>40 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">香料苹果酒</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.8</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">温暖的苹果酒加入肉桂和丁香等香料，是秋冬季节的完美饮品，温暖身心。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-orange-50 text-orange-600 px-2 py-1 rounded text-xs">中等难度</span>
+                <span class="bg-purple-50 text-purple-600 px-2 py-1 rounded text-xs">饮品</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Recipe Card 4 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="中等" data-cooktime="30-60分钟" data-rating="4.9" data-type="甜点">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/焦糖苹果可丽饼.jpg" alt="焦糖苹果可丽饼" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>30 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">焦糖苹果可丽饼</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.9</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">薄薄的可丽饼包裹着焦糖苹果馅，口感丰富，是早餐或下午茶的优雅选择。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-orange-50 text-orange-600 px-2 py-1 rounded text-xs">中等难度</span>
+                <span class="bg-pink-50 text-pink-600 px-2 py-1 rounded text-xs">甜点</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Recipe Card 5 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="简单" data-cooktime="15-30分钟" data-rating="4.6" data-type="主食">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/苹果肉桂燕麦粥.jpg" alt="苹果肉桂燕麦粥" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>20 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">苹果肉桂燕麦粥</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.6</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">温暖的燕麦粥加入苹果块和肉桂，营养丰富，是健康早餐的理想选择。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-green-50 text-green-600 px-2 py-1 rounded text-xs">简单</span>
+                <span class="bg-indigo-50 text-indigo-600 px-2 py-1 rounded text-xs">早餐</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Recipe Card 6 -->
+        <div class="recipe-card bg-white rounded-lg shadow-sm overflow-hidden group" data-difficulty="困难" data-cooktime="30-60分钟" data-rating="4.8" data-type="主食">
+          <div class="relative overflow-hidden h-64">
+            <img src="./images/焦糖苹果猪排.jpg" alt="焦糖苹果猪排" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">            <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-gray-700">
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-time-line"></i>
+                </div>
+                <span>45 分钟</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xl font-bold">焦糖苹果猪排</h3>
+              <div class="flex items-center gap-1">
+                <div class="w-4 h-4 flex items-center justify-center text-yellow-500">
+                  <i class="ri-star-fill"></i>
+                </div>
+                <span class="text-gray-700">4.8</span>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-4">多汁的猪排搭配焦糖苹果，甜咸结合，是一道令人印象深刻的主菜。</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="bg-red-50 text-red-600 px-2 py-1 rounded text-xs">较难</span>
+                <span class="bg-yellow-50 text-yellow-600 px-2 py-1 rounded text-xs">主菜</span>
+              </div>
+              <button class="favorite-btn w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors" draggable="true">
+                <i class="ri-heart-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="ListofAppleRecipes.html" class="inline-block bg-white text-primary border border-primary px-6 py-3 rounded-button font-medium hover:bg-gray-50 transition-colors whitespace-nowrap">查看更多食谱</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Nutrition Analysis Section -->
+  <section id="nutrition" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">苹果营养分析</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">了解苹果的营养成分和健康益处，探索不同品种苹果的营养价值对比。</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        <!-- 营养卡片 -->
+        <div class="bg-white rounded-lg shadow-sm p-6 flex flex-col h-full">
+          <div class="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <div class="w-8 h-8 flex items-center justify-center text-primary">
+              <i class="ri-heart-pulse-line"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">心脏健康</h3>
+          <p class="text-gray-600 flex-grow">苹果富含可溶性纤维和抗氧化物质，有助于降低胆固醇，促进心脏健康，减少心脏病风险。</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6 flex flex-col h-full">
+          <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
+            <div class="w-8 h-8 flex items-center justify-center text-green-500">
+              <i class="ri-seedling-line"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">消化系统</h3>
+          <p class="text-gray-600 flex-grow">苹果含有丰富的膳食纤维，有助于促进肠道蠕动，预防便秘，保持消化系统健康。</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm p-6 flex flex-col h-full">
+          <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+            <div class="w-8 h-8 flex items-center justify-center text-blue-500">
+              <i class="ri-brain-line"></i>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold mb-2">认知功能</h3>
+          <p class="text-gray-600 flex-grow">苹果中的抗氧化物质有助于保护脑细胞免受氧化应激，可能有助于维持认知功能，降低痴呆风险。</p>
+        </div>
+      </div>
+      
+      <!-- 营养对比图表 -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+        <div class="flex items-center justify-between p-6 border-b border-gray-100">
+          <h3 class="text-xl font-bold">苹果品种营养对比</h3>
+          <div class="relative" id="appleSelector">
+            <button class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+              <span id="selectedApple">选择品种</span>
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div id="appleSelectorDropdown" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden"></div>
+          </div>
+        </div>
+        
+        <div class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- 图表区域 -->
+            <div>
+              <div id="nutritionChart" class="w-full h-80"></div>
+            </div>
+            
+            <!-- 表格区域 -->
+            <div>
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-gray-50">
+                    <th class="p-3 text-left text-gray-600 font-medium">营养成分</th>
+                    <th class="p-3 text-right text-gray-600 font-medium">含量</th>
+                    <th class="p-3 text-right text-gray-600 font-medium">每日推荐摄入百分比</th>
+                  </tr>
+                </thead>
+                <tbody id="nutritionTable">
+                  <tr>
+                    <td colspan="3" class="p-4 text-center text-gray-500">请选择一个苹果品种查看营养成分</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Culture Section -->
+  <section id="culture" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">苹果文化</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">探索苹果在世界各地的文化意义、历史故事和文学作品中的象征，感受苹果的人文魅力。</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-2xl font-bold mb-4">文学作品中的苹果</h3>
+            <div class="space-y-6">
+              <div class="border-l-4 border-primary pl-4 py-2">
+                <p class="text-gray-600 italic mb-2">"她在冰箱放着一片伤心苹果"</p>
+                <p class="text-gray-700 font-medium">— 张悬《两者》</p>
+              </div>
+              <div class="border-l-4 border-primary pl-4 py-2">
+                <p class="text-gray-600 italic mb-2">"一个苹果，从亚当和夏娃的时代起，就是禁忌的象征。"</p>
+                <p class="text-gray-700 font-medium">— 《圣经·创世纪》</p>
+              </div>
+              <div class="border-l-4 border-primary pl-4 py-2">
+                <p class="text-gray-600 italic mb-2">"我想要的不多，就是一个安静的下午，一本好书，一杯茶，一个苹果。"</p>
+                <p class="text-gray-700 font-medium">— 村上春树《挪威的森林》</p>
+              </div>
+              <div class="border-l-4 border-primary pl-4 py-2">
+                <p class="text-gray-600 italic mb-2">"那苹果红得发亮，仿佛要从树枝上滴下来。"</p>
+                <p class="text-gray-700 font-medium">— 《白雪公主》</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="p-6">
+            <h3 class="text-2xl font-bold mb-4">苹果的文化象征</h3>
+            <div class="space-y-4">
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 flex items-center justify-center text-primary bg-red-50 rounded-full flex-shrink-0">
+                  <i class="ri-heart-fill"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-lg mb-1">爱情与诱惑</h4>
+                  <p class="text-gray-600">在希腊神话中，金苹果象征爱情与美丽，是阿芙罗狄蒂的象征。</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 flex items-center justify-center text-primary bg-red-50 rounded-full flex-shrink-0">
+                  <i class="ri-book-fill"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-lg mb-1">知识与智慧</h4>
+                  <p class="text-gray-600">在许多文化中，苹果代表知识和智慧，如牛顿的苹果启发了万有引力定律。</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 flex items-center justify-center text-primary bg-red-50 rounded-full flex-shrink-0">
+                  <i class="ri-seedling-fill"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-lg mb-1">生命与健康</h4>
+                  <p class="text-gray-600">"一天一苹果，医生远离我"体现了苹果作为健康象征的文化认知。</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 flex items-center justify-center text-primary bg-red-50 rounded-full flex-shrink-0">
+                  <i class="ri-global-fill"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-lg mb-1">全球文化符号</h4>
+                  <p class="text-gray-600">从纽约"大苹果"到科技巨头苹果公司，苹果已成为全球性的文化符号。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div class="p-6">
+          <h3 class="text-2xl font-bold mb-6 text-center">苹果在艺术中的表现</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-3">
+              <img src="./images/塞尚的苹果静物画.jpg" alt="塞尚的苹果静物画" class="w-full h-48 object-cover rounded">              <h4 class="font-bold">塞尚的苹果静物画</h4>
+              <p class="text-gray-600 text-sm">保罗·塞尚的苹果静物画系列作品，以独特的视角和构图展现苹果的质感和形态。</p>
+            </div>
+            <div class="space-y-3">
+              <img src="./images/马格利特的《人子》.jpg" alt="马格利特的《人子》" class="w-full h-48 object-cover rounded">              <h4 class="font-bold">马格利特的《人子》</h4>
+              <p class="text-gray-600 text-sm">超现实主义画作中，绿色苹果遮住了戴礼帽男子的脸，成为身份与隐藏的象征。</p>
+            </div>
+            <div class="space-y-3">
+              <img src="./images/中国传统苹果花水墨画.jpg" alt="中国传统苹果花水墨画" class="w-full h-48 object-cover rounded">              <h4 class="font-bold">中国传统苹果花水墨画</h4>
+              <p class="text-gray-600 text-sm">在中国传统绘画中，苹果花象征春天和希望，常见于山水画和花鸟画中。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Game Section -->
+  <section id="game" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">贪吃苹果小游戏</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">休闲娱乐时刻，来一场经典的贪吃蛇游戏，收集美味的苹果，挑战高分！</p>
+      </div>
+      
+      <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+        <div class="relative">
+          <img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" class="w-full h-48 object-cover" alt="苹果游戏">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+            <div class="p-6 text-white">
+              <h3 class="font-bold text-xl mb-2">贪吃苹果</h3>
+              <p class="text-sm opacity-90">一个经典游戏的苹果版本，简单而有趣</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-6 text-center">
+          <a href="SnakeGame.html" class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg shadow-sm transition-colors font-medium game-button">
+            <span class="flex items-center">
+              <i class="fas fa-gamepad mr-2"></i>
+              点击进入游戏
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <style>
+        @keyframes pulse-border {
+          0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+          70% { box-shadow: 0 0 0 10px rgba(255,255,255,0.2); }
+          100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        
+        .game-button {
+          animation: pulse-border 2s infinite;
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .game-button:before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transition: 0.5s;
+        }
+        
+        .game-button:hover:before {
+          left: 100%;
+        }
+      </style>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">联系我们</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">如有任何问题、建议或合作意向，欢迎随时与我们联系，我们将竭诚为您服务。</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="p-6">
+              <h3 class="text-2xl font-bold mb-6">最新讨论</h3>
+              <div class="space-y-6">
+                <!-- Discussion 1 -->
+                <div class="border-b border-gray-100 pb-6">
+                  <div class="flex items-start gap-4">
+                    <img src="./images/刘雨桐.jpg" alt="用户头像" class="w-10 h-10 rounded-full object-cover flex-shrink-0">                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold">刘雨桐</h4>
+                        <span class="text-gray-500 text-sm">2 小时前</span>
+                      </div>
+                      <p class="text-gray-700 mb-3">大家好！我最近在尝试不同品种的苹果做派，发现青苹果做出来的口感特别好，酸甜适中。有人有其他推荐的品种吗？</p>
+                      <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-thumb-up-line"></i>
+                          </div>
+                          <span>23</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-message-2-line"></i>
+                          </div>
+                          <span>8</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-share-line"></i>
+                          </div>
+                          <span>分享</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Discussion 2 -->
+                <div class="border-b border-gray-100 pb-6">
+                  <div class="flex items-start gap-4">
+                    <img src="./images/赵明辉.jpg" alt="用户头像" class="w-10 h-10 rounded-full object-cover flex-shrink-0">                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold">赵明辉</h4>
+                        <span class="text-gray-500 text-sm">昨天</span>
+                      </div>
+                      <p class="text-gray-700 mb-3">分享一个小技巧：苹果切开后容易氧化变褐，可以用柠檬水简单处理一下，既能保持颜色，又增添了一丝柠檬香气！</p>
+                      <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-thumb-up-line"></i>
+                          </div>
+                          <span>45</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-message-2-line"></i>
+                          </div>
+                          <span>12</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-share-line"></i>
+                          </div>
+                          <span>分享</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Discussion 3 -->
+                <div>
+                  <div class="flex items-start gap-4">
+                    <img src="./images/王建国.jpg" alt="用户头像" class="w-10 h-10 rounded-full object-cover flex-shrink-0">                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold">王建国</h4>
+                        <span class="text-gray-500 text-sm">3 天前</span>
+                      </div>
+                      <p class="text-gray-700 mb-3">最近读到张悬《两者》中"她在冰箱放着一片伤心苹果"这句歌词，感觉特别有意境。大家觉得这里的苹果象征着什么？</p>
+                      <div class="flex items-center gap-4">
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-thumb-up-line"></i>
+                          </div>
+                          <span>38</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-message-2-line"></i>
+                          </div>
+                          <span>24</span>
+                        </button>
+                        <button class="flex items-center gap-1 text-gray-500 hover:text-primary transition-colors">
+                          <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-share-line"></i>
+                          </div>
+                          <span>分享</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+            <div class="p-6">
+              <h3 class="text-xl font-bold mb-4">加入社区</h3>
+              <form id="contactForm" class="space-y-4">
+                <div>
+                  <label for="contactName" class="block text-gray-700 font-medium mb-2">姓名 <span class="text-red-500">*</span></label>
+                  <input type="text" id="contactName" name="contactName" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入您的姓名" required>
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div>
+                  <label for="contactEmail" class="block text-gray-700 font-medium mb-2">邮箱 <span class="text-red-500">*</span></label>
+                  <input type="email" id="contactEmail" name="contactEmail" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入有效的邮箱地址" required>
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div>
+                  <label for="contactPhone" class="block text-gray-700 font-medium mb-2">手机号码</label>
+                  <div class="flex gap-2">
+                    <select id="contactPhonePrefix" class="px-2 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm">
+                      <option value="+86">+86 (中国大陆)</option>
+                      <option value="+852">+852 (香港)</option>
+                      <option value="+886">+886 (台湾)</option>
+                      <option value="+1">+1 (美国/加拿大)</option>
+                    </select>
+                    <input type="tel" id="contactPhone" name="contactPhone" class="flex-1 px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入手机号码">
+                  </div>
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div>
+                  <label for="contactSubject" class="block text-gray-700 font-medium mb-2">主题 <span class="text-red-500">*</span></label>
+                  <select id="contactSubject" name="contactSubject" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" required>
+                    <option value="">请选择主题</option>
+                    <option value="产品咨询">产品咨询</option>
+                    <option value="售后服务">售后服务</option>
+                    <option value="合作机会">合作机会</option>
+                    <option value="意见反馈">意见反馈</option>
+                    <option value="其他">其他</option>
+                  </select>
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div id="otherSubjectContainer" class="hidden">
+                  <label for="otherSubject" class="block text-gray-700 font-medium mb-2">请说明</label>
+                  <input type="text" id="otherSubject" name="otherSubject" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请说明具体主题">
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div>
+                  <label for="contactMessage" class="block text-gray-700 font-medium mb-2">留言内容 <span class="text-red-500">*</span></label>
+                  <textarea id="contactMessage" name="contactMessage" rows="4" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary text-sm" placeholder="请输入您的留言内容（10-500字）" required></textarea>
+                  <div class="flex justify-between">
+                    <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                    <div class="text-gray-500 text-sm mt-1"><span id="messageCount">0</span>/500</div>
+                  </div>
+                </div>
+                <div>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" id="contactAgree" name="contactAgree" required>
+                    <span class="checkmark"></span>
+                    <span class="text-gray-700">我同意根据<a href="#" class="text-primary hover:underline">隐私政策</a>处理我的个人数据</span>
+                  </label>
+                  <div class="error-message text-red-500 text-sm mt-1 hidden"></div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <button type="submit" id="contactSubmitBtn" class="bg-primary text-white px-6 py-2 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap flex items-center gap-2">
+                    <span>提交留言</span>
+                    <i class="ri-send-plane-line"></i>
+                  </button>
+                  <div id="formStatus" class="hidden"></div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section id="team" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-4">团队介绍</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">认识我们充满激情的团队成员，每个人都致力于为您带来最优质的苹果世界体验。</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Team Member 1 -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="aspect-w-1 aspect-h-1 bg-gray-100">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80" alt="张明" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg mb-1">张明</h3>
+            <p class="text-gray-500 text-sm mb-3">创始人 & CEO</p>
+            <p class="text-gray-600 mb-4">拥有十年苹果种植经验，致力于推广优质苹果品种和健康饮食文化。</p>
+            <div class="flex gap-3">
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-wechat-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-mail-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-linkedin-box-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Team Member 2 -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="aspect-w-1 aspect-h-1 bg-gray-100">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80" alt="李红" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg mb-1">李红</h3>
+            <p class="text-gray-500 text-sm mb-3">营养师</p>
+            <p class="text-gray-600 mb-4">注册营养师，专注于研究水果的营养价值与健康效益，为用户提供专业的营养指导。</p>
+            <div class="flex gap-3">
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-wechat-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-mail-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-linkedin-box-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Team Member 3 -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="aspect-w-1 aspect-h-1 bg-gray-100">
+            <img src="https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80" alt="王强" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg mb-1">王强</h3>
+            <p class="text-gray-500 text-sm mb-3">主厨</p>
+            <p class="text-gray-600 mb-4">米其林星级主厨，擅长将苹果融入各种菜肴中，创造独特美食体验。</p>
+            <div class="flex gap-3">
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-wechat-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-mail-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-linkedin-box-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Team Member 4 -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="aspect-w-1 aspect-h-1 bg-gray-100">
+            <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80" alt="赵伟" class="w-full h-full object-cover">
+          </div>
+          <div class="p-6">
+            <h3 class="font-bold text-lg mb-1">赵伟</h3>
+            <p class="text-gray-500 text-sm mb-3">技术总监</p>
+            <p class="text-gray-600 mb-4">拥有丰富的网站开发经验，致力于打造流畅、直观的用户体验。</p>
+            <div class="flex gap-3">
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-wechat-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-mail-line"></i>
+              </a>
+              <a href="#" class="text-gray-400 hover:text-primary">
+                <i class="ri-linkedin-box-line"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="bg-gray-800 text-white py-12">
+  <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+              <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+              <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+              <div class="flex space-x-4">
+                  <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                      <i class="ri-wechat-line"></i>
+                  </a>
+                  <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                      <i class="ri-weibo-line"></i>
+                  </a>
+                  <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                      <i class="ri-instagram-line"></i>
+                  </a>
+              </div>
+          </div>
+          <div>
+              <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+              <ul class="space-y-2">
+                  <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                  <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                  <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+                  <li><a href="#nutrition" class="text-gray-400 hover:text-white transition-colors">营养分析</a></li>
+                  <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+                  <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+                  <li><a href="ContactUs.html" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+              </ul>
+          </div>
+          <div>
+              <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+              <ul class="space-y-2">
+                  <li class="flex items-center text-gray-400">
+                      <i class="ri-map-pin-line w-5"></i>
+                      <span>中国·陕西·延安</span>
+                  </li>
+                  <li class="flex items-center text-gray-400">
+                      <i class="ri-phone-line w-5"></i>
+                      <span>400-123-4567</span>
+                  </li>
+                  <li class="flex items-center text-gray-400">
+                      <i class="ri-mail-line w-5"></i>
+                      <span>contact@appleway.com</span>
+                  </li>
+              </ul>
+          </div>
+          <div>
+              <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+              <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+              <form class="flex">
+                  <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                  <button type="submit" class="bg-primary hover:bg-opacity-90 transition-colors px-4 py-2 rounded-r-lg">
+                      <i class="ri-send-plane-line"></i>
+                  </button>
+              </form>
+          </div>
+      </div>
+      <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+          <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+          <div class="flex space-x-6 mt-4 md:mt-0">
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+              <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+          </div>
+      </div>
+  </div>
+</footer>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 将isLoggedIn提升为全局变量并初始化
+    window.isLoggedIn = false;
+    // 添加拖拽标志
+    let isDragging = false;
+    // 添加上次鼠标位置变量
+    let lastMouseY = 0;
+    let scrollInterval = null;
+    // 购物车数据
+    let cartItems = JSON.parse(localStorage.getItem('appleCart') || '[]');
+    
+    // 初始化购物车按钮
+    initCartButtons();
+    
+    // 更新头部购物车计数
+    function updateHeaderCartCount() {
+      console.group('更新购物车图标计数');
+      const headerCartCount = document.getElementById('headerCartCount');
+      if (!headerCartCount) {
+        console.warn('未找到购物车计数器元素');
+        console.groupEnd();
+        return;
+      }
+      
+      try {
+        // 获取当前显示的计数（用于动画效果）
+        const currentCount = parseInt(headerCartCount.textContent || '0');
+        
+        // 从正确的localStorage键中读取购物车数据
+        let cartItems = [];
+        try {
+          const cartData = localStorage.getItem('appleCart');
+          if (cartData) {
+            cartItems = JSON.parse(cartData);
+            if (!Array.isArray(cartItems)) {
+              console.warn('购物车数据格式不正确，重置为空数组');
+              cartItems = [];
+            }
+          } else {
+            console.log('localStorage中没有购物车数据');
+          }
+        } catch (e) {
+          console.error('解析购物车数据失败:', e);
+          cartItems = [];
+        }
+        
+        console.log('获取到购物车数据，包含', cartItems.length, '个商品');
+        
+        // 计算购物车中的商品总数量
+        const itemCount = cartItems.reduce((total, item) => total + (parseInt(item.quantity) || 1), 0);
+        console.log('计算后的商品总数:', itemCount);
+        
+        // 更新显示
+        headerCartCount.textContent = itemCount.toString();
+        
+        // 添加动画效果
+        if (itemCount > currentCount) {
+          // 数量增加，添加放大和跳动效果
+          headerCartCount.classList.add('animate-bounce');
+          headerCartCount.style.transform = 'scale(1.2)';
+          headerCartCount.style.backgroundColor = '#ef4444'; // 红色高亮
+          
+          setTimeout(() => {
+            headerCartCount.classList.remove('animate-bounce');
+            headerCartCount.style.transform = '';
+            headerCartCount.style.backgroundColor = '';
+          }, 800);
+        } else if (itemCount < currentCount && itemCount > 0) {
+          // 数量减少但不为零，添加轻微缩小效果
+          headerCartCount.style.transform = 'scale(0.8)';
+          
+          setTimeout(() => {
+            headerCartCount.style.transform = '';
+          }, 400);
+        } else if (itemCount === 0) {
+          // 购物车为空，降低不透明度
+          headerCartCount.style.opacity = '0.5';
+        } else {
+          // 恢复正常状态
+          headerCartCount.style.opacity = '1';
+        }
+        
+        // 触发自定义事件通知购物车更新
+        document.dispatchEvent(new CustomEvent('cartCountUpdated', {
+          detail: { count: itemCount }
+        }));
+        document.dispatchEvent(new CustomEvent('cartUpdated'));
+        
+        // 手动触发storage事件，确保同一个标签页内的其他组件能够更新
+        window.dispatchEvent(new Event('storage'));
+      } catch (error) {
+        console.error('更新购物车计数失败:', error);
+        // 出错时不修改显示，保持当前值
+      }
+      
+      console.groupEnd();
+    }
+    
+    // 初始化购物车按钮功能
+    function initCartButtons() {
+      console.group('购物车按钮初始化');
+      console.log('初始化购物车按钮...');
+      const cartButtons = document.querySelectorAll('.cart-btn');
+      console.log('发现购物车按钮数量:', cartButtons.length);
+      
+      if (cartButtons.length === 0) {
+        console.warn('未找到购物车按钮，可能是选择器错误或页面结构有变化');
+      }
+      
+      // 在控制台中打印所有按钮，便于调试
+      console.log('购物车按钮列表:', cartButtons);
+      
+      cartButtons.forEach((btn, index) => {
+        console.log(`设置购物车按钮 #${index} 的点击事件`, btn);
+        
+        // 移除可能存在的旧事件监听器
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          console.log('购物车按钮被点击');
+          
+          try {
+            // 获取卡片数据
+            const card = this.closest('.apple-card') || this.closest('.recipe-card');
+            console.log('找到卡片:', card);
+            
+            if (!card) {
+              console.error('未找到对应的卡片元素');
+              showToast('添加商品失败，请重试');
+              return;
+            }
+            
+            const cardType = card.classList.contains('apple-card') ? 'apple' : 'recipe';
+            const titleEl = card.querySelector('h3');
+            
+            if (!titleEl) {
+              console.error('卡片中未找到标题(h3)元素');
+              showToast('添加商品失败，请重试');
+              return;
+            }
+            
+            const title = titleEl.textContent;
+            const imageEl = card.querySelector('img');
+            const image = imageEl ? imageEl.src : '';
+            let price = 19.99; // 默认价格
+            
+            // 尝试从data-price属性获取价格，如果没有则使用随机价格
+            if (card.dataset.price) {
+              price = parseFloat(card.dataset.price);
+            } else {
+              price = parseFloat((Math.floor(Math.random() * 30) + 10).toString());
+            }
+            
+            console.log('卡片数据:', { cardType, title, image, price });
+            
+            // 从localStorage获取当前购物车数据
+            let cart = [];
+            try {
+              const cartData = localStorage.getItem('appleCart');
+              cart = cartData ? JSON.parse(cartData) : [];
+              if (!Array.isArray(cart)) {
+                console.warn('购物车数据格式不正确，重置为空数组');
+                cart = [];
+              }
+            } catch (e) {
+              console.error('解析购物车数据失败:', e);
+              cart = [];
+            }
+            
+            console.log('获取到当前购物车数据:', cart);
+            
+            // 创建购物车数据对象 - 与其他页面保持一致的格式
+            const cartItem = {
+              id: `${cardType}_${title.replace(/\s+/g, '_').toLowerCase()}`,
+              name: title,
+              image: image,
+              price: price,
+              quantity: 1
+            };
+            
+            console.log('添加到购物车的商品:', cartItem);
+            
+            // 检查是否已在购物车中
+            const existingItemIndex = cart.findIndex(item => item.id === cartItem.id);
+            console.log('在购物车中的索引:', existingItemIndex);
+            
+            if (existingItemIndex !== -1) {
+              // 已存在，增加数量
+              cart[existingItemIndex].quantity += 1;
+              console.log('更新后的商品数量:', cart[existingItemIndex].quantity);
+              showToast(`已增加 ${title} 的购买数量`);
+            } else {
+              // 不存在，添加到购物车
+              cart.push(cartItem);
+              console.log('添加新商品到购物车');
+              showToast(`已将 ${title} 加入购物车`);
+            }
+            
+            // 保存到本地存储 - 使用正确的键名
+            const cartJson = JSON.stringify(cart);
+            console.log('保存到localStorage的JSON数据:', cartJson);
+            localStorage.setItem('appleCart', cartJson);
+            
+            // 确认保存成功
+            const savedData = localStorage.getItem('appleCart');
+            console.log('确认localStorage中的数据:', savedData);
+            
+            // 验证数据
+            try {
+              const parsedData = JSON.parse(savedData);
+              console.log('解析后的数据:', parsedData);
+              console.log('数据数量:', parsedData.length);
+            } catch (e) {
+              console.error('验证时解析数据失败:', e);
+            }
+            
+            // 触发自定义事件通知购物车更新
+            console.log('触发cartUpdated事件');
+            document.dispatchEvent(new CustomEvent('cartUpdated'));
+            
+            // 手动触发storage事件，确保同一个标签页内的其他组件能够更新
+            console.log('触发storage事件');
+            window.dispatchEvent(new Event('storage'));
+            
+            // 更新购物车计数
+            updateHeaderCartCount();
+            
+            // 添加动画效果
+            this.classList.add('adding');
+            this.innerHTML = '<i class="ri-check-line"></i>';
+            
+            // 2秒后恢复原样
+            setTimeout(() => {
+              this.classList.remove('adding');
+              this.innerHTML = '<i class="ri-shopping-cart-line"></i>';
+            }, 1000);
+          } catch (error) {
+            console.error('添加商品到购物车失败:', error);
+            showToast('添加商品失败，请重试');
+          }
+        });
+      });
+      
+      console.log('购物车按钮初始化完成');
+      console.groupEnd();
+    }
+    
+    // 初始化时更新购物车计数
+    updateHeaderCartCount();
+
+    // 阻止拖拽时的自动滚动
+    document.addEventListener('dragover', function(e) {
+      if (isDragging) {
+        e.preventDefault();
+        // 记录鼠标当前位置
+        lastMouseY = e.clientY;
+        
+        // 判断是否需要自定义滚动
+        manageCustomScroll();
+      }
+    }, { passive: false });
+    
+    // 自定义滚动功能
+    function manageCustomScroll() {
+      // 如果已经有滚动间隔，不重复创建
+      if (scrollInterval) return;
+      
+      // 创建滚动间隔，检查鼠标位置并进行适当滚动
+      scrollInterval = setInterval(() => {
+        if (!isDragging) {
+          // 如果不再拖拽，清除间隔
+          clearInterval(scrollInterval);
+          scrollInterval = null;
+          return;
+        }
+        
+        const windowHeight = window.innerHeight;
+        const scrollDistance = 5; // 降低滚动速度，原来是10
+        const scrollThreshold = 150; // 增加触发区域，原来是100
+        
+        // 如果鼠标靠近页面顶部，向上滚动
+        if (lastMouseY < scrollThreshold) {
+          // 使用更平滑的滚动效果
+          const scrollAmount = Math.max(1, (scrollThreshold - lastMouseY) / 10); // 基于鼠标位置计算滚动速度
+          window.scrollBy({
+            top: -scrollAmount * scrollDistance,
+            behavior: 'auto'
+          });
+        } 
+        // 如果鼠标靠近页面底部，向下滚动
+        else if (lastMouseY > windowHeight - scrollThreshold) {
+          // 使用更平滑的滚动效果
+          const scrollAmount = Math.max(1, (lastMouseY - (windowHeight - scrollThreshold)) / 10); // 基于鼠标位置计算滚动速度
+          window.scrollBy({
+            top: scrollAmount * scrollDistance,
+            behavior: 'auto'
+          });
+        }
+      }, 16); // 降低间隔时间到16ms (约60fps)，原来是50ms
+    }
+
+    // Custom checkbox functionality
+    const customCheckboxes = document.querySelectorAll('.custom-checkbox');
+    customCheckboxes.forEach(checkbox => {
+      const checkmark = checkbox.querySelector('.checkmark');
+      const input = checkbox.querySelector('input[type="checkbox"]');
+      checkmark.addEventListener('click', (e) => {
+        e.preventDefault();
+        input.checked = !input.checked;
+        input.dispatchEvent(new Event('change'));
+      });
+      checkbox.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          input.checked = !input.checked;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+    // Form validation
+    function validateForm(form) {
+      const inputs = form.querySelectorAll('input[required]');
+      let isValid = true;
+      inputs.forEach(input => {
+        if (!input.value.trim()) {
+          isValid = false;
+          input.classList.add('border-red-500');
+        } else {
+          input.classList.remove('border-red-500');
+        }
+      });
+      return isValid;
+    }
+    // Drag and drop favorites
+    const favoriteButtons = document.querySelectorAll('.favorite-btn');
+    const appleCards = document.querySelectorAll('.apple-card');
+    const recipeCards = document.querySelectorAll('.recipe-card');
+    
+    // 存储已收藏的项目
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    // 更新收藏按钮状态
+    function updateFavoriteButtons() {
+      document.querySelectorAll('.favorite-btn').forEach(btn => {
+        const card = btn.closest('.apple-card') || btn.closest('.recipe-card');
+        if (!card) return;
+        
+        const title = card.querySelector('h3').textContent;
+        const isFavorite = favorites.some(fav => fav.title === title);
+        
+        if (isFavorite) {
+          btn.classList.add('active');
+          btn.innerHTML = '<i class="ri-heart-fill"></i>';
+        } else {
+          btn.classList.remove('active');
+          btn.innerHTML = '<i class="ri-heart-line"></i>';
+        }
+      });
+    }
+    
+    // 初始更新收藏按钮状态
+    updateFavoriteButtons();
+    
+    // 为所有收藏按钮添加点击事件
+    favoriteButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // 获取卡片数据
+        const card = btn.closest('.apple-card') || btn.closest('.recipe-card');
+        const cardType = card.classList.contains('apple-card') ? 'apple' : 'recipe';
+        const title = card.querySelector('h3').textContent;
+        const tagsElements = card.querySelectorAll('[class*="bg-"][class*="-50"]');
+        const tags = Array.from(tagsElements).map(el => el.textContent.trim());
+        const rating = card.querySelector('.text-yellow-500')?.nextElementSibling?.textContent || '4.5';
+        const description = card.querySelector('p')?.textContent || '';
+        const image = card.querySelector('img')?.src || '';
+        
+        // 创建卡片数据对象
+        const cardData = {
+          title,
+          image,
+          description,
+          tags,
+          rating,
+          type: cardType,
+          timestamp: Date.now()
+        };
+        
+        // 在收藏列表中查找是否已经收藏了该项目
+        const existingIndex = favorites.findIndex(item => item.title === title);
+        
+        if (existingIndex >= 0) {
+          // 如果已收藏，则移除
+          favorites.splice(existingIndex, 1);
+          btn.innerHTML = '<i class="ri-heart-line"></i>';
+          btn.classList.remove('active');
+          
+          // 显示取消收藏的提示
+          showToast(`已从收藏中移除 ${title}`);
+        } else {
+          // 如果未收藏，则添加
+          favorites.push(cardData);
+          btn.innerHTML = '<i class="ri-heart-fill"></i>';
+          btn.classList.add('active');
+          
+          // 添加收藏动画
+          const heart = btn.querySelector('i');
+          heart.style.animation = 'none';
+          void heart.offsetWidth; // 强制刷新
+          heart.style.animation = 'growApple 0.3s ease-out';
+          
+          // 显示添加收藏的提示
+          showToast(`已添加 ${title} 到收藏`);
+        }
+        
+        // 保存到本地存储
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+        
+        // 更新收藏区域显示
+        updateFavoritesDisplay();
+      });
+      
+      btn.addEventListener('dragstart', (e) => {
+        // 设置拖拽标志
+        isDragging = true;
+        // 记录初始鼠标位置
+        lastMouseY = e.clientY;
+        // 突出显示收藏区域
+        highlightFavoriteArea(true);
+        const card = btn.closest('.apple-card') || btn.closest('.recipe-card');
+        const cardType = card.classList.contains('apple-card') ? 'apple' : 'recipe';
+        const title = card.querySelector('h3').textContent;
+        const tagsElements = card.querySelectorAll('[class*="bg-"][class*="-50"]');
+        const tags = Array.from(tagsElements).map(el => el.textContent.trim());
+        const rating = card.querySelector('.text-yellow-500')?.nextElementSibling?.textContent || '4.5';
+        const description = card.querySelector('p')?.textContent || '';
+        const image = card.querySelector('img')?.src || '';
+        
+        const cardData = {
+          title,
+          image,
+          description,
+          tags,
+          rating,
+          type: cardType,
+          timestamp: Date.now()
+        };
+        
+        e.dataTransfer.setData('text/plain', JSON.stringify(cardData));
+        
+        // 添加视觉反馈
+        btn.classList.add('dragging');
+        card.style.opacity = '0.6';
+        
+        // 显示拖拽提示
+        const dragTip = document.createElement('div');
+        dragTip.id = 'dragTip';
+        dragTip.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/75 text-white px-4 py-2 rounded-full text-sm z-50 pointer-events-none';
+        dragTip.textContent = '拖至"我的收藏"区域';
+        document.body.appendChild(dragTip);
+        
+        // 自定义拖拽图像
+        const dragImage = new Image();
+        dragImage.src = card.querySelector('img').src;
+        dragImage.style.width = '50px';
+        dragImage.style.height = '50px';
+        dragImage.style.borderRadius = '8px';
+        dragImage.style.objectFit = 'cover';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 25, 25);
+        
+        // 500ms后移除拖拽图像
+        setTimeout(() => {
+          document.body.removeChild(dragImage);
+        }, 500);
+      });
+      
+      btn.addEventListener('dragend', () => {
+        // 取消拖拽标志
+        isDragging = false;
+        // 清除滚动间隔
+        if (scrollInterval) {
+          clearInterval(scrollInterval);
+          scrollInterval = null;
+        }
+        // 取消突出显示
+        highlightFavoriteArea(false);
+        const card = btn.closest('.apple-card') || btn.closest('.recipe-card');
+        btn.classList.remove('dragging');
+        card.style.opacity = '1';
+        
+        // 移除拖拽提示
+        const dragTip = document.getElementById('dragTip');
+        if (dragTip) dragTip.remove();
+      });
+    });
+
+    // 使整个苹果卡片和食谱卡片可拖动（不仅是收藏按钮）
+    [...appleCards, ...recipeCards].forEach(card => {
+      card.setAttribute('draggable', 'true');
+      
+      card.addEventListener('dragstart', (e) => {
+        // 设置拖拽标志
+        isDragging = true;
+        // 记录初始鼠标位置
+        lastMouseY = e.clientY;
+        // 突出显示收藏区域
+        highlightFavoriteArea(true);
+        // 防止与收藏按钮的拖拽事件冲突
+        if (e.target.closest('.favorite-btn')) return;
+        
+        const cardType = card.classList.contains('apple-card') ? 'apple' : 'recipe';
+        const title = card.querySelector('h3').textContent;
+        const tagsElements = card.querySelectorAll('[class*="bg-"][class*="-50"]');
+        const tags = Array.from(tagsElements).map(el => el.textContent.trim());
+        const rating = card.querySelector('.text-yellow-500')?.nextElementSibling?.textContent || '4.5';
+        const description = card.querySelector('p')?.textContent || '';
+        const image = card.querySelector('img')?.src || '';
+        
+        const cardData = {
+          title,
+          image,
+          description,
+          tags,
+          rating,
+          type: cardType,
+          timestamp: Date.now()
+        };
+        
+        e.dataTransfer.setData('text/plain', JSON.stringify(cardData));
+        
+        // 添加视觉反馈
+        card.classList.add('dragging-card');
+        card.style.opacity = '0.6';
+        
+        // 显示拖拽提示
+        const dragTip = document.createElement('div');
+        dragTip.id = 'dragTip';
+        dragTip.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/75 text-white px-4 py-2 rounded-full text-sm z-50 pointer-events-none';
+        dragTip.textContent = '拖至"我的收藏"区域';
+        document.body.appendChild(dragTip);
+        
+        // 自定义拖拽图像
+        const dragImage = new Image();
+        dragImage.src = card.querySelector('img').src;
+        dragImage.style.width = '50px';
+        dragImage.style.height = '50px';
+        dragImage.style.borderRadius = '8px';
+        dragImage.style.objectFit = 'cover';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 25, 25);
+        
+        // 500ms后移除拖拽图像
+        setTimeout(() => {
+          document.body.removeChild(dragImage);
+        }, 500);
+      });
+      
+      card.addEventListener('dragend', () => {
+        // 取消拖拽标志
+        isDragging = false;
+        // 清除滚动间隔
+        if (scrollInterval) {
+          clearInterval(scrollInterval);
+          scrollInterval = null;
+        }
+        // 取消突出显示
+        highlightFavoriteArea(false);
+        card.classList.remove('dragging-card');
+        card.style.opacity = '1';
+        
+        // 移除拖拽提示
+        const dragTip = document.getElementById('dragTip');
+        if (dragTip) dragTip.remove();
+      });
+    });
+
+    // Create favorite list container
+    const favoriteListContainer = document.createElement('div');
+    favoriteListContainer.innerHTML = `
+<div class="bg-white shadow-sm rounded-lg overflow-hidden my-12">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-2xl font-bold">我的收藏</h3>
+      <a href="Favorites.html" class="text-primary hover:underline flex items-center gap-1">
+        <span>查看全部</span>
+        <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+    <p class="text-gray-600 mb-6">将您喜爱的苹果品种或食谱拖放到此处，方便下次快速查看。</p>
+    <div id="favoriteList" class="relative">
+      <div class="favorite-placeholder flex flex-col items-center justify-center py-8">
+        <div class="w-16 h-16 flex items-center justify-center text-gray-300 mb-4">
+          <i class="ri-heart-line text-5xl"></i>
+        </div>
+        <p class="text-gray-500 mb-2">您尚未添加任何收藏</p>
+        <p class="text-gray-400 text-sm mb-4">您可以从"苹果品种"或"苹果食谱"部分拖拽喜欢的项目到这里</p>
+        <div class="flex gap-4 flex-wrap justify-center">
+          <a href="DetailsofAppleVarieties.html" class="bg-primary text-white px-4 py-2 rounded-button hover:bg-primary/90 transition-colors">
+            浏览苹果品种
+          </a>
+          <a href="ListofAppleRecipes.html" class="bg-white text-primary border border-primary px-4 py-2 rounded-button hover:bg-gray-50 transition-colors">
+            查看更多食谱
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+    const varietiesSection = document.getElementById('varieties');
+    varietiesSection.parentNode.insertBefore(favoriteListContainer, varietiesSection.nextSibling);
+    
+    const favoriteList = document.getElementById('favoriteList');
+    const favoritePlaceholder = document.querySelector('.favorite-placeholder');
+    
+    // 更新收藏列表显示
+    function updateFavoritesDisplay() {
+      // 清空当前显示的收藏项（占位符除外）
+      const currentItems = favoriteList.querySelectorAll('.favorite-item');
+      currentItems.forEach(item => item.remove());
+      
+      // 如果没有收藏项，显示占位符
+      if (favorites.length === 0) {
+        favoritePlaceholder.style.display = 'flex';
+        return;
+      }
+      
+      // 隐藏占位符
+      favoritePlaceholder.style.display = 'none';
+      
+      // 显示所有收藏项（不再限制为5个）
+      const allFavorites = [...favorites].sort((a, b) => b.timestamp - a.timestamp);
+      
+      allFavorites.forEach(cardData => {
+        const favoriteItem = createFavoriteItem(cardData);
+        favoriteList.appendChild(favoriteItem);
+      });
+      
+      // 添加查看全部链接
+      if (favorites.length > 0) {
+        const moreItem = document.createElement('div');
+        moreItem.className = 'mt-4 text-center';
+        moreItem.innerHTML = `
+          <a href="Favorites.html" class="text-primary hover:underline">
+            在收藏页面管理全部 ${favorites.length} 个收藏项
+          </a>
+        `;
+        favoriteList.appendChild(moreItem);
+      }
+      
+      // 同步到收藏页面 - 添加localStorage同步
+      try {
+        // 确保数据格式一致性
+        const favoriteData = {
+          items: favorites,
+          lastUpdated: new Date().toISOString()
+        };
+        
+        // 存储完整的收藏数据
+        localStorage.setItem('favoritePageData', JSON.stringify(favoriteData));
+      } catch (error) {
+        console.error('同步收藏数据失败:', error);
+      }
+    }
+    
+    // 创建收藏项元素
+    function createFavoriteItem(cardData) {
+      const favoriteItem = document.createElement('div');
+      favoriteItem.className = 'favorite-item';
+      
+      // 根据类型添加不同的图标类
+      const iconClass = cardData.type === 'recipe' ? 'ri-restaurant-line' : 'ri-apple-fill';
+      const typeLabel = cardData.type === 'recipe' ? '食谱' : '品种';
+      
+      // 增强的收藏项显示
+      favoriteItem.innerHTML = `
+        <div class="flex bg-white border border-gray-200 rounded-lg overflow-hidden transition-all hover:shadow-md mb-3">
+          <div class="w-24 h-24 flex-shrink-0 overflow-hidden relative">
+            ${cardData.image ? 
+              `<img src="${cardData.image}" alt="${cardData.title}" class="w-full h-full object-cover">` : 
+              `<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                <i class="ri-image-line text-gray-400 text-3xl"></i>
+              </div>`
+            }
+            <div class="absolute bottom-1 left-1 bg-primary/80 text-white text-xs px-1.5 py-0.5 rounded">
+              <i class="${iconClass} mr-1"></i>${typeLabel}
+            </div>
+          </div>
+          <div class="flex-1 p-3 flex flex-col">
+            <div class="flex items-center justify-between mb-1">
+              <h4 class="font-medium text-gray-800">${cardData.title}</h4>
+              <div class="flex items-center gap-1 text-yellow-500">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-700 text-sm">${cardData.rating || '4.5'}</span>
+              </div>
+            </div>
+            ${cardData.description ? 
+              `<p class="text-xs text-gray-500 mb-2 line-clamp-2">${cardData.description.substring(0, 80)}${cardData.description.length > 80 ? '...' : ''}</p>` : 
+              '<p class="text-xs text-gray-500 mb-2">精选项目</p>'
+            }
+            <div class="mt-auto flex justify-between items-center">
+              ${cardData.tags && cardData.tags.length ? 
+                `<div class="flex flex-wrap gap-1">
+                  ${cardData.tags.slice(0, 2).map(tag => 
+                    `<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs">${tag}</span>`
+                  ).join('')}
+                  ${cardData.tags.length > 2 ? 
+                    `<span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-xs">+${cardData.tags.length - 2}</span>` : ''
+                  }
+                </div>` : 
+                '<div></div>'
+              }
+              <a href="${cardData.type === 'recipe' ? 'ListofAppleRecipes.html' : 'DetailsofAppleVarieties.html'}" class="text-primary text-xs hover:underline mr-2">
+                查看详情
+              </a>
+              <button class="remove-favorite w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100" data-title="${cardData.title}">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // 添加删除功能
+      favoriteItem.querySelector('.remove-favorite').addEventListener('click', (e) => {
+        const title = e.currentTarget.getAttribute('data-title');
+        
+        // 从收藏中移除
+        const indexToRemove = favorites.findIndex(item => item.title === title);
+        if (indexToRemove !== -1) {
+          favorites.splice(indexToRemove, 1);
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+        
+        // 更新收藏按钮状态
+        updateFavoriteButtons();
+        
+        // 添加删除动画
+        favoriteItem.style.opacity = '0';
+        favoriteItem.style.transform = 'translateX(20px)';
+        favoriteItem.style.transition = 'all 0.3s ease';
+        
+        setTimeout(() => {
+          favoriteItem.remove();
+          
+          // 检查是否没有收藏项，如果没有则显示占位内容
+          updateFavoritesDisplay();
+        }, 300);
+        
+        // 显示移除提示
+        showToast(`已从收藏中移除 ${title}`);
+        
+        e.stopPropagation(); // 阻止事件冒泡
+      });
+      
+      return favoriteItem;
+    }
+    
+    // 显示提示信息
+    function showToast(message) {
+      // 移除现有提示
+      const existingToast = document.getElementById('toast');
+      if (existingToast) {
+        existingToast.remove();
+      }
+      
+      // 创建新提示
+      const toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-4 py-2 rounded shadow-lg z-50 flex items-center gap-2';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translate(-50%, 10px)';
+      toast.style.transition = 'all 0.3s ease';
+      toast.innerHTML = `
+        <i class="ri-${message.includes('购物车') ? 'shopping-cart-2' : 'heart-3'}-line"></i>
+        <span>${message}</span>
+      `;
+      document.body.appendChild(toast);
+      
+      // 显示提示
+      setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translate(-50%, 0)';
+      }, 10);
+      
+      // 2秒后移除提示
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, 10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 2000);
+    }
+    
+    favoriteList.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      favoriteList.classList.add('drag-over');
+    });
+    
+    favoriteList.addEventListener('dragleave', () => {
+      favoriteList.classList.remove('drag-over');
+    });
+    
+    favoriteList.addEventListener('drop', (e) => {
+      e.preventDefault();
+      // 确保拖拽结束后取消标志
+      isDragging = false;
+      // 清除滚动间隔
+      if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+      }
+      // 取消突出显示
+      highlightFavoriteArea(false);
+      favoriteList.classList.remove('drag-over');
+      
+      try {
+        const cardData = JSON.parse(e.dataTransfer.getData('text/plain'));
+        
+        // 检查是否已经收藏了该项目
+        const existingIndex = favorites.findIndex(item => item.title === cardData.title);
+        
+        if (existingIndex === -1) {
+          // 如果未收藏，则添加
+          favorites.push(cardData);
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+          
+          // 更新收藏按钮状态
+          updateFavoriteButtons();
+          
+          // 显示添加收藏的提示
+          showToast(`已添加 ${cardData.title} 到收藏`);
+        } else {
+          // 如果已收藏，显示提示
+          showToast(`${cardData.title} 已在收藏中`);
+        }
+        
+        // 更新收藏区域显示
+        updateFavoritesDisplay();
+        
+      } catch (error) {
+        console.error('解析拖拽数据失败:', error);
+      }
+    });
+    
+    // 初始加载收藏项
+    updateFavoritesDisplay();
+    
+    // 添加加载Favorites.html页面时的数据同步
+    document.addEventListener('DOMContentLoaded', function() {
+      // 加载之前保存的收藏项
+      try {
+        const savedFavorites = localStorage.getItem('favorites');
+        if (savedFavorites) {
+          favorites = JSON.parse(savedFavorites);
+          updateFavoriteButtons();
+          updateFavoritesDisplay();
+        }
+      } catch (error) {
+        console.error('加载收藏数据失败:', error);
+      }
+    });
+
+    // Timeline animation
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.5 });
+    timelineItems.forEach(item => observer.observe(item));
+    // Login status
+    function updateLoginStatus() {
+      const loginStatus = document.createElement('div');
+      loginStatus.id = 'loginStatus';
+      loginStatus.className = 'login-status';
+      
+      // 使用全局变量window.isLoggedIn来判断
+      if (window.isLoggedIn) {
+        loginStatus.innerHTML = `
+          <i class="ri-check-line"></i>
+          <span>登录成功</span>
+        `;
+        loginStatus.classList.add('show');
+        document.body.appendChild(loginStatus);
+        
+        // 3秒后隐藏通知
+        setTimeout(() => {
+          loginStatus.classList.remove('show');
+          setTimeout(() => {
+            if (loginStatus.parentNode) {
+              loginStatus.parentNode.removeChild(loginStatus);
+            }
+          }, 300);
+        }, 3000);
+        
+        // 更新导航栏用户按钮状态
+        const userButton = document.getElementById('userButton');
+        if (userButton) {
+          userButton.innerHTML = '<i class="ri-user-fill"></i>';
+        }
+      } else {
+        // 如果退出登录，显示退出提示
+        loginStatus.innerHTML = `
+          <i class="ri-logout-box-line"></i>
+          <span>已退出登录</span>
+        `;
+        loginStatus.classList.add('show');
+        document.body.appendChild(loginStatus);
+        
+        // 3秒后隐藏通知
+        setTimeout(() => {
+          loginStatus.classList.remove('show');
+          setTimeout(() => {
+            if (loginStatus.parentNode) {
+              loginStatus.parentNode.removeChild(loginStatus);
+            }
+          }, 300);
+        }, 3000);
+        
+        // 更新导航栏用户按钮状态
+        const userButton = document.getElementById('userButton');
+        if (userButton) {
+          userButton.innerHTML = '<i class="ri-user-line"></i>';
+        }
+      }
+    }
+    
+    const userButton = document.getElementById('userButton');
+    const loginDialog = document.getElementById('loginDialog');
+    const registerDialog = document.getElementById('registerDialog');
+    const userDropdown = document.getElementById('userDropdown');
+    const closeLoginDialog = document.getElementById('closeLoginDialog');
+    const closeRegisterDialog = document.getElementById('closeRegisterDialog');
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const logoutButton = document.getElementById('logoutButton');
+    const rememberMeCheckbox = document.getElementById('rememberMe');
+    const loginUsername = document.getElementById('loginUsername');
+    
+    // 页面加载时检查用户是否已经登录
+    const savedCredentials = localStorage.getItem('userCredentials');
+    if (savedCredentials) {
+      try {
+        const credentials = JSON.parse(savedCredentials);
+        const now = new Date().getTime();
+        if (now < credentials.expiry) {
+          window.isLoggedIn = true;
+          loginUsername.value = credentials.username;
+          document.getElementById('userDropdownName').textContent = credentials.username;
+          document.getElementById('userDropdownEmail').textContent = credentials.email || credentials.username + '@example.com';
+          userButton.innerHTML = '<i class="ri-user-fill"></i>';
+          rememberMeCheckbox.checked = true;
+        } else {
+          localStorage.removeItem('userCredentials');
+          window.isLoggedIn = false;
+        }
+      } catch (error) {
+        console.error('解析保存的用户凭据时出错:', error);
+        localStorage.removeItem('userCredentials');
+        window.isLoggedIn = false;
+      }
+    }
+    
+    function showDialog(dialog) {
+      dialog.classList.remove('hidden');
+    }
+    
+    function hideDialog(dialog) {
+      dialog.classList.add('hidden');
+    }
+    
+    function toggleUserDropdown() {
+      if (window.isLoggedIn) {
+        userDropdown.classList.toggle('hidden');
+      } else {
+        // 未登录时，显示简化的下拉菜单而非直接弹出登录框
+        const notLoggedDropdown = document.getElementById('notLoggedDropdown');
+        if (notLoggedDropdown) {
+          notLoggedDropdown.classList.toggle('hidden');
+        } else {
+          // 如果尚未创建未登录下拉菜单，则创建它
+          createNotLoggedDropdown();
+        }
+      }
+    }
+    
+    // 创建未登录状态的下拉菜单
+    function createNotLoggedDropdown() {
+      // 移除可能存在的旧元素
+      const oldDropdown = document.getElementById('notLoggedDropdown');
+      if (oldDropdown) {
+        oldDropdown.remove();
+      }
+      
+      // 创建新的下拉菜单
+      const notLoggedDropdown = document.createElement('div');
+      notLoggedDropdown.id = 'notLoggedDropdown';
+      notLoggedDropdown.className = 'absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 py-4 z-50';
+      
+      // 添加小三角形指示器
+      const triangleIndicator = document.createElement('div');
+      triangleIndicator.className = 'absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45';
+      notLoggedDropdown.appendChild(triangleIndicator);
+      
+      // 添加内容
+      notLoggedDropdown.innerHTML += `
+        <div class="px-4 text-center">
+          <div class="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
+            <i class="ri-user-line text-gray-400 text-3xl"></i>
+          </div>
+          <p class="text-gray-700 font-medium mb-4">您尚未登录</p>
+          <div class="flex gap-2 justify-center">
+            <button id="dropdownLoginBtn" class="bg-primary text-white px-4 py-2 rounded-button text-sm font-medium hover:bg-primary/90 transition-colors">登录</button>
+            <button id="dropdownRegisterBtn" class="border border-gray-200 px-4 py-2 rounded-button text-sm font-medium hover:bg-gray-50 transition-colors">注册</button>
+          </div>
+        </div>
+      `;
+      
+      // 添加到页面
+      document.body.appendChild(notLoggedDropdown);
+      
+      // 定位下拉菜单
+      const userButtonRect = userButton.getBoundingClientRect();
+      notLoggedDropdown.style.position = 'fixed';
+      notLoggedDropdown.style.top = (userButtonRect.bottom + window.scrollY) + 'px';
+      notLoggedDropdown.style.right = (window.innerWidth - userButtonRect.right) + 'px';
+      
+      // 添加点击事件
+      document.getElementById('dropdownLoginBtn').addEventListener('click', function() {
+        notLoggedDropdown.classList.add('hidden');
+        showDialog(loginDialog);
+        
+        // 添加"未登录"提示文本
+        const loginDialogTitle = document.querySelector('#loginDialog .text-2xl');
+        if (loginDialogTitle) {
+          loginDialogTitle.innerHTML = '请登录或注册';
+          
+          // 3秒后恢复原标题
+          setTimeout(() => {
+            loginDialogTitle.innerHTML = '欢迎回来';
+          }, 3000);
+        }
+      });
+      
+      document.getElementById('dropdownRegisterBtn').addEventListener('click', function() {
+        notLoggedDropdown.classList.add('hidden');
+        showDialog(registerDialog);
+      });
+      
+      // 添加点击外部关闭功能
+      document.addEventListener('click', function closeDropdown(e) {
+        if (!notLoggedDropdown.contains(e.target) && e.target !== userButton && !notLoggedDropdown.classList.contains('hidden')) {
+          notLoggedDropdown.classList.add('hidden');
+        }
+      });
+    }
+    
+    // 点击外部区域关闭下拉菜单
+    document.addEventListener('click', (e) => {
+      const notLoggedDropdown = document.getElementById('notLoggedDropdown');
+      
+      if (window.isLoggedIn && !userButton.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.add('hidden');
+      } else if (!window.isLoggedIn && notLoggedDropdown && !userButton.contains(e.target) && !notLoggedDropdown.contains(e.target)) {
+        notLoggedDropdown.classList.add('hidden');
+      }
+    });
+    
+    userButton.addEventListener('click', toggleUserDropdown);
+    
+    document.addEventListener('click', (e) => {
+      if (window.isLoggedIn && !userButton.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.add('hidden');
+      }
+    });
+    
+    closeLoginDialog.addEventListener('click', () => hideDialog(loginDialog));
+    closeRegisterDialog.addEventListener('click', () => hideDialog(registerDialog));
+    
+    showRegister.addEventListener('click', () => {
+      hideDialog(loginDialog);
+      showDialog(registerDialog);
+    });
+    
+    showLogin.addEventListener('click', () => {
+      hideDialog(registerDialog);
+      showDialog(loginDialog);
+    });
+    
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!validateForm(loginForm)) {
+        return;
+      }
+      
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      // 验证用户名和密码
+      if (!validateLogin(username, password)) {
+        // 显示错误提示
+        showLoginError('用户名或密码错误，请重试');
+        return;
+      }
+      
+      // 登录成功逻辑
+      if (username && password) {
+        // 设置全局登录状态
+        window.isLoggedIn = true;
+        
+        // 从存储中获取用户信息
+        const userInfo = getUserInfo(username);
+        const email = userInfo ? userInfo.email : (username.includes('@') ? username : username + '@example.com');
+        
+        // 更新用户界面
+        document.getElementById('userDropdownName').textContent = username;
+        document.getElementById('userDropdownEmail').textContent = email;
+        userButton.innerHTML = '<i class="ri-user-fill"></i>';
+        
+        // 保存到sessionStorage以便在页面间共享状态
+        sessionStorage.setItem('isUserLoggedIn', 'true');
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('email', email);
+        
+        // 如果勾选了"记住我"，则将凭据保存到本地存储
+        if (rememberMe) {
+          const credentials = {
+            username: username,
+            email: email,
+            expiry: new Date().getTime() + (30 * 24 * 60 * 60 * 1000) // 30 days
+          };
+          localStorage.setItem('userCredentials', JSON.stringify(credentials));
+        }
+        
+        // 隐藏登录对话框
+        hideDialog(loginDialog);
+        
+        // 如果没有勾选"记住我"，则重置表单
+        if (!rememberMe) {
+          loginForm.reset();
+        }
+        
+        // 显示登录成功提示
+        updateLoginStatus();
+        
+        // 显示欢迎回来消息
+        showLoginSuccess(`欢迎回来，${username}！`);
+      }
+    });
+    
+    // 显示登录错误提示
+    function showLoginError(message) {
+      // 查找或创建错误消息元素
+      let errorElement = document.getElementById('loginErrorMessage');
+      
+      if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'loginErrorMessage';
+        errorElement.className = 'bg-red-50 text-red-500 px-4 py-3 rounded border border-red-200 mb-4';
+        
+        // 插入到登录表单的开头
+        const loginFormFirstChild = document.querySelector('#loginForm').firstChild;
+        document.querySelector('#loginForm').insertBefore(errorElement, loginFormFirstChild);
+      }
+      
+      // 设置错误消息
+      errorElement.textContent = message;
+      
+      // 添加震动动画
+      errorElement.style.animation = 'shake 0.5s ease-in-out';
+      
+      // 聚焦到用户名输入框
+      document.getElementById('loginUsername').focus();
+      
+      // 添加震动动画样式
+      const style = document.createElement('style');
+      style.id = 'shakeAnimation';
+      if (!document.getElementById('shakeAnimation')) {
+        style.textContent = `
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+    
+    // 显示登录成功消息
+    function showLoginSuccess(message) {
+      const successMessage = document.createElement('div');
+      successMessage.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 flex items-center gap-2';
+      successMessage.innerHTML = `<i class="ri-check-line"></i><span>${message}</span>`;
+      successMessage.style.opacity = '0';
+      successMessage.style.transition = 'opacity 0.3s ease';
+      document.body.appendChild(successMessage);
+      
+      // 显示消息
+      setTimeout(() => {
+        successMessage.style.opacity = '1';
+        // 3秒后隐藏消息
+        setTimeout(() => {
+          successMessage.style.opacity = '0';
+          setTimeout(() => {
+            if (successMessage.parentNode) {
+              successMessage.parentNode.removeChild(successMessage);
+            }
+          }, 300);
+        }, 3000);
+      }, 10);
+    }
+    
+    // 新的注册处理函数，确保状态同步
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('registerUsername').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+      
+      // 验证表单
+      if (!username || !email || !password || !confirmPassword || !agreeTerms) {
+        // 显示错误消息
+        showRegisterError('请填写完整信息并同意服务条款');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        // 显示错误消息
+        showRegisterError('两次输入的密码不一致');
+        return;
+      }
+      
+      // 验证用户名是否已存在
+      if (isUsernameTaken(username)) {
+        showRegisterError('该用户名已被注册，请更换其他用户名');
+        return;
+      }
+      
+      // 验证邮箱是否已存在
+      if (isEmailTaken(email)) {
+        showRegisterError('该邮箱已被注册，请更换其他邮箱或找回密码');
+        return;
+      }
+      
+      // 验证密码强度
+      if (!validatePasswordStrength(password)) {
+        showRegisterError('密码强度不足，密码至少需要8个字符，且包含字母和数字');
+        return;
+      }
+      
+      // 注册成功后的逻辑
+      window.isLoggedIn = true;
+      document.getElementById('userDropdownName').textContent = username;
+      document.getElementById('userDropdownEmail').textContent = email;
+      userButton.innerHTML = '<i class="ri-user-fill"></i>';
+      
+      // 保存到sessionStorage以便在页面间共享状态
+      sessionStorage.setItem('isUserLoggedIn', 'true');
+      sessionStorage.setItem('username', username);
+      sessionStorage.setItem('email', email);
+      
+      // 保存用户信息和密码到本地存储（实际应用中应该使用后端API和加密存储）
+      saveUserInfo(username, email, password);
+      
+      // 隐藏注册对话框
+      hideDialog(registerDialog);
+      registerForm.reset();
+      
+      // 显示注册成功提示
+      updateLoginStatus();
+      
+      // 显示注册成功消息
+      showLoginSuccess(`注册成功，欢迎加入 ${username}！`);
+    });
+    
+    // 显示注册错误提示
+    function showRegisterError(message) {
+      // 查找或创建错误消息元素
+      let errorElement = document.getElementById('registerErrorMessage');
+      
+      if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'registerErrorMessage';
+        errorElement.className = 'bg-red-50 text-red-500 px-4 py-3 rounded border border-red-200 mb-4';
+        
+        // 插入到注册表单的开头
+        const registerFormFirstChild = document.querySelector('#registerForm').firstChild;
+        document.querySelector('#registerForm').insertBefore(errorElement, registerFormFirstChild);
+      }
+      
+      // 设置错误消息
+      errorElement.textContent = message;
+      
+      // 添加震动动画
+      errorElement.style.animation = 'shake 0.5s ease-in-out';
+    }
+    
+    // 验证登录
+    function validateLogin(username, password) {
+      // 从本地存储中获取用户数据
+      const allUsers = JSON.parse(localStorage.getItem('appleWebUsers') || '[]');
+      
+      // 查找匹配的用户
+      const user = allUsers.find(user => 
+        (user.username === username || user.email === username) && user.password === password
+      );
+      
+      return !!user; // 返回布尔值，表示是否找到匹配的用户
+    }
+    
+    // 获取用户信息
+    function getUserInfo(usernameOrEmail) {
+      // 从本地存储中获取用户数据
+      const allUsers = JSON.parse(localStorage.getItem('appleWebUsers') || '[]');
+      
+      // 查找匹配的用户
+      return allUsers.find(user => 
+        user.username === usernameOrEmail || user.email === usernameOrEmail
+      );
+    }
+    
+    // 检查用户名是否已被占用
+    function isUsernameTaken(username) {
+      const allUsers = JSON.parse(localStorage.getItem('appleWebUsers') || '[]');
+      return allUsers.some(user => user.username === username);
+    }
+    
+    // 检查邮箱是否已被占用
+    function isEmailTaken(email) {
+      const allUsers = JSON.parse(localStorage.getItem('appleWebUsers') || '[]');
+      return allUsers.some(user => user.email === email);
+    }
+    
+    // 验证密码强度
+    function validatePasswordStrength(password) {
+      // 密码至少8个字符，包含字母和数字
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+      return passwordRegex.test(password);
+    }
+    
+    // 保存用户信息
+    function saveUserInfo(username, email, password) {
+      // 从本地存储中获取现有用户数据
+      const allUsers = JSON.parse(localStorage.getItem('appleWebUsers') || '[]');
+      
+      // 添加新用户
+      allUsers.push({
+        username,
+        email,
+        password,
+        createdAt: new Date().toISOString(),
+        favorites: [],
+        orders: []
+      });
+      
+      // 保存回本地存储
+      localStorage.setItem('appleWebUsers', JSON.stringify(allUsers));
+      
+      // 单独保存用户凭据用于自动登录
+      const credentials = {
+        username: username,
+        email: email,
+        expiry: new Date().getTime() + (30 * 24 * 60 * 60 * 1000) // 30 days
+      };
+      localStorage.setItem('userCredentials', JSON.stringify(credentials));
+    }
+    
+    logoutButton.addEventListener('click', () => {
+      // 设置全局登录状态为退出
+      window.isLoggedIn = false;
+      
+      // 更新界面状态
+      userButton.innerHTML = '<i class="ri-user-line"></i>';
+      userDropdown.classList.add('hidden');
+      
+      // 移除本地存储的凭据
+      localStorage.removeItem('userCredentials');
+      
+      // 移除sessionStorage中的状态
+      sessionStorage.removeItem('isUserLoggedIn');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('email');
+      
+      // 重置登录表单
+      loginForm.reset();
+      
+      // 重置购物车状态
+      resetCartState();
+      
+      // 显示退出登录提示
+      updateLoginStatus();
+      
+      // 添加额外的视觉提示，表明用户已退出
+      const userButtonBadge = document.createElement('div');
+      userButtonBadge.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-300 rounded-full';
+      userButtonBadge.id = 'user-button-badge';
+      
+      // 移除可能存在的旧徽章
+      const oldBadge = document.getElementById('user-button-badge');
+      if (oldBadge) {
+        oldBadge.remove();
+      }
+      
+      // 添加徽章到用户按钮
+      userButton.style.position = 'relative';
+      userButton.appendChild(userButtonBadge);
+      
+      // 向用户提供明确的引导
+      const logoutMessage = document.createElement('div');
+      logoutMessage.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg z-50';
+      logoutMessage.innerHTML = '您已退出登录，点击 <i class="ri-user-line"></i> 图标可重新登录';
+      logoutMessage.style.opacity = '0';
+      logoutMessage.style.transition = 'opacity 0.3s ease';
+      document.body.appendChild(logoutMessage);
+      
+      // 显示消息
+      setTimeout(() => {
+        logoutMessage.style.opacity = '1';
+        // 3秒后隐藏消息
+        setTimeout(() => {
+          logoutMessage.style.opacity = '0';
+          setTimeout(() => {
+            if (logoutMessage.parentNode) {
+              logoutMessage.parentNode.removeChild(logoutMessage);
+            }
+          }, 300);
+        }, 3000);
+      }, 10);
+    });
+    
+    // 重置购物车状态函数
+    function resetCartState() {
+      // 清空购物车数据
+      localStorage.removeItem('appleCart');
+      
+      // 更新购物车计数
+      const headerCartCount = document.getElementById('headerCartCount');
+      if (headerCartCount) {
+        headerCartCount.textContent = '0';
+        headerCartCount.style.opacity = '0.5';
+      }
+      
+      // 触发购物车更新事件
+      document.dispatchEvent(new CustomEvent('cartUpdated'));
+      window.dispatchEvent(new Event('storage'));
+    }
+    
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        hideDialog(loginDialog);
+        hideDialog(registerDialog);
+        userDropdown.classList.add('hidden');
+      }
+    });
+    
+    // 删除重复的chart初始化（这是导致问题的原因之一）
+    
+    // 如果用户已登录，则更新界面状态
+    if (window.isLoggedIn) {
+      userButton.innerHTML = '<i class="ri-user-fill"></i>';
+    }
+
+    // 突出显示收藏区域的函数
+    function highlightFavoriteArea(show) {
+      const favoriteList = document.getElementById('favoriteList');
+      if (!favoriteList) return;
+      
+      if (show) {
+        // 获取收藏区域的位置
+        const favoriteRect = favoriteList.getBoundingClientRect();
+        const isVisible = 
+          favoriteRect.top < window.innerHeight && 
+          favoriteRect.bottom > 0;
+        
+        // 如果目标区域不在可视范围内，添加一个引导指示器
+        if (!isVisible) {
+          let indicator = document.getElementById('favoriteIndicator');
+          if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'favoriteIndicator';
+            indicator.className = 'fixed right-4 bg-primary text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2 cursor-pointer';
+            indicator.innerHTML = `
+              <i class="ri-arrow-up-line"></i>
+              <span>拖至"我的收藏"</span>
+            `;
+            indicator.style.transition = 'all 0.3s ease';
+            
+            // 点击指示器自动滚动到收藏区
+            indicator.addEventListener('click', () => {
+              favoriteList.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            document.body.appendChild(indicator);
+          } else {
+            // 确保指示器是可见的
+            indicator.style.opacity = '1';
+          }
+          
+          // 根据收藏区在页面上方还是下方来设置指示器位置
+          if (favoriteRect.top < 0) {
+            // 收藏区在视口上方
+            indicator.style.top = '80px';
+            indicator.style.bottom = 'auto';
+            indicator.querySelector('i').className = 'ri-arrow-up-line';
+          } else {
+            // 收藏区在视口下方
+            indicator.style.bottom = '80px';
+            indicator.style.top = 'auto';
+            indicator.querySelector('i').className = 'ri-arrow-down-line';
+          }
+        }
+        
+        // 添加闪烁效果到收藏区
+        favoriteList.classList.add('highlight-target');
+      } else {
+        // 取消突出显示
+        favoriteList.classList.remove('highlight-target');
+        const indicator = document.getElementById('favoriteIndicator');
+        if (indicator) {
+          indicator.style.opacity = '0';
+          setTimeout(() => {
+            if (indicator.parentNode) {
+              indicator.parentNode.removeChild(indicator);
+            }
+          }, 300);
+        }
+      }
+    }
+
+    // 添加CSS样式
+    const style = document.createElement('style');
+    style.textContent = `
+      .highlight-target {
+        animation: pulse-border 2s infinite;
+        box-shadow: 0 0 0 2px rgba(255,59,48,0.5);
+      }
+      @keyframes pulse-border {
+        0% { box-shadow: 0 0 0 0 rgba(255,59,48,0.5); }
+        70% { box-shadow: 0 0 0 10px rgba(255,59,48,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); }
+      }
+      #favoriteIndicator {
+        animation: bounce 1s infinite alternate;
+      }
+      @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-5px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 购物车悬浮提示
+    document.querySelectorAll('.cart-btn-container').forEach(container => {
+      const tooltip = container.querySelector('.cart-tooltip');
+      if (!tooltip) return;
+      
+      container.addEventListener('mouseenter', () => {
+        tooltip.style.opacity = '1';
+        tooltip.style.transform = 'translateY(0)';
+      });
+      
+      container.addEventListener('mouseleave', () => {
+        tooltip.style.opacity = '0';
+        tooltip.style.transform = 'translateY(2px)';
+      });
+    });
+    
+    // 各种过滤条件按钮点击事件
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const target = this.getAttribute('data-target');
+        const container = document.getElementById(target);
+        if (container) {
+          container.classList.toggle('active');
+          this.querySelector('i').classList.toggle('rotate-180');
+        }
+      });
+    });
+
+    // ... existing code ...
+      if (window.isLoggedIn) {
+        userButton.innerHTML = '<i class="ri-user-fill"></i>';
+      }
+
+      // 创建登录引导样式
+      const loginGuideStyle = document.createElement('style');
+      loginGuideStyle.textContent = `
+        .login-guide {
+          background-color: #f8f9fa;
+          border-left: 4px solid #FF3B30;
+          padding: 12px;
+          margin-bottom: 16px;
+          border-radius: 4px;
+        }
+        .login-guide p {
+          margin: 0;
+          color: #333;
+        }
+        .user-button-tooltip {
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #333;
+          color: white;
+          padding: 6px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          margin-bottom: 8px;
+          z-index: 1000;
+        }
+        .user-button-tooltip:after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          left: 50%;
+          margin-left: -5px;
+          border-width: 5px;
+          border-style: solid;
+          border-color: #333 transparent transparent transparent;
+        }
+      `;
+      document.head.appendChild(loginGuideStyle);
+      
+      // 为未登录状态的用户按钮添加悬停提示
+      userButton.addEventListener('mouseenter', function() {
+        if (!window.isLoggedIn) {
+          // 移除可能存在的旧提示
+          const oldTooltip = document.querySelector('.user-button-tooltip');
+          if (oldTooltip) {
+            oldTooltip.remove();
+          }
+          
+          const tooltip = document.createElement('div');
+          tooltip.className = 'user-button-tooltip';
+          tooltip.textContent = '点击登录或注册';
+          userButton.style.position = 'relative';
+          userButton.appendChild(tooltip);
+          
+          // 显示提示
+          setTimeout(() => {
+            tooltip.style.opacity = '1';
+          }, 10);
+        }
+      });
+      
+      userButton.addEventListener('mouseleave', function() {
+        if (!window.isLoggedIn) {
+          const tooltip = document.querySelector('.user-button-tooltip');
+          if (tooltip) {
+            tooltip.style.opacity = '0';
+            setTimeout(() => {
+              if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+              }
+            }, 300);
+          }
+        }
+      });
+    // ... existing code ...
+
+    // 更新页面加载时的验证逻辑，确保所有页面保持一致的登录状态
+    function validateLoginState() {
+      const savedCredentials = localStorage.getItem('userCredentials');
+      
+      if (savedCredentials) {
+        try {
+          const credentials = JSON.parse(savedCredentials);
+          const now = new Date().getTime();
+          
+          if (now < credentials.expiry) {
+            // 凭据有效，设置为登录状态
+            window.isLoggedIn = true;
+            
+            // 更新用户界面
+            if (loginUsername) loginUsername.value = credentials.username;
+            const userDropdownName = document.getElementById('userDropdownName');
+            if (userDropdownName) userDropdownName.textContent = credentials.username;
+            
+            const userDropdownEmail = document.getElementById('userDropdownEmail');
+            if (userDropdownEmail) userDropdownEmail.textContent = credentials.email || credentials.username + '@example.com';
+            
+            if (userButton) userButton.innerHTML = '<i class="ri-user-fill"></i>';
+            if (rememberMeCheckbox) rememberMeCheckbox.checked = true;
+            
+            // 记录到sessionStorage以便在页面间共享状态
+            sessionStorage.setItem('isUserLoggedIn', 'true');
+            sessionStorage.setItem('username', credentials.username);
+          } else {
+            // 凭据过期，设置为未登录状态
+            window.isLoggedIn = false;
+            localStorage.removeItem('userCredentials');
+            sessionStorage.removeItem('isUserLoggedIn');
+            sessionStorage.removeItem('username');
+          }
+        } catch (error) {
+          console.error('解析保存的用户凭据时出错:', error);
+          window.isLoggedIn = false;
+          localStorage.removeItem('userCredentials');
+          sessionStorage.removeItem('isUserLoggedIn');
+          sessionStorage.removeItem('username');
+        }
+      } else {
+        // 检查sessionStorage中是否有登录状态
+        const sessionLoginState = sessionStorage.getItem('isUserLoggedIn');
+        if (sessionLoginState === 'true') {
+          window.isLoggedIn = true;
+          const username = sessionStorage.getItem('username') || '用户';
+          
+          if (userButton) userButton.innerHTML = '<i class="ri-user-fill"></i>';
+          const userDropdownName = document.getElementById('userDropdownName');
+          if (userDropdownName) userDropdownName.textContent = username;
+        } else {
+          window.isLoggedIn = false;
+        }
+      }
+      
+      // 更新UI状态
+      updateUIForLoginState();
+    }
+    
+    // 更新UI以反映登录状态
+    function updateUIForLoginState() {
+      if (window.isLoggedIn) {
+        if (userButton) userButton.innerHTML = '<i class="ri-user-fill"></i>';
+      } else {
+        if (userButton) userButton.innerHTML = '<i class="ri-user-line"></i>';
+      }
+    }
+    
+    // 页面加载时验证登录状态
+    validateLoginState();
+    
+    // 新的登录处理函数，确保状态同步
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!validateForm(loginForm)) {
+        return;
+      }
+      
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      
+      // 验证用户名和密码
+      if (!validateLogin(username, password)) {
+        // 显示错误提示
+        showLoginError('用户名或密码错误，请重试');
+        return;
+      }
+      
+      // 登录成功逻辑
+      if (username && password) {
+        // 设置全局登录状态
+        window.isLoggedIn = true;
+        
+        // 从存储中获取用户信息
+        const userInfo = getUserInfo(username);
+        const email = userInfo ? userInfo.email : (username.includes('@') ? username : username + '@example.com');
+        
+        // 更新用户界面
+        document.getElementById('userDropdownName').textContent = username;
+        document.getElementById('userDropdownEmail').textContent = email;
+        userButton.innerHTML = '<i class="ri-user-fill"></i>';
+        
+        // 保存到sessionStorage以便在页面间共享状态
+        sessionStorage.setItem('isUserLoggedIn', 'true');
+        sessionStorage.setItem('username', username);
+        sessionStorage.setItem('email', email);
+        
+        // 如果勾选了"记住我"，则将凭据保存到本地存储
+        if (rememberMe) {
+          const credentials = {
+            username: username,
+            email: email,
+            expiry: new Date().getTime() + (30 * 24 * 60 * 60 * 1000) // 30 days
+          };
+          localStorage.setItem('userCredentials', JSON.stringify(credentials));
+        }
+        
+        // 隐藏登录对话框
+        hideDialog(loginDialog);
+        
+        // 如果没有勾选"记住我"，则重置表单
+        if (!rememberMe) {
+          loginForm.reset();
+        }
+        
+        // 显示登录成功提示
+        updateLoginStatus();
+        
+        // 显示欢迎回来消息
+        showLoginSuccess(`欢迎回来，${username}！`);
+      }
+    });
+    
+    // 新的注册处理函数，确保状态同步
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('registerUsername').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const agreeTerms = document.getElementById('agreeTerms').checked;
+      
+      // 验证表单
+      if (!username || !email || !password || !confirmPassword || !agreeTerms) {
+        // 显示错误消息
+        showRegisterError('请填写完整信息并同意服务条款');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        // 显示错误消息
+        showRegisterError('两次输入的密码不一致');
+        return;
+      }
+      
+      // 验证用户名是否已存在
+      if (isUsernameTaken(username)) {
+        showRegisterError('该用户名已被注册，请更换其他用户名');
+        return;
+      }
+      
+      // 验证邮箱是否已存在
+      if (isEmailTaken(email)) {
+        showRegisterError('该邮箱已被注册，请更换其他邮箱或找回密码');
+        return;
+      }
+      
+      // 验证密码强度
+      if (!validatePasswordStrength(password)) {
+        showRegisterError('密码强度不足，密码至少需要8个字符，且包含字母和数字');
+        return;
+      }
+      
+      // 注册成功后的逻辑
+      window.isLoggedIn = true;
+      document.getElementById('userDropdownName').textContent = username;
+      document.getElementById('userDropdownEmail').textContent = email;
+      userButton.innerHTML = '<i class="ri-user-fill"></i>';
+      
+      // 保存到sessionStorage以便在页面间共享状态
+      sessionStorage.setItem('isUserLoggedIn', 'true');
+      sessionStorage.setItem('username', username);
+      sessionStorage.setItem('email', email);
+      
+      // 保存用户信息和密码到本地存储（实际应用中应该使用后端API和加密存储）
+      saveUserInfo(username, email, password);
+      
+      // 隐藏注册对话框
+      hideDialog(registerDialog);
+      registerForm.reset();
+      
+      // 显示注册成功提示
+      updateLoginStatus();
+      
+      // 显示注册成功消息
+      showLoginSuccess(`注册成功，欢迎加入 ${username}！`);
+    });
+    
+    // 新的退出登录函数，确保状态同步
+    logoutButton.addEventListener('click', () => {
+      // 设置全局登录状态为退出
+      window.isLoggedIn = false;
+      
+      // 更新界面状态
+      userButton.innerHTML = '<i class="ri-user-line"></i>';
+      userDropdown.classList.add('hidden');
+      
+      // 移除本地存储的凭据
+      localStorage.removeItem('userCredentials');
+      
+      // 移除sessionStorage中的状态
+      sessionStorage.removeItem('isUserLoggedIn');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('email');
+      
+      // 重置登录表单
+      loginForm.reset();
+      
+      // 重置购物车状态
+      resetCartState();
+      
+      // 显示退出登录提示
+      updateLoginStatus();
+      
+      // 添加额外的视觉提示，表明用户已退出
+      const userButtonBadge = document.createElement('div');
+      userButtonBadge.className = 'absolute -top-1 -right-1 w-3 h-3 bg-gray-300 rounded-full';
+      userButtonBadge.id = 'user-button-badge';
+      
+      // 移除可能存在的旧徽章
+      const oldBadge = document.getElementById('user-button-badge');
+      if (oldBadge) {
+        oldBadge.remove();
+      }
+      
+      // 添加徽章到用户按钮
+      userButton.style.position = 'relative';
+      userButton.appendChild(userButtonBadge);
+      
+      // 向用户提供明确的引导
+      const logoutMessage = document.createElement('div');
+      logoutMessage.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded shadow-lg z-50';
+      logoutMessage.innerHTML = '您已退出登录，点击 <i class="ri-user-line"></i> 图标可重新登录';
+      logoutMessage.style.opacity = '0';
+      logoutMessage.style.transition = 'opacity 0.3s ease';
+      document.body.appendChild(logoutMessage);
+      
+      // 显示消息
+      setTimeout(() => {
+        logoutMessage.style.opacity = '1';
+        // 3秒后隐藏消息
+        setTimeout(() => {
+          logoutMessage.style.opacity = '0';
+          setTimeout(() => {
+            if (logoutMessage.parentNode) {
+              logoutMessage.parentNode.removeChild(logoutMessage);
+            }
+          }, 300);
+        }, 3000);
+      }, 10);
+    });
+
+    // 移除鼠标悬停在用户图标上显示样例信息的部分，保留未登录状态的提示
+    userButton.addEventListener('mouseenter', function() {
+      if (!window.isLoggedIn) {
+        // 移除可能存在的旧提示
+        const oldTooltip = document.querySelector('.user-button-tooltip');
+        if (oldTooltip) {
+          oldTooltip.remove();
+        }
+        
+        const tooltip = document.createElement('div');
+        tooltip.className = 'user-button-tooltip';
+        tooltip.textContent = '点击登录或注册';
+        userButton.style.position = 'relative';
+        userButton.appendChild(tooltip);
+        
+        // 显示提示
+        setTimeout(() => {
+          tooltip.style.opacity = '1';
+        }, 10);
+      }
+    });
+
+    userButton.addEventListener('mouseleave', function() {
+      const tooltip = document.querySelector('.user-button-tooltip');
+      if (tooltip) {
+        tooltip.style.opacity = '0';
+        setTimeout(() => {
+          if (tooltip.parentNode) {
+            tooltip.parentNode.removeChild(tooltip);
+          }
+        }, 300);
+      }
+    });
+
+    // 记录历史季节选择
+    const seasonHistory = JSON.parse(localStorage.getItem('seasonHistory') || '[]');
+    if (seasonHistory.length === 0 || seasonHistory[seasonHistory.length - 1] !== initialSeason) {
+      seasonHistory.push(initialSeason);
+      if (seasonHistory.length > 5) {
+        seasonHistory.shift(); // 只保留最近5次选择
+      }
+      localStorage.setItem('seasonHistory', JSON.stringify(seasonHistory));
+    }
+    
+    // 更新季节历史记录显示
+    function updateSeasonHistory() {
+      const historyContainer = document.getElementById('seasonHistory');
+      if (!historyContainer) return;
+      
+      // 清空当前内容
+      historyContainer.innerHTML = '';
+      
+      // 获取历史记录
+      const history = JSON.parse(localStorage.getItem('seasonHistory') || '[]');
+      
+      // 添加历史记录项
+      history.forEach(season => {
+        if (seasonData[season]) {
+          const historyItem = document.createElement('button');
+          historyItem.className = 'w-6 h-6 rounded-full flex items-center justify-center text-xs';
+          historyItem.style.backgroundColor = `${seasonData[season].color}20`;
+          historyItem.style.color = seasonData[season].color;
+          historyItem.setAttribute('data-season', season);
+          historyItem.title = seasonData[season].name;
+          
+          // 添加图标
+          const icon = document.createElement('i');
+          icon.className = seasonData[season].icon;
+          historyItem.appendChild(icon);
+          
+          // 点击切换到该季节
+          historyItem.addEventListener('click', function() {
+            const season = this.getAttribute('data-season');
+            // 更新当前季节
+            localStorage.setItem('currentSeason', season);
+            // 应用季节主题
+            applySeasonTheme(season);
+            // 更新季节页脚
+            if (seasonFooter) {
+              updateSeasonalFooter(season);
+            }
+            // 更新按钮图标
+            updateSeasonButtonIcon(season);
+            // 关闭下拉面板
+            seasonDropdownPanel.classList.add('hidden');
+          });
+          
+          historyContainer.appendChild(historyItem);
+        }
+      });
+    }
+    
+    // 初始化历史记录显示
+    updateSeasonHistory();
+  });
+</script>
+
+<!-- 秋季苹果节特惠浮动广告框 -->
+<div class="promo-popup" id="promoPopup">
+  <div class="promo-popup-close" id="closePromo">
+    <i class="ri-close-line"></i>
+  </div>
+  <img src="./images/秋季苹果节.jpg" alt="秋季苹果节" class="promo-popup-image">
+  <div class="promo-popup-content">
+    <div class="promo-popup-title">
+      <i class="ri-award-line"></i>
+      <span>秋季苹果节特惠</span>
+    </div>
+    <p class="promo-popup-description">🍎 限时优惠：购买任意3种苹果品种，享受8折优惠！新鲜采摘，数量有限，先到先得！</p>
+    <div class="promo-popup-coupon">
+      <span class="promo-popup-code">APPLE2023</span>
+      <span class="promo-popup-copy" id="copyPromoCode">
+        <i class="ri-file-copy-line"></i>
+        复制
+      </span>
+    </div>
+    <button class="promo-popup-action pulse-animation" id="goShoppingBtn">立即选购</button>
+  </div>
+</div>
+
+<style>
+  /* 浮动广告框样式 */
+  .promo-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFF0E6 100%);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    overflow: hidden;
+    border: 1px solid #FFECE0;
+    display: none;
+  }
+  
+  .promo-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+    display: block;
+  }
+  
+  .promo-popup-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #FF3B30;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+  }
+  
+  .promo-popup-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .promo-popup-content {
+    padding: 16px;
+  }
+  
+  .promo-popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FF3B30;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .promo-popup-description {
+    font-size: 14px;
+    color: #4A4A4A;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  
+  .promo-popup-coupon {
+    background-color: #FFFFFF;
+    border: 1px dashed #FF3B30;
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  
+  .promo-popup-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    color: #FF3B30;
+    letter-spacing: 1px;
+  }
+  
+  .promo-popup-copy {
+    color: #FF3B30;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .promo-popup-action {
+    background-color: #FF3B30;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s ease;
+  }
+  
+  .promo-popup-action:hover {
+    background-color: #E62C22;
+  }
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  
+  .pulse-animation {
+    animation: pulse 2s infinite;
+  }
+</style>
+
+<script>
+  // 浮动广告框功能
+  document.addEventListener('DOMContentLoaded', function() {
+    const promoPopup = document.getElementById('promoPopup');
+    const closePromo = document.getElementById('closePromo');
+    const copyPromoCode = document.getElementById('copyPromoCode');
+    const goShoppingBtn = document.getElementById('goShoppingBtn');
+    
+    if (promoPopup) {
+      // 检查是否已经显示过广告
+      const lastShown = localStorage.getItem('promoLastShown');
+      const now = new Date().getTime();
+      
+      // 如果从未显示过或者已经过了24小时
+      if (!lastShown || (now - parseInt(lastShown)) > 24 * 60 * 60 * 1000) {
+        // 5秒后显示广告
+        setTimeout(() => {
+          promoPopup.classList.add('show');
+        }, 5000);
+      }
+      
+      // 关闭广告
+      closePromo.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        promoPopup.classList.remove('show');
+        // 记录关闭时间
+        localStorage.setItem('promoLastShown', new Date().getTime());
+      });
+      
+      // 复制优惠码
+      copyPromoCode.addEventListener('click', () => {
+        const couponCode = document.querySelector('.promo-popup-code').textContent;
+        navigator.clipboard.writeText(couponCode).then(() => {
+          copyPromoCode.innerHTML = '<i class="ri-check-line"></i> 已复制';
+          setTimeout(() => {
+            copyPromoCode.innerHTML = '<i class="ri-file-copy-line"></i> 复制';
+          }, 2000);
+        });
+      });
+      
+      // 点击立即选购
+      goShoppingBtn.addEventListener('click', () => {
+        promoPopup.classList.remove('show');
+        // 导航到苹果品种页面
+        window.location.href = 'DetailsofAppleVarieties.html';
+        // 记录关闭时间
+        localStorage.setItem('promoLastShown', new Date().getTime());
+      });
+    }
+  });
+</script>
+
+<script>
+// ... existing code ...
+
+// 联系表单验证逻辑
+document.addEventListener('DOMContentLoaded', function() {
+  const contactForm = document.getElementById('contactForm');
+  if (!contactForm) return;
+  
+  // 获取表单元素
+  const nameInput = document.getElementById('contactName');
+  const emailInput = document.getElementById('contactEmail');
+  const phoneInput = document.getElementById('contactPhone');
+  const phonePrefixSelect = document.getElementById('contactPhonePrefix');
+  const subjectSelect = document.getElementById('contactSubject');
+  const otherSubjectContainer = document.getElementById('otherSubjectContainer');
+  const otherSubjectInput = document.getElementById('otherSubject');
+  const messageTextarea = document.getElementById('contactMessage');
+  const messageCount = document.getElementById('messageCount');
+  const agreeCheckbox = document.getElementById('contactAgree');
+  const submitButton = document.getElementById('contactSubmitBtn');
+  const formStatus = document.getElementById('formStatus');
+  
+  // 验证状态对象
+  const validationState = {
+    name: false,
+    email: false,
+    phone: true, // 电话是可选的，默认为true
+    subject: false,
+    otherSubject: true, // 只有在选择"其他"时才需要
+    message: false,
+    agree: false
+  };
+  
+  // 验证规则
+  const validationRules = {
+    name: {
+      required: true,
+      minLength: 2,
+      maxLength: 50,
+      pattern: /^[\u4e00-\u9fa5a-zA-Z\s]+$/,
+      message: {
+        required: '请输入您的姓名',
+        minLength: '姓名至少需要2个字符',
+        maxLength: '姓名不能超过50个字符',
+        pattern: '姓名只能包含中文、英文字母和空格'
+      }
+    },
+    email: {
+      required: true,
+      pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      message: {
+        required: '请输入您的邮箱',
+        pattern: '请输入有效的邮箱地址'
+      }
+    },
+    phone: {
+      required: false,
+      patterns: {
+        '+86': /^1[3-9]\d{9}$/, // 中国大陆手机号
+        '+852': /^[5-9]\d{7}$/, // 香港手机号
+        '+886': /^9\d{8}$/, // 台湾手机号
+        '+1': /^[2-9]\d{9}$/ // 美国/加拿大手机号
+      },
+      message: {
+        '+86': '请输入有效的中国大陆手机号码（11位数字，以1开头）',
+        '+852': '请输入有效的香港手机号码（8位数字，以5-9开头）',
+        '+886': '请输入有效的台湾手机号码（9位数字，以9开头）',
+        '+1': '请输入有效的美国/加拿大手机号码（10位数字）'
+      }
+    },
+    subject: {
+      required: true,
+      message: {
+        required: '请选择主题'
+      }
+    },
+    otherSubject: {
+      required: true,
+      minLength: 2,
+      maxLength: 100,
+      message: {
+        required: '请说明具体主题',
+        minLength: '主题说明至少需要2个字符',
+        maxLength: '主题说明不能超过100个字符'
+      }
+    },
+    message: {
+      required: true,
+      minLength: 10,
+      maxLength: 500,
+      message: {
+        required: '请输入留言内容',
+        minLength: '留言内容至少需要10个字符',
+        maxLength: '留言内容不能超过500个字符'
+      }
+    },
+    agree: {
+      required: true,
+      message: {
+        required: '请同意隐私政策'
+      }
+    }
+  };
+  
+  // 显示错误消息
+  function showError(input, message) {
+    const errorElement = input.parentElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = message;
+      errorElement.classList.remove('hidden');
+      input.classList.add('border-red-500');
+    }
+  }
+  
+  // 隐藏错误消息
+  function hideError(input) {
+    const errorElement = input.parentElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.classList.add('hidden');
+      input.classList.remove('border-red-500');
+    }
+  }
+  
+  // 验证姓名
+  function validateName() {
+    const name = nameInput.value.trim();
+    const rules = validationRules.name;
+    
+    if (rules.required && !name) {
+      showError(nameInput, rules.message.required);
+      validationState.name = false;
+      return false;
+    }
+    
+    if (name.length < rules.minLength) {
+      showError(nameInput, rules.message.minLength);
+      validationState.name = false;
+      return false;
+    }
+    
+    if (name.length > rules.maxLength) {
+      showError(nameInput, rules.message.maxLength);
+      validationState.name = false;
+      return false;
+    }
+    
+    if (!rules.pattern.test(name)) {
+      showError(nameInput, rules.message.pattern);
+      validationState.name = false;
+      return false;
+    }
+    
+    hideError(nameInput);
+    validationState.name = true;
+    return true;
+  }
+  
+  // 验证邮箱
+  function validateEmail() {
+    const email = emailInput.value.trim();
+    const rules = validationRules.email;
+    
+    if (rules.required && !email) {
+      showError(emailInput, rules.message.required);
+      validationState.email = false;
+      return false;
+    }
+    
+    if (!rules.pattern.test(email)) {
+      showError(emailInput, rules.message.pattern);
+      validationState.email = false;
+      return false;
+    }
+    
+    hideError(emailInput);
+    validationState.email = true;
+    return true;
+  }
+  
+  // 验证电话
+  function validatePhone() {
+    const phone = phoneInput.value.trim();
+    const prefix = phonePrefixSelect.value;
+    const rules = validationRules.phone;
+    
+    // 如果电话为空且不是必填，则验证通过
+    if (!phone && !rules.required) {
+      hideError(phoneInput);
+      validationState.phone = true;
+      return true;
+    }
+    
+    // 如果电话不为空，则必须符合对应国家/地区的格式
+    if (phone && !rules.patterns[prefix].test(phone)) {
+      showError(phoneInput, rules.message[prefix]);
+      validationState.phone = false;
+      return false;
+    }
+    
+    hideError(phoneInput);
+    validationState.phone = true;
+    return true;
+  }
+  
+  // 验证主题
+  function validateSubject() {
+    const subject = subjectSelect.value;
+    const rules = validationRules.subject;
+    
+    if (rules.required && !subject) {
+      showError(subjectSelect, rules.message.required);
+      validationState.subject = false;
+      return false;
+    }
+    
+    hideError(subjectSelect);
+    validationState.subject = true;
+    
+    // 处理"其他"选项
+    if (subject === '其他') {
+      otherSubjectContainer.classList.remove('hidden');
+      return validateOtherSubject();
+    } else {
+      otherSubjectContainer.classList.add('hidden');
+      validationState.otherSubject = true;
+      return true;
+    }
+  }
+  
+  // 验证其他主题
+  function validateOtherSubject() {
+    if (subjectSelect.value !== '其他') {
+      validationState.otherSubject = true;
+      return true;
+    }
+    
+    const otherSubject = otherSubjectInput.value.trim();
+    const rules = validationRules.otherSubject;
+    
+    if (rules.required && !otherSubject) {
+      showError(otherSubjectInput, rules.message.required);
+      validationState.otherSubject = false;
+      return false;
+    }
+    
+    if (otherSubject.length < rules.minLength) {
+      showError(otherSubjectInput, rules.message.minLength);
+      validationState.otherSubject = false;
+      return false;
+    }
+    
+    if (otherSubject.length > rules.maxLength) {
+      showError(otherSubjectInput, rules.message.maxLength);
+      validationState.otherSubject = false;
+      return false;
+    }
+    
+    hideError(otherSubjectInput);
+    validationState.otherSubject = true;
+    return true;
+  }
+  
+  // 验证留言内容
+  function validateMessage() {
+    const message = messageTextarea.value.trim();
+    const rules = validationRules.message;
+    
+    if (rules.required && !message) {
+      showError(messageTextarea, rules.message.required);
+      validationState.message = false;
+      return false;
+    }
+    
+    if (message.length < rules.minLength) {
+      showError(messageTextarea, rules.message.minLength);
+      validationState.message = false;
+      return false;
+    }
+    
+    if (message.length > rules.maxLength) {
+      showError(messageTextarea, rules.message.maxLength);
+      validationState.message = false;
+      return false;
+    }
+    
+    hideError(messageTextarea);
+    validationState.message = true;
+    return true;
+  }
+  
+  // 验证同意条款
+  function validateAgree() {
+    const agreed = agreeCheckbox.checked;
+    const rules = validationRules.agree;
+    
+    if (rules.required && !agreed) {
+      showError(agreeCheckbox, rules.message.required);
+      validationState.agree = false;
+      return false;
+    }
+    
+    hideError(agreeCheckbox);
+    validationState.agree = true;
+    return true;
+  }
+  
+  // 验证整个表单
+  function validateForm() {
+    const nameValid = validateName();
+    const emailValid = validateEmail();
+    const phoneValid = validatePhone();
+    const subjectValid = validateSubject();
+    const messageValid = validateMessage();
+    const agreeValid = validateAgree();
+    
+    return nameValid && emailValid && phoneValid && subjectValid && 
+           validationState.otherSubject && messageValid && agreeValid;
+  }
+  
+  // 更新提交按钮状态
+  function updateSubmitButton() {
+    const formValid = Object.values(validationState).every(state => state);
+    submitButton.disabled = !formValid;
+    submitButton.classList.toggle('opacity-50', !formValid);
+    submitButton.classList.toggle('cursor-not-allowed', !formValid);
+  }
+  
+  // 显示表单状态
+  function showFormStatus(type, message) {
+    formStatus.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700');
+    
+    if (type === 'success') {
+      formStatus.classList.add('bg-green-100', 'text-green-700');
+    } else if (type === 'error') {
+      formStatus.classList.add('bg-red-100', 'text-red-700');
+    }
+    
+    formStatus.textContent = message;
+    formStatus.classList.add('px-4', 'py-2', 'rounded', 'text-sm');
+    
+    // 5秒后自动隐藏
+    setTimeout(() => {
+      formStatus.classList.add('hidden');
+    }, 5000);
+  }
+  
+  // 提交表单处理
+  function handleSubmit(e) {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      showFormStatus('error', '请修正表单中的错误');
+      return false;
+    }
+    
+    // 禁用提交按钮，防止重复提交
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div><span>提交中...</span>';
+    
+    // 模拟表单提交（实际应用中应替换为真实的API调用）
+    setTimeout(() => {
+      // 重置表单
+      contactForm.reset();
+      otherSubjectContainer.classList.add('hidden');
+      messageCount.textContent = '0';
+      
+      // 显示成功消息
+      showFormStatus('success', '感谢您的留言！我们会尽快回复您。');
+      
+      // 恢复提交按钮
+      submitButton.disabled = false;
+      submitButton.innerHTML = '<span>提交留言</span><i class="ri-send-plane-line"></i>';
+      
+      // 重置验证状态
+      Object.keys(validationState).forEach(key => {
+        validationState[key] = key === 'phone' || key === 'otherSubject';
+      });
+      
+      updateSubmitButton();
+    }, 1500);
+    
+    return false;
+  }
+  
+  // 更新留言字数统计
+  function updateMessageCount() {
+    const count = messageTextarea.value.length;
+    messageCount.textContent = count.toString();
+    messageCount.classList.toggle('text-red-500', count > 500);
+  }
+  
+  // 添加事件监听器
+  nameInput.addEventListener('blur', validateName);
+  nameInput.addEventListener('input', () => {
+    if (nameInput.classList.contains('border-red-500')) {
+      validateName();
+    }
+    updateSubmitButton();
+  });
+  
+  emailInput.addEventListener('blur', validateEmail);
+  emailInput.addEventListener('input', () => {
+    if (emailInput.classList.contains('border-red-500')) {
+      validateEmail();
+    }
+    updateSubmitButton();
+  });
+  
+  phoneInput.addEventListener('blur', validatePhone);
+  phoneInput.addEventListener('input', () => {
+    if (phoneInput.classList.contains('border-red-500')) {
+      validatePhone();
+    }
+    updateSubmitButton();
+  });
+  
+  phonePrefixSelect.addEventListener('change', validatePhone);
+  
+  subjectSelect.addEventListener('change', () => {
+    validateSubject();
+    updateSubmitButton();
+  });
+  
+  otherSubjectInput.addEventListener('blur', validateOtherSubject);
+  otherSubjectInput.addEventListener('input', () => {
+    if (otherSubjectInput.classList.contains('border-red-500')) {
+      validateOtherSubject();
+    }
+    updateSubmitButton();
+  });
+  
+  messageTextarea.addEventListener('blur', validateMessage);
+  messageTextarea.addEventListener('input', () => {
+    updateMessageCount();
+    if (messageTextarea.classList.contains('border-red-500')) {
+      validateMessage();
+    }
+    updateSubmitButton();
+  });
+  
+  agreeCheckbox.addEventListener('change', () => {
+    validateAgree();
+    updateSubmitButton();
+  });
+  
+  // 表单提交事件
+  contactForm.addEventListener('submit', handleSubmit);
+  
+  // 初始化
+  updateMessageCount();
+  updateSubmitButton();
+});
+</script>
+
+<!-- 页脚季节主题区域 -->
+<div id="seasonalFooter" class="mt-10 py-8 relative overflow-hidden">
+  <div class="seasonal-footer-bg absolute inset-0 opacity-15"></div>
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="flex flex-col items-center text-center">
+      <div id="seasonalFooterIcon" class="text-4xl mb-3"></div>
+      <h3 id="seasonalFooterTitle" class="text-xl font-bold mb-2"></h3>
+      <p id="seasonalFooterDesc" class="text-gray-600 max-w-2xl mx-auto"></p>
+      
+      <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="seasonal-feature p-4 bg-white/80 rounded-lg shadow-sm">
+          <div id="seasonalFeature1Icon" class="text-2xl mb-2"></div>
+          <h4 id="seasonalFeature1Title" class="font-medium"></h4>
+          <p id="seasonalFeature1Desc" class="text-sm text-gray-600 mt-1"></p>
+        </div>
+        <div class="seasonal-feature p-4 bg-white/80 rounded-lg shadow-sm">
+          <div id="seasonalFeature2Icon" class="text-2xl mb-2"></div>
+          <h4 id="seasonalFeature2Title" class="font-medium"></h4>
+          <p id="seasonalFeature2Desc" class="text-sm text-gray-600 mt-1"></p>
+        </div>
+        <div class="seasonal-feature p-4 bg-white/80 rounded-lg shadow-sm">
+          <div id="seasonalFeature3Icon" class="text-2xl mb-2"></div>
+          <h4 id="seasonalFeature3Title" class="font-medium"></h4>
+          <p id="seasonalFeature3Desc" class="text-sm text-gray-600 mt-1"></p>
+        </div>
+        <div class="seasonal-feature p-4 bg-white/80 rounded-lg shadow-sm">
+          <div id="seasonalFeature4Icon" class="text-2xl mb-2"></div>
+          <h4 id="seasonalFeature4Title" class="font-medium"></h4>
+          <p id="seasonalFeature4Desc" class="text-sm text-gray-600 mt-1"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// 季节页脚内容更新函数
+function updateSeasonalFooter(season) {
+  const seasonalData = {
+    spring: {
+      icon: '<i class="ri-seedling-line" style="color:#4CD964"></i>',
+      title: '春季苹果花期',
+      description: '春风轻拂，苹果树上绽放着粉白色的花朵，预示着丰收的希望。养护果树的最佳时节，为一年的丰收打下基础。',
+      bgStyle: 'linear-gradient(120deg, #e0f7fa, #f1f8e9)',
+      features: [
+        {
+          icon: '<i class="ri-plant-line" style="color:#4CD964"></i>',
+          title: '春季养护',
+          desc: '春季是果树施肥和防治病虫害的关键期'
+        },
+        {
+          icon: '<i class="ri-drop-line" style="color:#4FC3F7"></i>',
+          title: '适度浇水',
+          desc: '花期需保持适当水分，助花朵健康开放'
+        },
+        {
+          icon: '<i class="ri-sun-line" style="color:#FFEB3B"></i>',
+          title: '授粉期',
+          desc: '确保充分授粉，提高坐果率和果实品质'
+        },
+        {
+          icon: '<i class="ri-community-line" style="color:#26A69A"></i>',
+          title: '赏花活动',
+          desc: '春季苹果花开，是观光与摄影的好时节'
+        }
+      ]
+    },
+    summer: {
+      icon: '<i class="ri-sun-line" style="color:#FF9500"></i>',
+      title: '夏季果实生长',
+      description: '阳光充沛，苹果正在树上茁壮成长。果实逐渐膨大，储存养分和风味。夏季管理关乎果实最终品质。',
+      bgStyle: 'linear-gradient(120deg, #f0f9ff, #e8f5e9)',
+      features: [
+        {
+          icon: '<i class="ri-t-shirt-air-line" style="color:#FF9500"></i>',
+          title: '果实套袋',
+          desc: '保护果实免受病虫害，提高外观品质'
+        },
+        {
+          icon: '<i class="ri-scissors-cut-line" style="color:#FF9800"></i>',
+          title: '夏季修剪',
+          desc: '适当疏果和修剪，调节果实大小和数量'
+        },
+        {
+          icon: '<i class="ri-shield-flash-line" style="color:#4CAF50"></i>',
+          title: '病虫防治',
+          desc: '夏季是病虫害高发期，需加强预防和控制'
+        },
+        {
+          icon: '<i class="ri-temp-hot-line" style="color:#F44336"></i>',
+          title: '防暑降温',
+          desc: '高温季节需适当遮阴和增加通风'
+        }
+      ]
+    },
+    autumn: {
+      icon: '<i class="ri-leaf-line" style="color:#FF3B30"></i>',
+      title: '秋季收获时节',
+      description: '金风送爽，果实成熟饱满，正是收获的季节。苹果色泽红润，香气四溢，带来一年中最甜美的滋味。',
+      bgStyle: 'linear-gradient(120deg, #fff8e1, #ffebee)',
+      features: [
+        {
+          icon: '<i class="ri-store-2-line" style="color:#FF3B30"></i>',
+          title: '苹果采摘',
+          desc: '选择适当时机采摘，确保口感和保存品质'
+        },
+        {
+          icon: '<i class="ri-refund-2-line" style="color:#FB8C00"></i>',
+          title: '分级包装',
+          desc: '按大小和品质分级，延长货架期'
+        },
+        {
+          icon: '<i class="ri-goblet-line" style="color:#8D6E63"></i>',
+          title: '加工制品',
+          desc: '苹果酒、果酱等加工品制作的黄金季节'
+        },
+        {
+          icon: '<i class="ri-calendar-event-line" style="color:#D84315"></i>',
+          title: '丰收节',
+          desc: '传统苹果丰收节庆活动，感恩自然恩赐'
+        }
+      ]
+    },
+    winter: {
+      icon: '<i class="ri-snowy-line" style="color:#007AFF"></i>',
+      title: '冬季休养生息',
+      description: '白雪皑皑，苹果树进入休眠期。这是树木储备能量的重要阶段，也是新年规划和准备的时刻。',
+      bgStyle: 'linear-gradient(120deg, #f5f7fa, #e3f2fd)',
+      features: [
+        {
+          icon: '<i class="ri-showers-line" style="color:#007AFF"></i>',
+          title: '冬季修剪',
+          desc: '树木休眠期是主枝修剪的最佳时机'
+        },
+        {
+          icon: '<i class="ri-fridge-line" style="color:#78909C"></i>',
+          title: '果品贮藏',
+          desc: '低温保存延长苹果保质期，供应全年市场'
+        },
+        {
+          icon: '<i class="ri-scales-3-line" style="color:#5C6BC0"></i>',
+          title: '年度总结',
+          desc: '回顾全年产量和品质，分析改进方向'
+        },
+        {
+          icon: '<i class="ri-book-2-line" style="color:#26C6DA"></i>',
+          title: '来年规划',
+          desc: '制定下一年种植计划和改良策略'
+        }
+      ]
+    }
+  };
+
+  const data = seasonalData[season];
+  if (!data) return;
+
+  // 更新标题和描述
+  document.getElementById('seasonalFooterIcon').innerHTML = data.icon;
+  document.getElementById('seasonalFooterTitle').textContent = data.title;
+  document.getElementById('seasonalFooterDesc').textContent = data.description;
+  
+  // 更新背景
+  document.querySelector('.seasonal-footer-bg').style.background = data.bgStyle;
+  
+  // 更新特点
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`seasonalFeature${i}Icon`).innerHTML = data.features[i-1].icon;
+    document.getElementById(`seasonalFeature${i}Title`).textContent = data.features[i-1].title;
+    document.getElementById(`seasonalFeature${i}Desc`).textContent = data.features[i-1].desc;
+  }
+}
+
+// 在DOM加载完成后初始化季节页脚
+document.addEventListener('DOMContentLoaded', function() {
+  // 获取当前季节并更新页脚
+  const userSeason = localStorage.getItem('userSeasonPreference');
+  const month = new Date().getMonth();
+  
+  let currentSeason;
+  if (userSeason && ['spring', 'summer', 'autumn', 'winter'].includes(userSeason)) {
+    currentSeason = userSeason;
+  } else {
+    if (month >= 2 && month <= 4) currentSeason = 'spring';
+    else if (month >= 5 && month <= 7) currentSeason = 'summer';
+    else if (month >= 8 && month <= 10) currentSeason = 'autumn';
+    else currentSeason = 'winter';
+  }
+  
+  updateSeasonalFooter(currentSeason);
+  
+  // 监听季节变化事件
+  document.addEventListener('seasonChanged', function(e) {
+    updateSeasonalFooter(e.detail.season);
+  });
+});
+</script>
+
+<!-- 季节切换按钮功能 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const seasonToggleBtn = document.getElementById('seasonToggleBtn');
+    const seasonDropdownPanel = document.getElementById('seasonDropdownPanel');
+    const seasonFooter = document.getElementById('seasonalFooter');
+    
+    // 季节数据
+    const seasonData = {
+      spring: {
+        name: '春季',
+        icon: 'fas fa-seedling',
+        color: '#4CD964',
+        description: '春季苹果花期，百花盛开'
+      },
+      summer: {
+        name: '夏季',
+        icon: 'fas fa-sun',
+        color: '#FF9500',
+        description: '夏季果实生长，绿意盎然'
+      },
+      autumn: {
+        name: '秋季',
+        icon: 'fas fa-leaf',
+        color: '#FF3B30',
+        description: '秋季收获季节，果实成熟'
+      },
+      winter: {
+        name: '冬季',
+        icon: 'fas fa-snowflake',
+        color: '#007AFF',
+        description: '冬季休养生息，蓄势待发'
+      }
+    };
+    
+    // 获取当前季节函数
+    function getCurrentSeason() {
+      // 先检查用户选择
+      const savedSeason = localStorage.getItem('currentSeason');
+      if (savedSeason && seasonData[savedSeason]) {
+        return savedSeason;
+      }
+      
+      // 否则根据当前月份判断
+      const month = new Date().getMonth();
+      if (month >= 2 && month <= 4) return 'spring';
+      else if (month >= 5 && month <= 7) return 'summer';
+      else if (month >= 8 && month <= 10) return 'autumn';
+      else return 'winter';
+    }
+    
+    // 初始化：确保下拉面板默认隐藏
+    seasonDropdownPanel.classList.add('hidden');
+    
+    // 点击按钮时显示/隐藏下拉面板
+    seasonToggleBtn.addEventListener('click', function(e) {
+      e.stopPropagation(); // 防止事件冒泡
+      seasonDropdownPanel.classList.toggle('hidden');
+    });
+    
+    // 点击页面其他区域时隐藏下拉面板
+    document.addEventListener('click', function(e) {
+      if (!seasonToggleBtn.contains(e.target) && !seasonDropdownPanel.contains(e.target)) {
+        seasonDropdownPanel.classList.add('hidden');
+      }
+    });
+    
+    // 为每个季节选项添加点击事件
+    document.querySelectorAll('.season-option').forEach(option => {
+      option.addEventListener('click', function() {
+        const season = this.dataset.season;
+        
+        // 更新当前季节
+        localStorage.setItem('currentSeason', season);
+        
+        // 应用季节主题
+        applySeasonTheme(season);
+        
+        // 更新季节页脚
+        if (seasonFooter) {
+          updateSeasonalFooter(season);
+        }
+        
+        // 更新按钮图标
+        updateSeasonButtonIcon(season);
+        
+        // 记录历史季节选择
+        const seasonHistory = JSON.parse(localStorage.getItem('seasonHistory') || '[]');
+        // 如果当前季节已经是最新的记录，不重复添加
+        if (seasonHistory.length === 0 || seasonHistory[seasonHistory.length - 1] !== season) {
+          seasonHistory.push(season);
+          if (seasonHistory.length > 5) {
+            seasonHistory.shift(); // 只保留最近5次选择
+          }
+          localStorage.setItem('seasonHistory', JSON.stringify(seasonHistory));
+          // 更新历史记录显示
+          updateSeasonHistory();
+        }
+        
+        // 关闭下拉面板
+        seasonDropdownPanel.classList.add('hidden');
+      });
+    });
+    // 根据当前季节更新按钮图标
+    function updateSeasonButtonIcon(season) {
+      const iconElement = seasonToggleBtn.querySelector('i');
+      
+      // 移除所有现有类名
+      iconElement.className = '';
+      
+      // 根据季节设置图标和颜色
+      switch(season) {
+        case 'spring':
+          iconElement.className = 'fas fa-seedling';
+          seasonToggleBtn.style.color = '#4CD964';
+          break;
+        case 'summer':
+          iconElement.className = 'fas fa-sun';
+          seasonToggleBtn.style.color = '#FF9500';
+          break;
+        case 'autumn':
+          iconElement.className = 'fas fa-leaf';
+          seasonToggleBtn.style.color = '#FF3B30';
+          break;
+        case 'winter':
+          iconElement.className = 'fas fa-snowflake';
+          seasonToggleBtn.style.color = '#007AFF';
+          break;
+        default:
+          iconElement.className = 'fas fa-leaf';
+          seasonToggleBtn.style.color = '#4CD964';
+      }
+    }
+    
+    // // 初始化按钮图标
+    //  const initialSeason = localStorage.getItem('currentSeason') || getCurrentSeason();
+    // updateSeasonButtonIcon(initialSeason);
+    // 记录历史季节选择
+    const seasonHistory = JSON.parse(localStorage.getItem('seasonHistory') || '[]');
+     if (seasonHistory.length === 0 || seasonHistory[seasonHistory.length - 1] !== initialSeason) {
+       seasonHistory.push(initialSeason);
+       if (seasonHistory.length > 5) {
+         seasonHistory.shift(); // 只保留最近5次选择
+       }
+       localStorage.setItem('seasonHistory', JSON.stringify(seasonHistory));
+     }
+  });
+  
+  // ... existing code ...
+</script>
+
+<!-- 季节切换调试助手 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('季节切换调试助手已加载');
+
+    const seasonOptions = document.querySelectorAll('.season-option');
+    console.log('找到季节选项按钮数量:', seasonOptions.length);
+
+    seasonOptions.forEach(option => {
+      option.addEventListener('click', function(e) {
+        const season = this.dataset.season;
+        console.log('点击了季节选项:', season);
+
+        if (typeof window.applySeasonTheme === 'function') {
+          console.log('尝试调用applySeasonTheme函数...');
+          try {
+            localStorage.setItem('userSeasonPreference', season);
+            window.applySeasonTheme(season);
+            console.log('季节切换函数调用成功');
+            updateSeasonButtonIcon(season);
+          } catch (error) {
+            console.error('季节切换函数调用失败:', error);
+            alert('季节切换失败，请查看控制台了解详情');
+          }
+        } else {
+          console.error('找不到applySeasonTheme函数！');
+          alert('季节切换功能无法使用，请确保main.js已正确加载');
+        }
+      });
+    });
+
+    function updateSeasonButtonIcon(season) {
+      const seasonToggleBtn = document.getElementById('seasonToggleBtn');
+      if (!seasonToggleBtn) return;
+
+      const iconElement = seasonToggleBtn.querySelector('i');
+      if (!iconElement) return;
+
+      iconElement.className = ''; // 清空旧图标类名
+
+      switch(season) {
+        case 'spring':
+          iconElement.className = 'fas fa-seedling';
+          seasonToggleBtn.style.color = '#4CD964';
+          break;
+        case 'summer':
+          iconElement.className = 'fas fa-sun';
+          seasonToggleBtn.style.color = '#FF9500';
+          break;
+        case 'autumn':
+          iconElement.className = 'fas fa-leaf';
+          seasonToggleBtn.style.color = '#FF3B30';
+          break;
+        case 'winter':
+          iconElement.className = 'fas fa-snowflake';
+          seasonToggleBtn.style.color = '#007AFF';
+          break;
+      }
+    }
+
+    // 页面加载时应用当前季节主题
+    setTimeout(() => {
+      if (typeof window.getCurrentSeason === 'function' && typeof window.applySeasonTheme === 'function') {
+        const currentSeason = window.getCurrentSeason();
+        console.log('页面加载，当前季节:', currentSeason);
+        updateSeasonButtonIcon(currentSeason);
+      }
+    }, 500);
+  });
+</script>
+</body>
+</html>

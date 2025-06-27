@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>红富士苹果 - 详情页</title>
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+  <style>
+    :where([class^="ri-"])::before { content: "\f3c2"; }
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    .thumbnail-slider::-webkit-scrollbar {
+      height: 6px;
+    }
+    .thumbnail-slider::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .thumbnail-slider::-webkit-scrollbar-thumb {
+      background: #ddd;
+      border-radius: 10px;
+    }
+    .thumbnail-slider::-webkit-scrollbar-thumb:hover {
+      background: #ccc;
+    }
+    .thumbnail-item.active {
+      border-color: #FF3B30;
+    }
+    .nutrition-table th, .nutrition-table td {
+      padding: 12px 16px;
+      text-align: left;
+    }
+    .nutrition-table th {
+      background-color: #f9fafb;
+      font-weight: 500;
+    }
+    .nutrition-table tr {
+      border-bottom: 1px solid #f1f1f1;
+    }
+    .nutrition-table tr:last-child {
+      border-bottom: none;
+    }
+    .review-progress-bar {
+      height: 6px;
+      background-color: #f1f1f1;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .review-progress-fill {
+      height: 100%;
+      background-color: #FF3B30;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .image-modal.active {
+      display: flex;
+    }
+    .image-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    /* 轮播图样式 */
+    .carousel-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .carousel-slides {
+      display: flex;
+      transition: transform 0.5s ease;
+      height: 100%;
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      height: 100%;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      bottom: 16px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-dot.active {
+      background-color: #fff;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .carousel-prev, .carousel-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background-color: rgba(0, 0, 0, 0.3);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .carousel-prev:hover, .carousel-next:hover {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .carousel-prev {
+      left: 16px;
+    }
+
+    .carousel-next {
+      right: 16px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .thumbnail-item.active {
+      border-color: #FF3B30;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="flex items-center gap-2 text-gray-700 hover:text-primary">
+        <i class="ri-arrow-left-line"></i>
+        <span>返回首页</span>
+      </a>
+      <h1 class="text-lg font-medium">苹果品种详情</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="shareButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+        <i class="ri-share-line"></i>
+      </button>
+      <button class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+        <i class="ri-more-2-line"></i>
+      </button>
+    </div>
+  </div>
+</header>
+<main class="pb-24">
+  <!-- 图片展示区 -->
+  <section class="bg-white">
+    <div class="container mx-auto px-4 py-6">
+      <div class="relative">
+        <div id="mainCarousel" class="carousel-container w-full h-[400px] overflow-hidden rounded-lg cursor-pointer">
+          <div class="carousel-slides">
+            <div class="carousel-slide">
+              <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520juicy%2520nature%2520and%2520make%2520it%2520look%2520appetizing%2520and%2520fresh.&width=800&height=600&seq=2&orientation=landscape" alt="红富士苹果" class="w-full h-full object-cover object-center">
+            </div>
+            <div class="carousel-slide">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520sliced%2520red%2520apples%2520showing%2520the%2520crisp%252C%2520juicy%2520flesh%2520inside.%2520The%2520apple%2520slices%2520should%2520be%2520arranged%2520artistically%2520on%2520a%2520clean%2520white%2520surface%252C%2520with%2520some%2520whole%2520red%2520apples%2520in%2520the%2520background.%2520The%2520lighting%2520should%2520be%2520bright%2520and%2520natural%252C%2520highlighting%2520the%2520fresh%252C%2520moist%2520texture%2520of%2520the%2520apple%2520flesh%2520and%2520the%2520vibrant%2520red%2520skin.%2520The%2520image%2520should%2520look%2520appetizing%2520and%2520showcase%2520the%2520perfect%2520balance%2520of%2520the%2520apples%2520white%2520flesh%2520against%2520its%2520red%2520skin.&width=800&height=600&seq=101&orientation=landscape" alt="红富士苹果切片" class="w-full h-full object-cover object-center">
+            </div>
+            <div class="carousel-slide">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520red%2520apples%2520on%2520a%2520tree%2520branch%2520in%2520an%2520orchard.%2520The%2520apples%2520should%2520be%2520ripe%2520and%2520glossy%252C%2520with%2520their%2520vibrant%2520red%2520color%2520contrasting%2520against%2520green%2520leaves.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520natural%252C%2520like%2520afternoon%2520sunlight%2520filtering%2520through%2520the%2520orchard.%2520The%2520background%2520should%2520show%2520a%2520blurred%2520orchard%2520setting%2520with%2520more%2520apple%2520trees.%2520The%2520image%2520should%2520convey%2520the%2520freshness%2520of%2520apples%2520growing%2520in%2520their%2520natural%2520environment%2520and%2520the%2520beauty%2520of%2520harvest%2520season.&width=800&height=600&seq=102&orientation=landscape" alt="红富士苹果树" class="w-full h-full object-cover object-center">
+            </div>
+            <div class="carousel-slide">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520a%2520wooden%2520crate%2520filled%2520with%2520freshly%2520harvested%2520red%2520apples.%2520The%2520crate%2520should%2520be%2520rustic%2520and%2520made%2520of%2520natural%2520wood%252C%2520overflowing%2520with%2520perfectly%2520ripe%252C%2520glossy%2520red%2520apples.%2520Some%2520apples%2520might%2520be%2520arranged%2520around%2520the%2520crate%2520on%2520a%2520natural%2520surface%2520like%2520wood%2520or%2520burlap.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520natural%252C%2520highlighting%2520the%2520rich%2520color%2520and%2520texture%2520of%2520the%2520apples.%2520The%2520image%2520should%2520convey%2520abundance%252C%2520freshness%252C%2520and%2520the%2520rustic%2520charm%2520of%2520harvest%2520season.&width=800&height=600&seq=103&orientation=landscape" alt="红富士苹果收获" class="w-full h-full object-cover object-center">
+            </div>
+          </div>
+          <div class="carousel-nav"></div>
+          <button class="carousel-prev">
+            <i class="ri-arrow-left-s-line text-xl"></i>
+          </button>
+          <button class="carousel-next">
+            <i class="ri-arrow-right-s-line text-xl"></i>
+          </button>
+        </div>
+        <div class="thumbnail-slider overflow-x-auto py-4 mt-4 flex gap-3">
+          <div class="thumbnail-item active flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 border-transparent cursor-pointer" data-index="0">
+            <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520juicy%2520nature%2520and%2520make%2520it%2520look%2520appetizing%2520and%2520fresh.&width=800&height=600&seq=2&orientation=landscape" alt="红富士苹果" class="w-full h-full object-cover">
+          </div>
+          <div class="thumbnail-item flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 border-transparent cursor-pointer" data-index="1">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520sliced%2520red%2520apples%2520showing%2520the%2520crisp%252C%2520juicy%2520flesh%2520inside.%2520The%2520apple%2520slices%2520should%2520be%2520arranged%2520artistically%2520on%2520a%2520clean%2520white%2520surface%252C%2520with%2520some%2520whole%2520red%2520apples%2520in%2520the%2520background.%2520The%2520lighting%2520should%2520be%2520bright%2520and%2520natural%252C%2520highlighting%2520the%2520fresh%252C%2520moist%2520texture%2520of%2520the%2520apple%2520flesh%2520and%2520the%2520vibrant%2520red%2520skin.%2520The%2520image%2520should%2520look%2520appetizing%2520and%2520showcase%2520the%2520perfect%2520balance%2520of%2520the%2520apples%2520white%2520flesh%2520against%2520its%2520red%2520skin.&width=800&height=600&seq=101&orientation=landscape" alt="红富士苹果切片" class="w-full h-full object-cover">
+          </div>
+          <div class="thumbnail-item flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 border-transparent cursor-pointer" data-index="2">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520red%2520apples%2520on%2520a%2520tree%2520branch%2520in%2520an%2520orchard.%2520The%2520apples%2520should%2520be%2520ripe%2520and%2520glossy%252C%2520with%2520their%2520vibrant%2520red%2520color%2520contrasting%2520against%2520green%2520leaves.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520natural%252C%2520like%2520afternoon%2520sunlight%2520filtering%2520through%2520the%2520orchard.%2520The%2520background%2520should%2520show%2520a%2520blurred%2520orchard%2520setting%2520with%2520more%2520apple%2520trees.%2520The%2520image%2520should%2520convey%2520the%2520freshness%2520of%2520apples%2520growing%2520in%2520their%2520natural%2520environment%2520and%2520the%2520beauty%2520of%2520harvest%2520season.&width=800&height=600&seq=102&orientation=landscape" alt="红富士苹果树" class="w-full h-full object-cover">
+          </div>
+          <div class="thumbnail-item flex-shrink-0 w-20 h-20 rounded overflow-hidden border-2 border-transparent cursor-pointer" data-index="3">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520a%2520wooden%2520crate%2520filled%2520with%2520freshly%2520harvested%2520red%2520apples.%2520The%2520crate%2520should%2520be%2520rustic%2520and%2520made%2520of%2520natural%2520wood%252C%2520overflowing%2520with%2520perfectly%2520ripe%252C%2520glossy%2520red%2520apples.%2520Some%2520apples%2520might%2520be%2520arranged%2520around%2520the%2520crate%2520on%2520a%2520natural%2520surface%2520like%2520wood%2520or%2520burlap.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520natural%252C%2520highlighting%2520the%2520rich%2520color%2520and%2520texture%2520of%2520the%2520apples.%2520The%2520image%2520should%2520convey%2520abundance%252C%2520freshness%252C%2520and%2520the%2520rustic%2520charm%2520of%2520harvest%2520season.&width=800&height=600&seq=103&orientation=landscape" alt="红富士苹果收获" class="w-full h-full object-cover">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 基本信息区 -->
+  <section class="bg-white mt-2">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-start">
+        <div>
+          <h1 class="text-3xl font-bold mb-2">红富士苹果</h1>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="flex items-center">
+              <div class="flex text-yellow-400">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-half-fill"></i>
+              </div>
+              <span class="text-gray-700 ml-2">4.8</span>
+            </div>
+            <span class="text-gray-400">|</span>
+            <span class="text-gray-700">2,386 条评价</span>
+          </div>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-sm">甜脆</span>
+            <span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-sm">多汁</span>
+            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">香气浓郁</span>
+            <span class="bg-yellow-50 text-yellow-600 px-3 py-1 rounded-full text-sm">耐储存</span>
+          </div>
+          <div class="flex items-center text-gray-700">
+            <div class="flex items-center mr-4">
+              <div class="w-5 h-5 flex items-center justify-center mr-1">
+                <i class="ri-map-pin-line"></i>
+              </div>
+              <span>原产地: 日本</span>
+            </div>
+            <div class="flex items-center">
+              <div class="w-5 h-5 flex items-center justify-center mr-1">
+                <i class="ri-calendar-line"></i>
+              </div>
+              <span>最佳季节: 10月-次年4月</span>
+            </div>
+          </div>
+        </div>
+        <button id="favoriteButton" class="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-primary bg-gray-100 hover:bg-gray-200 rounded-full transition-colors">
+          <i class="ri-heart-line text-xl"></i>
+        </button>
+      </div>
+      <div class="mt-6 flex items-center justify-between">
+        <div>
+          <span class="text-gray-500 text-sm">市场价格</span>
+          <div class="flex items-end">
+            <span class="text-primary text-2xl font-bold">¥12.8</span>
+            <span class="text-gray-500 text-sm ml-1 line-through">¥15.9</span>
+            <span class="ml-2 bg-primary/10 text-primary text-xs px-2 py-1 rounded">限时优惠</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            <div class="w-5 h-5 flex items-center justify-center text-primary">
+              <i class="ri-truck-line"></i>
+            </div>
+            <span class="text-gray-700 text-sm">免运费</span>
+          </div>
+          <span class="text-gray-300">|</span>
+          <div class="flex items-center gap-1">
+            <div class="w-5 h-5 flex items-center justify-center text-primary">
+              <i class="ri-shield-check-line"></i>
+            </div>
+            <span class="text-gray-700 text-sm">品质保障</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 详细内容区 -->
+  <section class="mt-2">
+    <div class="container mx-auto">
+      <!-- 品种介绍 -->
+      <div class="bg-white p-6 rounded-t-lg">
+        <h2 class="text-xl font-bold mb-4">品种介绍</h2>
+        <p class="text-gray-700 leading-relaxed">
+          红富士苹果是全球最受欢迎的苹果品种之一，原产于日本青森县，是由美国的红色豪门苹果与日本国光苹果杂交培育而成。它具有鲜艳的红色外表，果形圆整饱满，果肉洁白细腻，口感脆甜多汁，香气浓郁持久。红富士苹果含有丰富的维生素、矿物质和膳食纤维，营养价值极高。
+        </p>
+        <p class="text-gray-700 leading-relaxed mt-3">
+          中国是全球最大的红富士苹果生产国，主要产区包括陕西、山东、甘肃等地。其中陕西洛川的红富士苹果因其独特的土壤和气候条件，品质尤为上乘，被誉为"中国第一苹果"。红富士苹果不仅适合鲜食，还可用于制作各种美食和饮品，是餐桌上的健康之选。
+        </p>
+      </div>
+      <!-- 特点描述 -->
+      <div class="bg-white p-6 border-t border-gray-100">
+        <h2 class="text-xl font-bold mb-4">特点描述</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 flex items-center justify-center bg-red-50 text-primary rounded-full flex-shrink-0">
+              <i class="ri-palette-line"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800">外观特点</h3>
+              <p class="text-gray-700 mt-1">果形圆整，大小均匀，表皮鲜红光亮，有时带有细小的白色斑点，果面光滑细腻。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-full flex-shrink-0">
+              <i class="ri-drop-line"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800">口感风味</h3>
+              <p class="text-gray-700 mt-1">果肉洁白细腻，质地脆嫩多汁，甜度高，酸味适中，香气浓郁持久，回甘明显。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-full flex-shrink-0">
+              <i class="ri-seedling-line"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800">种植特性</h3>
+              <p class="text-gray-700 mt-1">适应性强，耐寒耐旱，在昼夜温差大的地区生长最佳，需充足阳光和良好排水。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 flex items-center justify-center bg-yellow-50 text-yellow-600 rounded-full flex-shrink-0">
+              <i class="ri-time-line"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-gray-800">储存特性</h3>
+              <p class="text-gray-700 mt-1">耐储存性极佳，在0-4°C的环境下可保存6-8个月，常温下也可保持新鲜2-3周。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 营养成分表 -->
+      <div class="bg-white p-6 border-t border-gray-100">
+        <h2 class="text-xl font-bold mb-4">营养成分表</h2>
+        <p class="text-gray-600 mb-4">每100克可食用部分含量</p>
+        <div class="overflow-x-auto">
+          <table class="nutrition-table w-full">
+            <thead>
+            <tr>
+              <th>营养素</th>
+              <th>含量</th>
+              <th>占每日推荐摄入量</th>
+              <th>功效</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>热量</td>
+              <td>52千卡</td>
+              <td>2.6%</td>
+              <td>低热量，适合减肥人群</td>
+            </tr>
+            <tr>
+              <td>碳水化合物</td>
+              <td>13.8克</td>
+              <td>4.6%</td>
+              <td>提供能量，维持体力</td>
+            </tr>
+            <tr>
+              <td>膳食纤维</td>
+              <td>2.4克</td>
+              <td>9.6%</td>
+              <td>促进肠道蠕动，预防便秘</td>
+            </tr>
+            <tr>
+              <td>维生素C</td>
+              <td>4.6毫克</td>
+              <td>7.7%</td>
+              <td>增强免疫力，抗氧化</td>
+            </tr>
+            <tr>
+              <td>钾</td>
+              <td>107毫克</td>
+              <td>5.4%</td>
+              <td>调节血压，维持心脏健康</td>
+            </tr>
+            <tr>
+              <td>多酚类物质</td>
+              <td>高</td>
+              <td>-</td>
+              <td>抗氧化，预防慢性疾病</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- 适用场景 -->
+      <div class="bg-white p-6 border-t border-gray-100">
+        <h2 class="text-xl font-bold mb-4">适用场景</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex items-start gap-4">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520a%2520person%2520eating%2520a%2520fresh%2520red%2520apple%2520as%2520a%2520healthy%2520snack.%2520The%2520person%2520should%2520be%2520taking%2520a%2520bite%2520from%2520the%2520apple%252C%2520with%2520a%2520pleased%2520expression.%2520The%2520setting%2520should%2520be%2520bright%2520and%2520natural%252C%2520perhaps%2520outdoors%2520or%2520in%2520a%2520well-lit%2520room.%2520The%2520image%2520should%2520convey%2520the%2520enjoyment%2520of%2520eating%2520fresh%2520fruit%2520and%2520the%2520health%2520benefits%2520of%2520choosing%2520apples%2520as%2520a%2520snack.%2520The%2520apple%2520should%2520look%2520crisp%2520and%2520juicy%2520with%2520its%2520vibrant%2520red%2520color.&width=300&height=200&seq=104&orientation=landscape" alt="鲜食" class="w-32 h-24 object-cover rounded-lg flex-shrink-0">
+            <div>
+              <h3 class="font-bold text-gray-800">鲜食</h3>
+              <p class="text-gray-700 mt-1">红富士苹果甜脆多汁，是理想的健康零食，可直接食用或切片享用，适合各年龄段人群。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520an%2520apple%2520pie%2520made%2520with%2520red%2520apples.%2520The%2520pie%2520should%2520have%2520a%2520golden%252C%2520flaky%2520crust%2520with%2520a%2520lattice%2520top%2520that%2520allows%2520glimpses%2520of%2520the%2520cinnamon-spiced%2520apple%2520filling.%2520There%2520might%2520be%2520a%2520dusting%2520of%2520sugar%2520on%2520top%2520and%2520perhaps%2520a%2520slice%2520cut%2520out%2520to%2520show%2520the%2520layers%2520of%2520apples%2520inside.%2520The%2520setting%2520should%2520be%2520warm%2520and%2520homey%252C%2520with%2520the%2520pie%2520on%2520a%2520rustic%2520wooden%2520surface.%2520The%2520image%2520should%2520convey%2520the%2520delicious%2520aroma%2520and%2520comfort%2520of%2520freshly%2520baked%2520apple%2520pie.&width=300&height=200&seq=105&orientation=landscape" alt="烘焙" class="w-32 h-24 object-cover rounded-lg flex-shrink-0">
+            <div>
+              <h3 class="font-bold text-gray-800">烘焙</h3>
+              <p class="text-gray-700 mt-1">质地坚实且含水量适中，烘烤后保持形状不易软烂，是制作苹果派、苹果蛋糕等的理想选择。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520fresh%2520apple%2520juice%2520being%2520poured%2520from%2520a%2520juicer%2520into%2520a%2520clear%2520glass.%2520The%2520juice%2520should%2520be%2520a%2520pale%2520golden%2520color%2520with%2520some%2520froth%2520on%2520top.%2520There%2520should%2520be%2520fresh%2520red%2520apples%2520and%2520perhaps%2520some%2520apple%2520slices%2520arranged%2520around%2520the%2520juicer%2520and%2520glass.%2520The%2520setting%2520should%2520be%2520bright%2520and%2520clean%252C%2520like%2520a%2520modern%2520kitchen%2520with%2520natural%2520light.%2520The%2520image%2520should%2520convey%2520the%2520freshness%2520and%2520health%2520benefits%2520of%2520homemade%2520apple%2520juice.&width=300&height=200&seq=106&orientation=landscape" alt="榨汁" class="w-32 h-24 object-cover rounded-lg flex-shrink-0">
+            <div>
+              <h3 class="font-bold text-gray-800">榨汁</h3>
+              <p class="text-gray-700 mt-1">富含果汁且甜度高，榨汁后色泽金黄，口感清爽，可单独制作苹果汁或与其他水果混合。</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520a%2520colorful%2520salad%2520featuring%2520sliced%2520red%2520apples.%2520The%2520salad%2520should%2520include%2520fresh%2520greens%252C%2520thinly%2520sliced%2520red%2520apples%252C%2520nuts%2520%2528like%2520walnuts%2520or%2520pecans%2529%252C%2520cheese%2520%2528like%2520blue%2520cheese%2520or%2520feta%2529%252C%2520and%2520perhaps%2520some%2520dried%2520cranberries.%2520There%2520should%2520be%2520a%2520light%2520dressing%2520drizzled%2520over%2520the%2520top.%2520The%2520salad%2520should%2520be%2520arranged%2520in%2520an%2520attractive%2520bowl%2520or%2520plate%2520with%2520some%2520ingredients%2520visible%2520around%2520it.%2520The%2520setting%2520should%2520be%2520bright%2520and%2520fresh%252C%2520highlighting%2520the%2520vibrant%2520colors%2520of%2520the%2520ingredients.%2520The%2520image%2520should%2520convey%2520a%2520healthy%252C%2520delicious%2520meal%2520option.&width=300&height=200&seq=107&orientation=landscape" alt="烹饪" class="w-32 h-24 object-cover rounded-lg flex-shrink-0">
+            <div>
+              <h3 class="font-bold text-gray-800">烹饪</h3>
+              <p class="text-gray-700 mt-1">甜中带酸的口感使其成为沙拉、肉类菜肴的理想配料，可增添清新口感和平衡重口味。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 相关食谱推荐 -->
+      <div class="bg-white p-6 border-t border-gray-100">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">相关食谱推荐</h2>
+          <a href="#" class="text-primary flex items-center">
+            <span>查看全部</span>
+            <div class="w-5 h-5 flex items-center justify-center">
+              <i class="ri-arrow-right-s-line"></i>
+            </div>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="h-40 overflow-hidden">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautifully%2520styled%2520image%2520of%2520a%2520classic%2520apple%2520pie%2520with%2520a%2520golden%2520lattice%2520crust.%2520The%2520pie%2520should%2520be%2520freshly%2520baked%2520with%2520visible%2520apple%2520slices%2520and%2520cinnamon%2520filling%2520peeking%2520through%2520the%2520lattice.%2520There%2520should%2520be%2520a%2520dusting%2520of%2520sugar%2520on%2520top%2520that%2520glistens%2520in%2520the%2520light.%2520The%2520pie%2520should%2520be%2520placed%2520on%2520a%2520rustic%2520wooden%2520surface%2520with%2520some%2520fresh%2520apples%2520and%2520cinnamon%2520sticks%2520as%2520props.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520inviting%252C%2520creating%2520a%2520homey%2520atmosphere.%2520The%2520image%2520should%2520make%2520the%2520viewer%2520crave%2520a%2520slice%2520of%2520this%2520delicious%252C%2520traditional%2520dessert.&width=400&height=300&seq=8&orientation=landscape" alt="经典苹果派" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-gray-800">经典苹果派</h3>
+              <div class="flex items-center text-yellow-400 mt-1 mb-2">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-half-fill"></i>
+                <span class="text-gray-600 ml-1 text-sm">4.9</span>
+              </div>
+              <p class="text-gray-600 text-sm">香酥的派皮搭配肉桂苹果馅，是最经典的美式甜点，温暖而充满家的味道。</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="h-40 overflow-hidden">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautifully%2520styled%2520image%2520of%2520caramelized%2520apple%2520crepes.%2520The%2520crepes%2520should%2520be%2520thin%2520and%2520golden%252C%2520folded%2520over%2520a%2520filling%2520of%2520tender%252C%2520caramelized%2520apple%2520slices.%2520There%2520should%2520be%2520a%2520drizzle%2520of%2520caramel%2520sauce%2520on%2520top%2520and%2520a%2520dusting%2520of%2520powdered%2520sugar.%2520The%2520plate%2520should%2520be%2520elegant%2520and%2520white%252C%2520placed%2520on%2520a%2520light-colored%2520surface%2520with%2520some%2520fresh%2520apples%2520and%2520mint%2520leaves%2520as%2520garnish.%2520The%2520lighting%2520should%2520be%2520bright%2520and%2520clean%252C%2520highlighting%2520the%2520delicate%2520texture%2520of%2520the%2520crepes%2520and%2520the%2520glossy%2520caramel.%2520The%2520image%2520should%2520convey%2520a%2520sophisticated%2520breakfast%2520or%2520dessert%2520option.&width=400&height=300&seq=11&orientation=landscape" alt="焦糖苹果可丽饼" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-gray-800">焦糖苹果可丽饼</h3>
+              <div class="flex items-center text-yellow-400 mt-1 mb-2">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-600 ml-1 text-sm">5.0</span>
+              </div>
+              <p class="text-gray-600 text-sm">薄薄的可丽饼包裹着焦糖苹果馅，口感丰富，是早餐或下午茶的优雅选择。</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="h-40 overflow-hidden">
+              <img src="https://readdy.ai/api/search-image?query=A%2520beautifully%2520styled%2520image%2520of%2520pork%2520chops%2520with%2520caramelized%2520apples%2520on%2520a%2520serving%2520platter.%2520The%2520pork%2520chops%2520should%2520be%2520perfectly%2520seared%2520with%2520a%2520golden-brown%2520crust%2520and%2520juicy%2520interior.%2520The%2520caramelized%2520apples%2520should%2520be%2520arranged%2520around%2520the%2520meat%252C%2520glistening%2520with%2520a%2520savory-sweet%2520sauce.%2520There%2520should%2520be%2520fresh%2520herbs%2520like%2520rosemary%2520or%2520thyme%2520as%2520garnish.%2520The%2520platter%2520should%2520be%2520elegant%2520and%2520placed%2520on%2520a%2520dark%2520surface%2520with%2520some%2520fresh%2520ingredients%2520and%2520a%2520glass%2520of%2520white%2520wine%2520as%2520props.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520inviting%252C%2520highlighting%2520the%2520succulent%2520meat%2520and%2520glossy%2520apples.%2520The%2520image%2520should%2520convey%2520a%2520sophisticated%2520main%2520course.&width=400&height=300&seq=13&orientation=landscape" alt="焦糖苹果猪排" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+            </div>
+            <div class="p-4">
+              <h3 class="font-bold text-gray-800">焦糖苹果猪排</h3>
+              <div class="flex items-center text-yellow-400 mt-1 mb-2">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-half-fill"></i>
+                <span class="text-gray-600 ml-1 text-sm">4.8</span>
+              </div>
+              <p class="text-gray-600 text-sm">多汁的猪排搭配焦糖苹果，甜咸结合，是一道令人印象深刻的主菜。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 用户评价区 -->
+      <div class="bg-white p-6 border-t border-gray-100">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold">用户评价</h2>
+          <div class="flex items-center gap-1">
+            <span class="text-yellow-400 text-2xl font-bold">4.8</span>
+            <div class="flex flex-col">
+              <div class="flex text-yellow-400">
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-fill"></i>
+                <i class="ri-star-half-fill"></i>
+              </div>
+              <span class="text-gray-500 text-xs">2,386 条评价</span>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div class="col-span-1">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="text-gray-700 w-16">5 星</span>
+                <div class="review-progress-bar flex-1">
+                  <div class="review-progress-fill" style="width: 78%"></div>
+                </div>
+                <span class="text-gray-700 w-8">78%</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-700 w-16">4 星</span>
+                <div class="review-progress-bar flex-1">
+                  <div class="review-progress-fill" style="width: 16%"></div>
+                </div>
+                <span class="text-gray-700 w-8">16%</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-700 w-16">3 星</span>
+                <div class="review-progress-bar flex-1">
+                  <div class="review-progress-fill" style="width: 4%"></div>
+                </div>
+                <span class="text-gray-700 w-8">4%</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-700 w-16">2 星</span>
+                <div class="review-progress-bar flex-1">
+                  <div class="review-progress-fill" style="width: 1%"></div>
+                </div>
+                <span class="text-gray-700 w-8">1%</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-700 w-16">1 星</span>
+                <div class="review-progress-bar flex-1">
+                  <div class="review-progress-fill" style="width: 1%"></div>
+                </div>
+                <span class="text-gray-700 w-8">1%</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex flex-wrap gap-2">
+              <button class="bg-primary text-white px-3 py-1 rounded-full text-sm">全部评价</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">最新</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">好评 (5星)</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">有图</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">口感</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">新鲜度</button>
+              <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm hover:bg-gray-200">包装</button>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <!-- 评价1 -->
+          <div class="border-b border-gray-100 pb-6">
+            <div class="flex items-start gap-4">
+              <img src="https://readdy.ai/api/search-image?query=A%2520professional%2520avatar%2520photo%2520of%2520a%2520middle-aged%2520Asian%2520woman%2520with%2520short%2520hair%2520and%2520glasses%252C%2520smiling%2520warmly%2520at%2520the%2520camera.%2520The%2520background%2520should%2520be%2520simple%2520and%2520neutral.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520flattering%252C%2520highlighting%2520her%2520friendly%2520expression.%2520The%2520image%2520should%2520be%2520cropped%2520as%2520a%2520square%2520profile%2520picture%252C%2520showing%2520just%2520her%2520head%2520and%2520shoulders.&width=60&height=60&seq=21&orientation=squarish" alt="用户头像" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 class="font-bold">林美玲</h4>
+                    <div class="flex text-yellow-400 mt-1">
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                    </div>
+                  </div>
+                  <span class="text-gray-500 text-sm">2023-04-15</span>
+                </div>
+                <p class="text-gray-700 mb-3">这批红富士真的太好吃了！脆甜多汁，一口咬下去汁水四溢，香气扑鼻。个头也很均匀，每个都很饱满。包装很结实，收到时一个都没有碰伤。全家人都很喜欢，已经是第三次购买了，会一直支持！</p>
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <img src="https://readdy.ai/api/search-image?query=A%2520close-up%2520image%2520of%2520a%2520person%2520holding%2520a%2520cut%2520red%2520apple%252C%2520showing%2520its%2520crisp%252C%2520juicy%2520interior.%2520The%2520apple%2520should%2520look%2520fresh%2520and%2520delicious%252C%2520with%2520visible%2520juice%2520droplets.%2520The%2520lighting%2520should%2520be%2520natural%2520and%2520bright%252C%2520highlighting%2520the%2520apples%2520texture%2520and%2520color.%2520The%2520image%2520should%2520be%2520focused%2520on%2520the%2520apple%2520slice%2520in%2520the%2520persons%2520hand%252C%2520with%2520a%2520slightly%2520blurred%2520background.&width=100&height=100&seq=108&orientation=squarish" alt="用户评价图片" class="w-20 h-20 object-cover rounded">
+                  <img src="https://readdy.ai/api/search-image?query=A%2520close-up%2520image%2520of%2520several%2520red%2520apples%2520arranged%2520in%2520a%2520fruit%2520bowl%2520on%2520a%2520kitchen%2520counter.%2520The%2520apples%2520should%2520look%2520fresh%2520and%2520glossy%252C%2520with%2520their%2520vibrant%2520red%2520color%2520standing%2520out.%2520The%2520lighting%2520should%2520be%2520natural%2520and%2520bright%252C%2520creating%2520a%2520homey%2520atmosphere.%2520The%2520background%2520should%2520be%2520slightly%2520blurred%252C%2520focusing%2520attention%2520on%2520the%2520beautiful%2520apples.&width=100&height=100&seq=109&orientation=squarish" alt="用户评价图片" class="w-20 h-20 object-cover rounded">
+                </div>
+                <div class="flex items-center text-gray-500 text-sm">
+                  <span>购买规格：5kg 礼盒装</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 评价2 -->
+          <div class="border-b border-gray-100 pb-6">
+            <div class="flex items-start gap-4">
+              <img src="https://readdy.ai/api/search-image?query=A%2520professional%2520avatar%2520photo%2520of%2520a%2520young%2520Asian%2520man%2520with%2520a%2520casual%2520style%252C%2520smiling%2520confidently%2520at%2520the%2520camera.%2520The%2520background%2520should%2520be%2520simple%2520and%2520neutral.%2520The%2520lighting%2520should%2520be%2520bright%2520and%2520natural%252C%2520highlighting%2520his%2520friendly%2520expression.%2520The%2520image%2520should%2520be%2520cropped%2520as%2520a%2520square%2520profile%2520picture%252C%2520showing%2520just%2520his%2520head%2520and%2520shoulders.&width=60&height=60&seq=22&orientation=squarish" alt="用户头像" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 class="font-bold">陈志强</h4>
+                    <div class="flex text-yellow-400 mt-1">
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-line"></i>
+                    </div>
+                  </div>
+                  <span class="text-gray-500 text-sm">2023-03-28</span>
+                </div>
+                <p class="text-gray-700 mb-3">苹果整体品质不错，甜度适中，脆度很好。不过个别苹果有一点点碰伤，可能是运输过程中造成的。储存了一周后依然保持新鲜，没有软化的迹象，耐储存性确实很好。价格也比超市便宜不少，性价比高。</p>
+                <div class="flex items-center text-gray-500 text-sm">
+                  <span>购买规格：3kg 家庭装</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 评价3 -->
+          <div>
+            <div class="flex items-start gap-4">
+              <img src="https://readdy.ai/api/search-image?query=A%2520professional%2520avatar%2520photo%2520of%2520a%2520middle-aged%2520Asian%2520woman%2520with%2520long%2520hair%2520and%2520a%2520warm%2520smile.%2520The%2520background%2520should%2520be%2520simple%2520and%2520neutral.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520flattering%252C%2520highlighting%2520her%2520friendly%2520expression.%2520The%2520image%2520should%2520be%2520cropped%2520as%2520a%2520square%2520profile%2520picture%252C%2520showing%2520just%2520her%2520head%2520and%2520shoulders.&width=60&height=60&seq=110&orientation=squarish" alt="用户头像" class="w-12 h-12 rounded-full object-cover flex-shrink-0">
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <h4 class="font-bold">王丽华</h4>
+                    <div class="flex text-yellow-400 mt-1">
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                      <i class="ri-star-fill"></i>
+                    </div>
+                  </div>
+                  <span class="text-gray-500 text-sm">2023-03-10</span>
+                </div>
+                <p class="text-gray-700 mb-3">用这款红富士做了苹果派，效果特别好！苹果切片后不容易氧化变褐，烤过之后依然保持形状，不会变得太软烂。而且甜度刚好，不用加太多糖。孩子们都说这是他们吃过的最好吃的苹果派。强烈推荐给喜欢烘焙的朋友！</p>
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <img src="https://readdy.ai/api/search-image?query=A%2520close-up%2520image%2520of%2520a%2520homemade%2520apple%2520pie%2520with%2520a%2520golden%2520crust%2520and%2520visible%2520apple%2520filling.%2520The%2520pie%2520should%2520be%2520freshly%2520baked%2520and%2520still%2520in%2520its%2520baking%2520dish%252C%2520with%2520perhaps%2520a%2520slice%2520cut%2520out%2520to%2520show%2520the%2520layers%2520of%2520apples%2520inside.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520homey%252C%2520suggesting%2520a%2520home%2520kitchen%2520environment.%2520The%2520image%2520should%2520focus%2520on%2520the%2520pie%2520itself%252C%2520with%2520a%2520slightly%2520blurred%2520background.&width=100&height=100&seq=111&orientation=squarish" alt="用户评价图片" class="w-20 h-20 object-cover rounded">
+                </div>
+                <div class="flex items-center text-gray-500 text-sm">
+                  <span>购买规格：5kg 礼盒装</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 text-center">
+          <button class="text-primary hover:text-primary/80 font-medium">查看更多评价</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- 相关推荐 -->
+  <section class="mt-2 bg-white p-6">
+    <div class="container mx-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold">相关推荐</h2>
+        <a href="#" class="text-primary flex items-center">
+          <span>查看全部</span>
+          <div class="w-5 h-5 flex items-center justify-center">
+            <i class="ri-arrow-right-s-line"></i>
+          </div>
+        </a>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="h-36 overflow-hidden">
+            <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Granny%2520Smith%2520apple%2520with%2520its%2520characteristic%2520bright%2520green%2520color.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520some%2520subtle%2520yellow%2520undertones.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520vibrant%2520green%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520fresh%2520appearance.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520tart%2520nature%2520and%2520make%2520it%2520look%2520appetizing%2520and%2520refreshing.&width=600&height=400&seq=3&orientation=landscape" alt="青苹果" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+          </div>
+          <div class="p-3">
+            <h3 class="font-medium text-gray-800">青苹果</h3>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-primary font-bold">¥10.8</span>
+              <div class="flex items-center text-yellow-400 text-xs">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-600 ml-1">4.6</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="h-36 overflow-hidden">
+            <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Honeycrisp%2520apple%2520with%2520its%2520distinctive%2520mottled%2520red%2520and%2520yellow%2520skin.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520surface%2520that%2520shows%2520the%2520characteristic%2520speckled%2520pattern.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520beautiful%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520texture%2520and%2520vibrant%2520colors.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520exceptionally%2520crisp%2520and%2520juicy%2520nature%252C%2520making%2520it%2520look%2520incredibly%2520appetizing%2520and%2520fresh.&width=600&height=400&seq=4&orientation=landscape" alt="蜜脆苹果" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+          </div>
+          <div class="p-3">
+            <h3 class="font-medium text-gray-800">蜜脆苹果</h3>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-primary font-bold">¥15.9</span>
+              <div class="flex items-center text-yellow-400 text-xs">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-600 ml-1">4.9</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="h-36 overflow-hidden">
+            <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Pink%2520Lady%2520apple%2520with%2520its%2520distinctive%2520pink-red%2520blush%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520gradient%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520elegant%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520firm%252C%2520crisp%2520texture%2520and%2520its%2520perfect%2520balance%2520of%2520sweetness%2520and%2520tartness%252C%2520making%2520it%2520look%2520appetizing%2520and%2520sophisticated.&width=600&height=400&seq=5&orientation=landscape" alt="粉红女士苹果" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+          </div>
+          <div class="p-3">
+            <h3 class="font-medium text-gray-800">粉红女士</h3>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-primary font-bold">¥16.8</span>
+              <div class="flex items-center text-yellow-400 text-xs">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-600 ml-1">4.7</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div class="h-36 overflow-hidden">
+            <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Gala%2520apple%2520with%2520its%2520characteristic%2520striped%2520red%2520pattern%2520over%2520a%2520yellow%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520striped%2520pattern%2520clearly.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520aromatic%2520nature%2520and%2520sweet%2520flavor%252C%2520making%2520it%2520look%2520appetizing%2520and%2520fresh.&width=600&height=400&seq=6&orientation=landscape" alt="嘎啦苹果" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105">
+          </div>
+          <div class="p-3">
+            <h3 class="font-medium text-gray-800">嘎啦苹果</h3>
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-primary font-bold">¥11.5</span>
+              <div class="flex items-center text-yellow-400 text-xs">
+                <i class="ri-star-fill"></i>
+                <span class="text-gray-600 ml-1">4.5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<!-- 底部操作按钮区 -->
+<div class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-40">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-6 flex-1">
+        <a href="index.html" class="flex flex-col items-center text-gray-600 hover:text-primary">
+          <i class="ri-home-line text-xl"></i>
+          <span class="text-sm">返回首页</span>
+        </a>
+        <button class="flex flex-col items-center text-gray-600 hover:text-primary">
+          <div class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-customer-service-2-line"></i>
+          </div>
+          <span class="text-xs mt-1">客服</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="addToCartBtn" class="bg-primary/10 text-primary px-6 py-3 rounded-button font-medium hover:bg-primary/20 transition-colors whitespace-nowrap">加入购物车</button>
+        <button id="buyNowBtn" class="bg-primary text-white px-6 py-3 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">立即购买</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 分享对话框 -->
+<div id="shareModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+  <div class="bg-white w-full max-w-md rounded-xl p-6 mx-4">
+    <div class="flex items-start justify-between mb-4">
+      <h3 class="text-xl font-bold">分享</h3>
+      <button id="closeShareModal" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="flex items-start gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
+      <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520juicy%2520nature%2520and%2520make%2520it%2520look%2520appetizing%2520and%2520fresh.&width=800&height=600&seq=2&orientation=landscape" alt="红富士苹果" class="w-20 h-20 object-cover rounded">
+      <div>
+        <h4 class="font-bold text-gray-800">红富士苹果</h4>
+        <p class="text-gray-600 text-sm mt-1 line-clamp-2">甜脆多汁的红富士苹果，果形圆整饱满，果肉洁白细腻，香气浓郁持久。</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-4 gap-4">
+      <button class="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50">
+        <div class="w-12 h-12 flex items-center justify-center bg-[#07C160] text-white rounded-full">
+          <i class="ri-wechat-fill text-2xl"></i>
+        </div>
+        <span class="text-sm text-gray-700">微信</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50">
+        <div class="w-12 h-12 flex items-center justify-center bg-[#07C160] text-white rounded-full">
+          <i class="ri-wechat-fill text-2xl"></i>
+        </div>
+        <span class="text-sm text-gray-700">朋友圈</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50">
+        <div class="w-12 h-12 flex items-center justify-center bg-[#EB4141] text-white rounded-full">
+          <i class="ri-weibo-fill text-2xl"></i>
+        </div>
+        <span class="text-sm text-gray-700">微博</span>
+      </button>
+      <button class="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50">
+        <div class="w-12 h-12 flex items-center justify-center bg-[#12B7F5] text-white rounded-full">
+          <i class="ri-qq-fill text-2xl"></i>
+        </div>
+        <span class="text-sm text-gray-700">QQ</span>
+      </button>
+    </div>
+    <button id="copyLinkBtn" class="w-full mt-6 flex items-center justify-center gap-2 py-3 bg-gray-100 text-gray-700 rounded-button hover:bg-gray-200 transition-colors">
+      <i class="ri-link"></i>
+      <span>复制链接</span>
+    </button>
+  </div>
+</div>
+
+<!-- 图片查看模态框 -->
+<div id="imageModal" class="image-modal">
+  <img id="modalImage" src="" alt="放大查看">
+  <button id="closeModal" class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center bg-black/30 text-white rounded-full hover:bg-black/50 transition-colors">
+    <i class="ri-close-line"></i>
+  </button>
+</div>
+<!-- 购买数量选择模态框 -->
+<div id="quantityModal" class="fixed inset-0 bg-black/50 flex items-end justify-center z-50 hidden">
+  <div class="bg-white w-full max-w-md rounded-t-xl p-6">
+    <div class="flex items-start justify-between mb-4">
+      <div class="flex gap-4">
+        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.%2520The%2520image%2520should%2520convey%2520the%2520apples%2520crisp%252C%2520juicy%2520nature%2520and%2520make%2520it%2520look%2520appetizing%2520and%2520fresh.&width=800&height=600&seq=2&orientation=landscape" alt="红富士苹果" class="w-20 h-20 object-cover rounded">
+        <div>
+          <h3 class="font-bold text-primary text-xl">¥12.8</h3>
+          <p class="text-gray-600 text-sm mt-1">库存: 1280件</p>
+          <p class="text-gray-600 text-sm">已选: <span id="selectedSpec">3kg 家庭装</span></p>
+        </div>
+      </div>
+      <button id="closeQuantityModal" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="mb-6">
+      <h3 class="font-bold mb-3">规格</h3>
+      <div class="flex flex-wrap gap-3">
+        <button class="spec-btn bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium">3kg 家庭装</button>
+        <button class="spec-btn bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200">5kg 礼盒装</button>
+        <button class="spec-btn bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-200">10kg 团购装</button>
+      </div>
+    </div>
+    <div class="mb-8">
+      <h3 class="font-bold mb-3">数量</h3>
+      <div class="flex items-center">
+        <button id="decreaseBtn" class="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-l text-gray-600 hover:bg-gray-100">
+          <i class="ri-subtract-line"></i>
+        </button>
+        <input type="number" id="quantityInput" value="1" min="1" max="99" class="w-16 h-10 border-y border-gray-200 text-center focus:outline-none">
+        <button id="increaseBtn" class="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-r text-gray-600 hover:bg-gray-100">
+          <i class="ri-add-line"></i>
+        </button>
+      </div>
+    </div>
+    <button id="confirmBtn" class="w-full bg-primary text-white py-3 rounded-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">确定</button>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+// 轮播图功能
+    const carousel = document.getElementById('mainCarousel');
+    const carouselSlides = carousel.querySelector('.carousel-slides');
+    const carouselNav = carousel.querySelector('.carousel-nav');
+    const carouselPrev = carousel.querySelector('.carousel-prev');
+    const carouselNext = carousel.querySelector('.carousel-next');
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const thumbnailItems = document.querySelectorAll('.thumbnail-item');
+    let currentIndex = 0;
+    let autoPlayInterval;
+    const totalSlides = slides.length;
+    
+    // 初始化轮播图导航点
+    function initCarouselNav() {
+      for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = i === 0 ? 'carousel-dot active' : 'carousel-dot';
+        dot.dataset.index = i;
+        carouselNav.appendChild(dot);
+        
+        dot.addEventListener('click', () => {
+          goToSlide(i);
+        });
+      }
+    }
+    
+    // 自动播放
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayInterval = setInterval(() => {
+        goToSlide((currentIndex + 1) % totalSlides);
+      }, 5000);
+    }
+    
+    function stopAutoPlay() {
+      if (autoPlayInterval) {
+        clearInterval(autoPlayInterval);
+      }
+    }
+    
+    // 切换到指定轮播图
+    function goToSlide(index) {
+      if (index < 0) index = totalSlides - 1;
+      if (index >= totalSlides) index = 0;
+      
+      carouselSlides.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
+      
+      // 更新导航点和缩略图状态
+      updateNavDots();
+      updateThumbnails();
+    }
+    
+    // 更新导航点状态
+    function updateNavDots() {
+      carouselNav.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+        if (index === currentIndex) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+    
+    // 更新缩略图状态
+    function updateThumbnails() {
+      thumbnailItems.forEach((item, index) => {
+        if (index === currentIndex) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+    
+    // 缩略图点击事件
+    thumbnailItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const index = parseInt(item.dataset.index);
+        goToSlide(index);
+        stopAutoPlay();
+        startAutoPlay();
+      });
+    });
+    
+    // 前后按钮点击事件
+    carouselPrev.addEventListener('click', () => {
+      goToSlide(currentIndex - 1);
+      stopAutoPlay();
+      startAutoPlay();
+    });
+    
+    carouselNext.addEventListener('click', () => {
+      goToSlide(currentIndex + 1);
+      stopAutoPlay();
+      startAutoPlay();
+    });
+    
+    // 轮播图鼠标悬停暂停自动播放
+    carousel.addEventListener('mouseenter', stopAutoPlay);
+    carousel.addEventListener('mouseleave', startAutoPlay);
+    
+    // 图片查看大图功能
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const closeModal = document.getElementById('closeModal');
+    
+    // 点击轮播图打开大图
+    carousel.addEventListener('click', function() {
+      const currentSlide = slides[currentIndex].querySelector('img');
+      modalImage.src = currentSlide.src;
+      imageModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
+    
+    closeModal.addEventListener('click', function() {
+      imageModal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+    
+    imageModal.addEventListener('click', function(e) {
+      if (e.target === imageModal) {
+        imageModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+    
+    // 触摸轮播支持
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    carousel.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      stopAutoPlay();
+    }, { passive: true });
+    
+    carousel.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+      startAutoPlay();
+    }, { passive: true });
+    
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      if (touchEndX < touchStartX - swipeThreshold) {
+        // 向左滑动
+        goToSlide(currentIndex + 1);
+      } else if (touchEndX > touchStartX + swipeThreshold) {
+        // 向右滑动
+        goToSlide(currentIndex - 1);
+      }
+    }
+    
+    // 初始化轮播图
+    initCarouselNav();
+    startAutoPlay();
+
+// 分享功能
+    const shareButton = document.getElementById('shareButton');
+    const shareModal = document.getElementById('shareModal');
+    const closeShareModal = document.getElementById('closeShareModal');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+    shareButton.addEventListener('click', function() {
+      shareModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeShareModal.addEventListener('click', function() {
+      shareModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+
+    shareModal.addEventListener('click', function(e) {
+      if (e.target === shareModal) {
+        shareModal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+
+    copyLinkBtn.addEventListener('click', function() {
+      const currentUrl = window.location.href;
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="ri-check-line"></i><span>链接已复制</span>';
+        this.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+        this.classList.add('bg-green-100', 'text-green-700');
+
+        setTimeout(() => {
+          this.innerHTML = originalText;
+          this.classList.remove('bg-green-100', 'text-green-700');
+          this.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
+        }, 2000);
+      });
+    });
+
+// 收藏按钮
+    const favoriteButton = document.getElementById('favoriteButton');
+    favoriteButton.addEventListener('click', function() {
+      const icon = this.querySelector('i');
+      if (icon.classList.contains('ri-heart-line')) {
+        icon.classList.remove('ri-heart-line');
+        icon.classList.add('ri-heart-fill');
+        this.classList.remove('text-gray-400');
+        this.classList.add('text-primary');
+      } else {
+        icon.classList.remove('ri-heart-fill');
+        icon.classList.add('ri-heart-line');
+        this.classList.remove('text-primary');
+        this.classList.add('text-gray-400');
+      }
+    });
+
+// 购买数量选择
+    const quantityModal = document.getElementById('quantityModal');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const buyNowBtn = document.getElementById('buyNowBtn');
+    const closeQuantityModal = document.getElementById('closeQuantityModal');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const decreaseBtn = document.getElementById('decreaseBtn');
+    const increaseBtn = document.getElementById('increaseBtn');
+    const quantityInput = document.getElementById('quantityInput');
+    const specBtns = document.querySelectorAll('.spec-btn');
+    const selectedSpec = document.getElementById('selectedSpec');
+    function showModal(action) {
+      quantityModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      confirmBtn.dataset.action = action;
+    }
+    addToCartBtn.addEventListener('click', function() {
+      showModal('cart');
+    });
+    buyNowBtn.addEventListener('click', function() {
+      showModal('buy');
+    });
+    closeQuantityModal.addEventListener('click', function() {
+      quantityModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+    quantityModal.addEventListener('click', function(e) {
+      if (e.target === quantityModal) {
+        quantityModal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    });
+    decreaseBtn.addEventListener('click', function() {
+      let value = parseInt(quantityInput.value);
+      if (value > 1) {
+        quantityInput.value = value - 1;
+      }
+    });
+    increaseBtn.addEventListener('click', function() {
+      let value = parseInt(quantityInput.value);
+      if (value < 99) {
+        quantityInput.value = value + 1;
+      }
+    });
+    quantityInput.addEventListener('change', function() {
+      let value = parseInt(this.value);
+      if (isNaN(value) || value < 1) {
+        this.value = 1;
+      } else if (value > 99) {
+        this.value = 99;
+      }
+    });
+    specBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        specBtns.forEach(b => {
+          b.classList.remove('bg-primary/10', 'text-primary');
+          b.classList.add('bg-gray-100', 'text-gray-700');
+        });
+        this.classList.remove('bg-gray-100', 'text-gray-700');
+        this.classList.add('bg-primary/10', 'text-primary');
+        selectedSpec.textContent = this.textContent;
+      });
+    });
+    confirmBtn.addEventListener('click', function() {
+      const action = this.dataset.action;
+      const quantity = quantityInput.value;
+      const spec = selectedSpec.textContent;
+// 这里可以根据action执行不同的操作
+      if (action === 'cart') {
+        alert(`已添加 ${quantity} 件 ${spec} 到购物车`);
+      } else if (action === 'buy') {
+        alert(`立即购买 ${quantity} 件 ${spec}`);
+      }
+      quantityModal.classList.add('hidden');
+      document.body.style.overflow = '';
+    });
+
+// 完整分页功能实现
+    function implementPagination() {
+      // 获取所有需要分页的内容
+      const allItems = document.querySelectorAll('.paginated-item');
+      const paginationContainer = document.querySelector('.pagination-container');
+      
+      if (!allItems.length || !paginationContainer) return;
+      
+      const itemsPerPage = 8; // 每页显示数量
+      const totalPages = Math.ceil(allItems.length / itemsPerPage);
+      
+      // 创建分页按钮
+      paginationContainer.innerHTML = '';
+      
+      // 上一页按钮
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'pagination-nav flex items-center justify-center w-10 h-10 rounded-full border text-gray-500 mr-2 disabled:opacity-50';
+      prevBtn.innerHTML = '<i class="ri-arrow-left-s-line"></i>';
+      prevBtn.disabled = true;
+      paginationContainer.appendChild(prevBtn);
+      
+      // 页码按钮
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = i === 1 
+          ? 'pagination-btn flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white mx-1'
+          : 'pagination-btn flex items-center justify-center w-10 h-10 rounded-full border text-gray-700 hover:bg-gray-100 mx-1';
+        btn.textContent = i;
+        btn.dataset.page = i;
+        paginationContainer.appendChild(btn);
+      }
+      
+      // 下一页按钮
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'pagination-nav flex items-center justify-center w-10 h-10 rounded-full border text-gray-500 ml-2';
+      nextBtn.innerHTML = '<i class="ri-arrow-right-s-line"></i>';
+      nextBtn.disabled = totalPages <= 1;
+      paginationContainer.appendChild(nextBtn);
+      
+      // 显示指定页的内容
+      function showPage(page) {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        
+        allItems.forEach((item, index) => {
+          if (index >= startIndex && index < endIndex) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+        
+        // 更新按钮状态
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+          if (parseInt(btn.dataset.page) === page) {
+            btn.classList.add('bg-primary', 'text-white');
+            btn.classList.remove('border', 'text-gray-700', 'hover:bg-gray-100');
+          } else {
+            btn.classList.remove('bg-primary', 'text-white');
+            btn.classList.add('border', 'text-gray-700', 'hover:bg-gray-100');
+          }
+        });
+        
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = page === totalPages;
+      }
+      
+      // 设置按钮点击事件
+      paginationContainer.addEventListener('click', function(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        
+        if (target.classList.contains('pagination-btn')) {
+          const page = parseInt(target.dataset.page);
+          showPage(page);
+        } else if (target === prevBtn && !target.disabled) {
+          const currentPage = parseInt(document.querySelector('.pagination-btn.bg-primary').dataset.page);
+          showPage(currentPage - 1);
+        } else if (target === nextBtn && !target.disabled) {
+          const currentPage = parseInt(document.querySelector('.pagination-btn.bg-primary').dataset.page);
+          showPage(currentPage + 1);
+        }
+      });
+      
+      // 初始显示第一页
+      showPage(1);
+    }
+  });
+</script>
+</body>
+</html>

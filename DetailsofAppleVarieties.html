@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苹果品种大全 - 探索更多苹果品种</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* 浮动广告框样式 */
+        .promo-popup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: linear-gradient(135deg, #FFF8F0 0%, #FFF0E6 100%);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+            overflow: hidden;
+            border: 1px solid #FFECE0;
+            display: none;
+        }
+        
+        .promo-popup.show {
+            opacity: 1;
+            transform: translateY(0);
+            display: block;
+        }
+        
+        .promo-popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #FF3B30;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .promo-popup-close:hover {
+            background-color: rgba(255, 59, 48, 0.1);
+            transform: scale(1.1);
+        }
+        
+        .promo-popup-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .promo-popup-content {
+            padding: 16px;
+        }
+        
+        .promo-popup-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #FF3B30;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .promo-popup-description {
+            font-size: 14px;
+            color: #4A4A4A;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .promo-popup-coupon {
+            background-color: #FFFFFF;
+            border: 1px dashed #FF3B30;
+            border-radius: 6px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .promo-popup-code {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            color: #FF3B30;
+            letter-spacing: 1px;
+        }
+        
+        .promo-popup-copy {
+            color: #FF3B30;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .promo-popup-action {
+            background-color: #FF3B30;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s ease;
+        }
+        
+        .promo-popup-action:hover {
+            background-color: #E62C22;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        /* 购物车样式 */
+        .cart-toggle {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            color: #FF3B30;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 101;
+        }
+        
+        .shopping-cart {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 350px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            transition: all 0.3s ease;
+            transform: translateX(calc(100% + 20px));
+        }
+        
+        .shopping-cart.visible {
+            transform: translateX(0);
+        }
+        
+        .shopping-cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .shopping-cart-body {
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .shopping-cart-footer {
+            padding: 12px 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        
+        .cart-item-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 12px;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .cart-item-price {
+            color: #FF3B30;
+            font-weight: 500;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cart-item-quantity {
+            width: 40px;
+            text-align: center;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+        
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: #f3f4f6;
+            cursor: pointer;
+        }
+        
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 100px;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #FF3B30;
+            background-color: rgba(255, 59, 48, 0.05);
+        }
+        
+        .apple-card {
+            position: relative;
+        }
+        
+        /* 更新购物车按钮样式 */
+        .add-to-cart-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 12px;
+            background: #FF3B30;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 5;
+            box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+            border: none;
+        }
+        
+        .add-to-cart-btn i {
+            font-size: 18px;
+        }
+        
+        .add-to-cart-btn span {
+            display: none;
+            margin-left: 4px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .apple-card:hover .add-to-cart-btn {
+            opacity: 1;
+        }
+        
+        .apple-card:hover .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.4);
+        }
+        
+        .add-to-cart-btn:hover {
+            min-width: 120px;
+        }
+        
+        .add-to-cart-btn:hover span {
+            display: inline-block;
+        }
+        
+        .add-to-cart-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+        }
+        
+        .draggable {
+            cursor: grab;
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+        }
+        .custom-checkbox {
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+        }
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+        .custom-checkbox:hover input ~ .checkmark {
+            border-color: #ccc;
+        }
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: #FF3B30;
+            border-color: #FF3B30;
+        }
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+        }
+        .custom-checkbox .checkmark:after {
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .custom-radio {
+            position: relative;
+            padding-left: 30px;
+            cursor: pointer;
+        }
+        .custom-radio input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .radio-mark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+        }
+        .custom-radio:hover input ~ .radio-mark {
+            border-color: #ccc;
+        }
+        .custom-radio input:checked ~ .radio-mark {
+            border-color: #FF3B30;
+        }
+        .radio-mark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            top: 4px;
+            left: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #FF3B30;
+        }
+        .custom-radio input:checked ~ .radio-mark:after {
+            display: block;
+        }
+        .apple-card:hover .apple-card-overlay {
+            opacity: 1;
+        }
+        .apple-card:hover img {
+            transform: scale(1.05);
+        }
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+        .pagination-btn.active {
+            background-color: #FF3B30;
+            color: white;
+        }
+        .sort-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 180px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 50;
+            margin-top: 4px;
+        }
+        .sort-container:hover .sort-dropdown {
+            display: block;
+        }
+        .filter-tag.active {
+            background-color: #FF3B30;
+            color: white;
+        }
+        
+        /* 添加购物车相关样式 */
+        .remove-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FF3B30;
+            background: #f3f4f6;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 4px;
+        }
+        
+        .remove-btn:hover {
+            background: #fee2e2;
+        }
+        
+        .cart-toggle {
+            z-index: 101;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .cart-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        .shopping-cart {
+            z-index: 100;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .shopping-cart.visible {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .shopping-cart-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-height: 100px;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #FF3B30;
+            background-color: rgba(255, 59, 48, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-8">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-10 h-10 flex items-center justify-center text-primary">
+                    <i class="ri-apple-fill ri-2x"></i>
+                </div>
+                <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+            </a>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="index.html" class="text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+                <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors border-b-2 border-primary">苹果品种</a>
+                <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+                <a href="AppleCulture.html" class="text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+                <a href="Community.html" class="text-gray-700 hover:text-primary font-medium transition-colors">互动社区</a>
+                <a href="SnakeGame.html" class="text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="Favorites.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                <i class="ri-heart-line"></i>
+            </a>
+            <div class="relative group cart-icon-container">
+                <a href="ShoppingCart.html" class="w-10 h-10 flex items-center justify-center text-primary rounded-full bg-red-50 transition-colors relative">
+                    <i class="ri-shopping-cart-line"></i>
+                    <span id="headerCartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs flex items-center justify-center rounded-full">0</span>
+                </a>
+                <!-- 购物车悬停提示 -->
+                <div id="cartPreview" class="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg py-3 px-4 hidden group-hover:block z-50">
+                    <div class="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+                    <h4 class="font-medium text-gray-900 mb-2">购物车</h4>
+                    <div id="cartPreviewItems" class="max-h-60 overflow-y-auto">
+                        <!-- 购物车预览项将通过JavaScript动态生成 -->
+                        <div class="text-gray-500 text-center py-4">购物车为空</div>
+                    </div>
+                    <div class="border-t border-gray-100 mt-3 pt-3 flex justify-between items-center">
+                        <span class="text-sm text-gray-600">共 <span id="cartPreviewCount">0</span> 件商品</span>
+                        <a href="ShoppingCart.html" class="px-4 py-1.5 bg-primary text-white text-sm rounded-full hover:bg-primary/90 transition-colors">
+                            查看购物车
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="relative group">
+                <button class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-user-line"></i>
+                </button>
+                <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                    <a href="UserProfile.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="ri-user-line"></i>
+                        <span>个人资料</span>
+                    </a>
+                    <a href="Favorites.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="ri-heart-line"></i>
+                        <span>我的收藏</span>
+                    </a>
+                    <a href="OrderHistory.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="ri-file-list-line"></i>
+                        <span>订单历史</span>
+                    </a>
+                    <hr class="my-2">
+                    <a href="#" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                        <i class="ri-logout-box-line"></i>
+                        <span>退出登录</span>
+                    </a>
+                </div>
+            </div>
+            <button class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main class="pb-16">
+    <!-- 页面标题 -->
+    <section class="bg-white py-8 border-b border-gray-100">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center gap-2 mb-4">
+                <a href="index.html" class="text-gray-500 hover:text-primary transition-colors">首页</a>
+                <div class="w-4 h-4 flex items-center justify-center text-gray-400">
+                    <i class="ri-arrow-right-s-line"></i>
+                </div>
+                <span class="text-gray-700">苹果品种大全</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">苹果品种大全</h1>
+            <p class="text-gray-600 mt-2">探索来自世界各地的优质苹果品种，了解它们独特的口感、风味和适用场景。</p>
+        </div>
+    </section>
+
+    <!-- 搜索和筛选区域 -->
+    <div class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-6">
+            <!-- 搜索框 -->
+            <div class="flex items-center gap-4 mb-6">
+                <div class="flex-1 relative">
+                    <input type="text" id="searchInput" placeholder="搜索苹果品种、产地、特点..." class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-primary">
+                    <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="ri-search-line"></i>
+                    </div>
+                </div>
+                <button id="advancedFilterBtn" class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:border-primary hover:text-primary transition-colors flex items-center gap-2">
+                    <i class="ri-filter-3-line"></i>
+                    <span>高级筛选</span>
+                </button>
+            </div>
+            
+            <!-- 快速筛选标签 -->
+            <div class="flex flex-wrap gap-2">
+                <button class="filter-tag px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-type="all">全部</button>
+                <button class="filter-tag px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-type="sweet">甜味</button>
+                <button class="filter-tag px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-type="sour">酸味</button>
+                <button class="filter-tag px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-type="crispy">脆甜</button>
+                <button class="filter-tag px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-type="juicy">多汁</button>
+            </div>
+
+            <!-- 高级筛选面板 -->
+            <div id="advancedFilterPanel" class="hidden mt-6 p-6 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 产地筛选 -->
+                    <div>
+                        <h3 class="font-medium mb-3">产地</h3>
+                        <div class="space-y-2">
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="origin" value="国产">
+                                <span class="checkmark"></span>
+                                国产
+                            </label>
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="origin" value="进口">
+                                <span class="checkmark"></span>
+                                进口
+                            </label>
+                        </div>
+                    </div>
+                    <!-- 价格区间 -->
+                    <div>
+                        <h3 class="font-medium mb-3">价格区间</h3>
+                        <div class="flex items-center gap-2">
+                            <input type="number" class="w-24 px-3 py-2 border border-gray-200 rounded" placeholder="最低价">
+                            <span class="text-gray-400">-</span>
+                            <input type="number" class="w-24 px-3 py-2 border border-gray-200 rounded" placeholder="最高价">
+                        </div>
+                    </div>
+                    <!-- 季节 -->
+                    <div>
+                        <h3 class="font-medium mb-3">上市季节</h3>
+                        <div class="space-y-2">
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="season" value="春季">
+                                <span class="checkmark"></span>
+                                春季
+                            </label>
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="season" value="夏季">
+                                <span class="checkmark"></span>
+                                夏季
+                            </label>
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="season" value="秋季">
+                                <span class="checkmark"></span>
+                                秋季
+                            </label>
+                            <label class="custom-checkbox block">
+                                <input type="checkbox" name="season" value="冬季">
+                                <span class="checkmark"></span>
+                                冬季
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-6 gap-4">
+                    <button id="resetFilter" class="px-6 py-2 border border-gray-200 rounded-lg text-gray-700 hover:border-gray-300 transition-colors">重置</button>
+                    <button id="applyFilter" class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">应用筛选</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 苹果品种列表 -->
+    <section class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900">共找到 24 种苹果品种</h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600">每页显示：</span>
+                    <select class="border border-gray-200 rounded px-2 py-1 text-gray-700 focus:outline-none focus:border-primary pr-8">
+                        <option>12</option>
+                        <option>24</option>
+                        <option>36</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 苹果品种卡片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- 苹果卡片 1 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="国产" data-season="秋季" data-price="15.8">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.&width=400&height=300&seq=1&orientation=landscape" alt="红富士苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn absolute bottom-3 right-3 bg-primary text-white px-3 py-1.5 rounded-full text-sm hover:bg-primary/90 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100" 
+                            data-id="hongfushi" 
+                            data-name="红富士" 
+                            data-price="15.8" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Red%2520Delicious%2520apple%2520with%2520its%2520distinctive%2520deep%2520red%2520color%2520and%2520elongated%2520shape.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520characteristic%2520five%2520points%2520at%2520the%2520bottom.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520rich%2520red%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520color.&width=400&height=300&seq=1&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">红富士</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.8</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">红富士苹果甜脆多汁，果肉细腻，香气浓郁，是最受欢迎的苹果品种之一。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">甜脆</span>
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">多汁</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 2 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="春季" data-price="18.5">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Granny%2520Smith%2520apple%2520with%2520its%2520characteristic%2520bright%2520green%2520color.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520some%2520subtle%2520yellow%2520undertones.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520vibrant%2520green%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520fresh%2520appearance.&width=400&height=300&seq=2&orientation=landscape" alt="青苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn absolute bottom-3 right-3 bg-primary text-white px-3 py-1.5 rounded-full text-sm hover:bg-primary/90 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100"
+                            data-id="qingpingguo"
+                            data-name="青苹果"
+                            data-price="18.5"
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Granny%2520Smith%2520apple%2520with%2520its%2520characteristic%2520bright%2520green%2520color.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520some%2520subtle%2520yellow%2520undertones.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520vibrant%2520green%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520fresh%2520appearance.&width=400&height=300&seq=2&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">青苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.6</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">青苹果酸甜可口，果肉坚实，口感清脆，是烘焙和沙拉的理想选择。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">清脆</span>
+                                <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 3 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="秋季" data-price="25.8">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Honeycrisp%2520apple%2520with%2520its%2520distinctive%2520mottled%2520red%2520and%2520yellow%2520skin.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520surface%2520that%2520shows%2520the%2520characteristic%2520speckled%2520pattern.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520beautiful%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520texture%2520and%2520vibrant%2520colors.&width=400&height=300&seq=3&orientation=landscape" alt="蜜脆苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn absolute bottom-3 right-3 bg-primary text-white px-3 py-1.5 rounded-full text-sm hover:bg-primary/90 transition-colors flex items-center gap-1 opacity-0 group-hover:opacity-100"
+                            data-id="mikuai"
+                            data-name="蜜脆苹果"
+                            data-price="25.8"
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Honeycrisp%2520apple%2520with%2520its%2520distinctive%2520mottled%2520red%2520and%2520yellow%2520skin.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520surface%2520that%2520shows%2520the%2520characteristic%2520speckled%2520pattern.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520beautiful%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520texture%2520and%2520vibrant%2520colors.&width=400&height=300&seq=3&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">蜜脆苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.9</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">蜜脆苹果汁水丰富，甜度适中，口感极佳，是近年来备受欢迎的高端品种。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">香甜</span>
+                                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">多汁</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 4 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group" data-origin="进口" data-season="冬季" data-price="22.5">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Pink%2520Lady%2520apple%2520with%2520its%2520distinctive%2520pink-red%2520blush%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520gradient%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520elegant%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=4&orientation=landscape" alt="粉红女士苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="pinklady" 
+                            data-name="粉红女士" 
+                            data-price="22.5" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Pink%2520Lady%2520apple%2520with%2520its%2520distinctive%2520pink-red%2520blush%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520gradient%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520elegant%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=4&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">粉红女士</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.7</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">粉红女士苹果口感脆爽，甜中带酸，香气独特，是高端水果市场的明星产品。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs">香脆</span>
+                                <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-xs">甜酸</span>
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 5 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Gala%2520apple%2520with%2520its%2520characteristic%2520striped%2520red%2520pattern%2520over%2520a%2520yellow%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520striped%2520pattern%2520clearly.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=5&orientation=landscape" alt="嘎啦苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="gala" 
+                            data-name="嘎啦苹果" 
+                            data-price="19.9" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Gala%2520apple%2520with%2520its%2520characteristic%2520striped%2520red%2520pattern%2520over%2520a%2520yellow%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520striped%2520pattern%2520clearly.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=5&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">嘎啦苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.5</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">嘎啦苹果甜度高，香气浓郁，果肉细腻，是生食和制作果汁的理想选择。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">香甜</span>
+                                <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">细腻</span>
+                                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">榨汁</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 6 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Fuji%2520apple%2520with%2520its%2520characteristic%2520red%2520blush%2520over%2520a%2520yellowish-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520subtle%2520speckles%2520and%2520stripes.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520beautiful%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=6&orientation=landscape" alt="陕西洛川苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="luochuan" 
+                            data-name="洛川苹果" 
+                            data-price="16.8" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Fuji%2520apple%2520with%2520its%2520characteristic%2520red%2520blush%2520over%2520a%2520yellowish-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520subtle%2520speckles%2520and%2520stripes.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520beautiful%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=6&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">洛川苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.8</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">洛川苹果色泽鲜艳，果肉细腻，甜度高，是中国优质苹果的代表品种之一。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">甘甜</span>
+                                <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">脆嫩</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 7 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Golden%2520Delicious%2520apple%2520with%2520its%2520characteristic%2520golden-yellow%2520color.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520some%2520subtle%2520blush%2520or%2520freckles.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520warm%2520yellow%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=7&orientation=landscape" alt="黄金苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="golden" 
+                            data-name="黄金苹果" 
+                            data-price="17.5" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Golden%2520Delicious%2520apple%2520with%2520its%2520characteristic%2520golden-yellow%2520color.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520some%2520subtle%2520blush%2520or%2520freckles.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520warm%2520yellow%2520color%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520attractive%2520appearance.&width=400&height=300&seq=7&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">黄金苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.6</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">黄金苹果果肉细腻，甜度适中，香气独特，适合生食和制作各类甜点。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">甜蜜</span>
+                                <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-xs">细腻</span>
+                                <span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 8 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Braeburn%2520apple%2520with%2520its%2520characteristic%2520red%2520striping%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520contrast%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=8&orientation=landscape" alt="布雷本苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="braeburn" 
+                            data-name="布雷本" 
+                            data-price="21.2" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Braeburn%2520apple%2520with%2520its%2520characteristic%2520red%2520striping%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520contrast%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=8&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">布雷本</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.7</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">布雷本苹果酸甜平衡，果肉坚实，口感脆爽，是烹饪和生食的理想选择。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">脆爽</span>
+                                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">烹饪</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 9 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Jazz%2520apple%2520with%2520its%2520characteristic%2520bright%2520red%2520color%2520with%2520yellow-green%2520undertones.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520blend%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=9&orientation=landscape" alt="爵士苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="jazz" 
+                            data-name="爵士苹果" 
+                            data-price="23.5" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Jazz%2520apple%2520with%2520its%2520characteristic%2520bright%2520red%2520color%2520with%2520yellow-green%2520undertones.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520blend%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=9&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">爵士苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.8</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">爵士苹果是嘎啦与布雷本的杂交品种，果肉坚实，口感脆甜，香气浓郁。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">脆甜</span>
+                                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">香气浓</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 10 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Jonagold%2520apple%2520with%2520its%2520characteristic%2520red%2520blush%2520over%2520a%2520golden%2520yellow%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520blend%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=10&orientation=landscape" alt="金冠苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="jonagold" 
+                            data-name="金冠苹果" 
+                            data-price="20.8" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Jonagold%2520apple%2520with%2520its%2520characteristic%2520red%2520blush%2520over%2520a%2520golden%2520yellow%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520blend%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=10&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">金冠苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.7</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">金冠苹果是金冠与红玉的杂交品种，果肉松脆多汁，香甜可口，适合各种用途。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">香甜</span>
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">多汁</span>
+                                <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 11 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Cortland%2520apple%2520with%2520its%2520characteristic%2520deep%2520red%2520color%2520with%2520blue-purple%2520undertones.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520rich%2520color.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=11&orientation=landscape" alt="考特兰苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                        <button class="add-to-cart-btn" 
+                            data-id="cortland" 
+                            data-name="考特兰" 
+                            data-price="19.2" 
+                            data-image="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Cortland%2520apple%2520with%2520its%2520characteristic%2520deep%2520red%2520color%2520with%2520blue-purple%2520undertones.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520rich%2520color.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=11&orientation=landscape">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">考特兰</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.5</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">考特兰苹果果肉洁白，质地柔软，切开后不易氧化变色，是制作沙拉的理想选择。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">柔软</span>
+                                <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                                <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">沙拉</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 苹果卡片 12 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520close-up%252C%2520detailed%2520image%2520of%2520a%2520Envy%2520apple%2520with%2520its%2520characteristic%2520bright%2520red%2520blush%2520over%2520a%2520yellow-green%2520background.%2520The%2520apple%2520should%2520be%2520perfectly%2520ripe%252C%2520with%2520a%2520glossy%2520skin%2520that%2520shows%2520the%2520beautiful%2520contrast%2520of%2520colors.%2520The%2520background%2520should%2520be%2520simple%2520and%2520clean%252C%2520allowing%2520the%2520apples%2520attractive%2520coloration%2520to%2520stand%2520out.%2520The%2520lighting%2520should%2520be%2520soft%2520and%2520natural%252C%2520highlighting%2520the%2520apples%2520smooth%2520texture%2520and%2520vibrant%2520appearance.&width=400&height=300&seq=12&orientation=landscape" alt="艳妃苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                        <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-bold">艳妃苹果</h3>
+                            <div class="flex items-center gap-1 text-yellow-500">
+                                <i class="ri-star-fill"></i>
+                                <span class="text-gray-700">4.9</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">艳妃苹果是皇家嘎啦与布雷本的杂交品种，果肉细腻，甜度高，口感极佳。</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-1 flex-wrap">
+                                <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">超甜</span>
+                                <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">细腻</span>
+                                <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">生食</span>
+                            </div>
+                            <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                                <i class="ri-heart-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 添加第二页的苹果卡片 -->
+                <!-- 苹果卡片 13 -->
+                <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-56">
+                        <img src="./images/麦金托什.jpeg" alt="麦金托什苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="mcintosh" 
+                        data-name="麦金托什" 
+                        data-price="21.5" 
+                        data-image="./images/麦金托什.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">麦金托什</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.6</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">麦金托什苹果香气浓郁，口感柔软多汁，酸甜平衡，是制作苹果酱的理想选择。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-xs">香甜</span>
+                            <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">柔软</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">加工</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 14 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/卡密欧苹果.jpeg" alt="卡密欧苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="cameo" 
+                        data-name="卡密欧" 
+                        data-price="23.8" 
+                        data-image="./images/卡密欧苹果.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">卡密欧</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.7</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">卡密欧苹果风味浓郁，口感脆甜多汁，保存期长，既适合鲜食也适合烹饪。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">脆甜</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">多汁</span>
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">耐存</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 15 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/罗马美人.jpeg" alt="罗马美人苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="romebeauty" 
+                        data-name="罗马美人" 
+                        data-price="19.5" 
+                        data-image="./images/罗马美人.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">罗马美人</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.5</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">罗马美人苹果果肉密实，烘烤后保持形状，是制作苹果派和烤苹果的首选。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                            <span class="bg-orange-50 text-orange-600 px-2 py-0.5 rounded text-xs">稳定</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">密实</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 16 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/帝国苹果.jpeg" alt="帝国苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="empire" 
+                        data-name="帝国苹果" 
+                        data-price="20.5" 
+                        data-image="./images/帝国苹果.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">帝国苹果</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.6</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">帝国苹果是麦金托什和红豪苹果的杂交品种，口感清脆多汁，酸甜适中。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">清脆</span>
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                            <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">多用途</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 17 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/酒香苹果.jpeg" alt="酒香苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" >
+                        data-id="winesap" 
+                        data-name="酒香苹果" 
+                        data-price="22.8" 
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">酒香苹果</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.7</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">酒香苹果有葡萄酒般的复杂风味，果肉紧实，即食生津，也适合制作苹果酒。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">醇香</span>
+                            <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">紧实</span>
+                            <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">生津</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 18 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/脆粉苹果.jpeg" alt="脆粉苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" >
+                        data-id="crippspink" 
+                        data-name="脆粉苹果" 
+                        data-price="24.5" 
+                        data-image="./images/脆粉苹果.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">脆粉苹果</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.8</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">脆粉苹果外表粉嫩，口感极其脆爽，风味独特，带有淡淡的蜂蜜香气。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-pink-50 text-pink-600 px-2 py-0.5 rounded text-xs">粉嫩</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">蜂蜜香</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">脆爽</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 19 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/北间谍.jpeg" alt="北间谍苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="northernspy" 
+                        data-name="北间谍" 
+                        data-price="21.5" 
+                        data-image="./images/北间谍.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">北间谍</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.5</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">北间谍苹果是传统的烘焙苹果，酸甜平衡，烘焙后保持形状和风味。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">耐热</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 20 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/仙馐苹果.jpg" alt="仙馐苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="ambrosia" 
+                        data-name="仙馐苹果" 
+                        data-price="26.8" 
+                        data-image="./images/仙馐苹果.jpg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">仙馐苹果</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.9</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">仙馐苹果果肉洁白香甜，几乎没有酸味，带有淡淡的蜂蜜和香草风味。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">超甜</span>
+                            <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">香草味</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">脆爽</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 21 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/纽顿派平.jpg" alt="纽顿派平苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="newtownpippin" 
+                        data-name="纽顿派平" 
+                        data-price="18.5" 
+                        data-image="./images/纽顿派平.jpg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">纽顿派平</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.4</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">纽顿派平是美国历史最悠久的苹果品种之一，具有复杂的柑橘和松木香气。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">古老</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">柑橘香</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">烘焙</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 22 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/艾尔斯特.jpg" alt="艾尔斯特苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="elstar" 
+                        data-name="艾尔斯特" 
+                        data-price="22.5" 
+                        data-image="./images/艾尔斯特.jpg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">艾尔斯特</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.7</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">艾尔斯特苹果是欧洲流行品种，结合了金冠和香脆的特点，酸甜平衡。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">条纹</span>
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">酸甜</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">多汁</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 23 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/陆奥苹果.jpg" alt="陆奥苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="mutsu" 
+                        data-name="陆奥苹果" 
+                        data-price="19.8" 
+                        data-image="./images/陆奥苹果.jpg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">陆奥苹果</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.5</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">陆奥苹果体积大，果肉清脆多汁，具有独特的蜂蜜风味和轻微花香。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-green-50 text-green-600 px-2 py-0.5 rounded text-xs">清甜</span>
+                            <span class="bg-yellow-50 text-yellow-600 px-2 py-0.5 rounded text-xs">花香</span>
+                            <span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">大果</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 苹果卡片 24 -->
+            <div class="apple-card bg-white rounded-lg shadow-sm overflow-hidden group">
+                <div class="relative overflow-hidden h-56">
+                    <img src="./images/爱达红.jpeg" alt="爱达红苹果" class="w-full h-full object-cover object-top transition-transform duration-300">
+                    <div class="apple-card-overlay absolute inset-0 bg-black/40 opacity-0 transition-opacity duration-300 flex items-center justify-center">
+                        <a href="DetailsofOneApple.html" class="bg-white text-primary px-4 py-2 rounded-button font-medium hover:bg-gray-100 transition-colors whitespace-nowrap">查看详情</a>
+                    </div>
+                    <button class="add-to-cart-btn" 
+                        data-id="idared" 
+                        data-name="爱达红" 
+                        data-price="18.2" 
+                        data-image="./images/爱达红.jpeg">
+                        <i class="ri-shopping-cart-line"></i>
+                        <span>加入购物车</span>
+                    </button>
+                </div>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-bold">爱达红</h3>
+                        <div class="flex items-center gap-1 text-yellow-500">
+                            <i class="ri-star-fill"></i>
+                            <span class="text-gray-700">4.4</span>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">爱达红苹果口感紧实，酸甜度适中，适合烹饪和烘焙，加热后保持形状。</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1 flex-wrap">
+                            <span class="bg-red-50 text-red-600 px-2 py-0.5 rounded text-xs">鲜红</span>
+                            <span class="bg-purple-50 text-purple-600 px-2 py-0.5 rounded text-xs">紧实</span>
+                            <span class="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs">烹饪</span>
+                        </div>
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-between mt-8">
+                <div class="text-gray-600">显示 1-12 条，共 24 条</div>
+                <div class="flex items-center gap-2">
+                    <button class="pagination-btn border border-gray-200 text-gray-400" data-page="prev" disabled>
+                        <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                    <button class="pagination-btn border border-gray-200 active" data-page="1">1</button>
+                    <button class="pagination-btn border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-page="2">2</button>
+                    <button class="pagination-btn border border-gray-200 text-gray-700 hover:border-primary hover:text-primary transition-colors" data-page="next">
+                        <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 推荐内容 -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">你可能也喜欢</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520beautifully%2520styled%2520image%2520of%2520a%2520classic%2520apple%2520pie%2520with%2520a%2520golden%2520lattice%2520crust.%2520The%2520pie%2520should%2520be%2520freshly%2520baked%2520with%2520visible%2520apple%2520slices%2520and%2520cinnamon%2520filling%2520peeking%2520through%2520the%2520lattice.%2520There%2520should%2520be%2520a%2520dusting%2520of%2520sugar%2520on%2520top%2520that%2520glistens%2520in%2520the%2520light.%2520The%2520pie%2520should%2520be%2520placed%2520on%2520a%2520rustic%2520wooden%2520surface%2520with%2520some%2520fresh%2520apples%2520and%2520cinnamon%2520sticks%2520as%2520props.%2520The%2520lighting%2520should%2520be%2520warm%2520and%2520inviting%252C%2520creating%2520a%2520homey%2520atmosphere.&width=400&height=300&seq=13&orientation=landscape" alt="经典苹果派" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold mb-2">美味苹果食谱</h3>
+                        <p class="text-gray-600 text-sm">探索各种创意苹果食谱，从传统甜点到创新料理，满足您的味蕾享受。</p>
+                        <a href="DetailsofOneApple.html" class="text-primary font-medium text-sm mt-3 inline-block hover:underline">查看更多</a>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520of%2520an%2520apple%2520orchard%2520during%2520harvest%2520season.%2520The%2520trees%2520should%2520be%2520laden%2520with%2520ripe%2520red%2520apples%252C%2520with%2520some%2520fruit%2520pickers%2520carefully%2520harvesting%2520the%2520crop.%2520The%2520lighting%2520should%2520be%2520warm%2520golden%2520hour%2520sunlight%2520filtering%2520through%2520the%2520branches%252C%2520creating%2520a%2520picturesque%2520scene.%2520The%2520orchard%2520should%2520be%2520well-maintained%2520with%2520neat%2520rows%2520of%2520trees%2520extending%2520into%2520the%2520distance.%2520The%2520overall%2520mood%2520should%2520be%2520peaceful%2520and%2520abundant%252C%2520showing%2520the%2520beauty%2520of%2520apple%2520cultivation.&width=400&height=300&seq=14&orientation=landscape" alt="苹果种植与栽培" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold mb-2">苹果种植与栽培</h3>
+                        <p class="text-gray-600 text-sm">了解苹果从种植到收获的全过程，掌握家庭种植苹果树的技巧和方法。</p>
+                        <a href="DetailsofOneApple.html" class="text-primary font-medium text-sm mt-3 inline-block hover:underline">查看更多</a>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden group">
+                    <div class="relative overflow-hidden h-48">
+                        <img src="https://readdy.ai/api/search-image?query=A%2520beautiful%2520image%2520showcasing%2520the%2520health%2520benefits%2520of%2520apples.%2520The%2520composition%2520should%2520include%2520a%2520variety%2520of%2520colorful%2520apples%2520%2528red%252C%2520green%252C%2520yellow%2529%2520alongside%2520some%2520health-related%2520elements%2520like%2520a%2520stethoscope%252C%2520a%2520measuring%2520tape%252C%2520or%2520perhaps%2520a%2520stylized%2520heart%2520symbol.%2520The%2520image%2520should%2520be%2520bright%2520and%2520clean%252C%2520with%2520good%2520lighting%2520that%2520highlights%2520the%2520fresh%252C%2520healthy%2520nature%2520of%2520the%2520apples.%2520The%2520overall%2520mood%2520should%2520be%2520positive%2520and%2520health-focused%252C%2520suggesting%2520the%2520nutritional%2520value%2520and%2520wellness%2520benefits%2520of%2520eating%2520apples.&width=400&height=300&seq=15&orientation=landscape" alt="苹果的健康功效" class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105">
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold mb-2">苹果的健康功效</h3>
+                        <p class="text-gray-600 text-sm">深入了解苹果的营养价值和健康益处，让这一水果成为您健康生活的好伙伴。</p>
+                        <a href="DetailsofOneApple.html" class="text-primary font-medium text-sm mt-3 inline-block hover:underline">查看更多</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-gray-900 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+            <div>
+                <a href="#" class="flex items-center gap-2 mb-4">
+                    <div class="w-10 h-10 flex items-center justify-center text-white">
+                        <i class="ri-apple-fill ri-2x"></i>
+                    </div>
+                    <span class="text-2xl font-['Pacifico'] text-white">苹果世界</span>
+                </a>
+                <p class="text-gray-400 mb-4">探索苹果的无限魅力，从品种到文化，从美食到文学，一起发现苹果的多彩世界。</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-gray-800 transition-colors">
+                        <i class="ri-wechat-line"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-gray-800 transition-colors">
+                        <i class="ri-weibo-line"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-gray-800 transition-colors">
+                        <i class="ri-instagram-line"></i>
+                    </a>
+                    <a href="#" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white rounded-full hover:bg-gray-800 transition-colors">
+                        <i class="ri-bilibili-line"></i>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-4">快速链接</h3>
+                <ul class="space-y-2">
+                    <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                    <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                    <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美食食谱</a></li>
+                    <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">文学文化</a></li>
+                    <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">互动社区</a></li>
+                    <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-4">联系我们</h3>
+                <ul class="space-y-2">
+                    <li class="flex items-center gap-2">
+                        <div class="w-4 h-4 flex items-center justify-center text-gray-400">
+                            <i class="ri-map-pin-line"></i>
+                        </div>
+                        <span class="text-gray-400">北京市朝阳区农业展览馆南路</span>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <div class="w-4 h-4 flex items-center justify-center text-gray-400">
+                            <i class="ri-mail-line"></i>
+                        </div>
+                        <a href="mailto:info@appleworld.com" class="text-gray-400 hover:text-white transition-colors">info@appleworld.com</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <div class="w-4 h-4 flex items-center justify-center text-gray-400">
+                            <i class="ri-phone-line"></i>
+                        </div>
+                        <a href="tel:+8610123456789" class="text-gray-400 hover:text-white transition-colors">+86 10 1234 5678</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold mb-4">订阅通讯</h3>
+                <p class="text-gray-400 mb-4">获取最新的苹果品种信息、美食食谱和文化活动。</p>
+                <div class="flex items-center">
+                    <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-button border-none focus:outline-none text-gray-700 text-sm w-full">
+                    <button class="bg-primary text-white px-4 py-2 rounded-r-button font-medium hover:bg-primary/90 transition-colors whitespace-nowrap">订阅</button>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 mb-4 md:mb-0">© 2025 苹果世界. 保留所有权利.</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- 购物车开关 -->
+<div class="cart-toggle" id="cartToggle">
+    <div class="relative">
+        <i class="ri-shopping-cart-line text-xl"></i>
+        <span id="cartCount" class="absolute -top-2 -right-2 w-5 h-5 bg-primary text-white text-xs flex items-center justify-center rounded-full">0</span>
+    </div>
+</div>
+
+<!-- 购物车 -->
+<div class="shopping-cart" id="shoppingCart">
+    <div class="shopping-cart-header">
+        <h3 class="font-bold">我的购物车</h3>
+        <button id="closeCart" class="text-gray-500 hover:text-gray-700">
+            <i class="ri-close-line"></i>
+        </button>
+    </div>
+    <div class="shopping-cart-body">
+        <div id="cartItems">
+            <div class="flex flex-col items-center justify-center h-32 text-gray-400">
+                <i class="ri-shopping-cart-line text-4xl mb-2"></i>
+                <p>您的购物车是空的</p>
+                <p class="text-xs mt-2">将喜欢的苹果添加到购物车中</p>
+            </div>
+        </div>
+    </div>
+    <div class="shopping-cart-footer">
+        <div>
+            <span class="text-gray-600">总计：</span>
+            <span class="font-bold text-primary" id="cartTotal">¥0.00</span>
+        </div>
+        <div class="flex gap-2">
+            <button id="clearCart" class="px-3 py-1 border border-gray-200 rounded text-sm text-gray-600 hover:bg-gray-50">清空</button>
+            <button class="px-4 py-1 bg-primary text-white rounded text-sm hover:bg-primary/90">结算</button>
+        </div>
+    </div>
+</div>
+
+<!-- 秋季苹果节特惠浮动广告框 -->
+<div class="promo-popup" id="promoPopup">
+    <div class="promo-popup-close" id="closePromo">
+        <i class="ri-close-line"></i>
+    </div>
+    <img src="https://readdy.ai/api/search-image?query=Autumn%20apple%20festival%20with%20variety%20of%20colorful%20apples%20and%20fall%20decorations&width=320&height=160" alt="秋季苹果节" class="promo-popup-image">
+    <div class="promo-popup-content">
+        <div class="promo-popup-title">
+            <i class="ri-award-line"></i>
+            <span>秋季苹果节特惠</span>
+        </div>
+        <p class="promo-popup-description">🍎 限时优惠：购买任意3种苹果品种，享受8折优惠！新鲜采摘，数量有限，先到先得！</p>
+        <div class="promo-popup-coupon">
+            <span class="promo-popup-code">APPLE2023</span>
+            <span class="promo-popup-copy" id="copyPromoCode">
+                <i class="ri-file-copy-line"></i>
+                复制
+            </span>
+        </div>
+        <button class="promo-popup-action pulse-animation" id="goShoppingBtn">立即选购</button>
+    </div>
+</div>
+
+<script src="main.js"></script>
+<script>
+  // 确保页面加载完成后立即执行
+  document.addEventListener('DOMContentLoaded', function() {
+    // 确保苹果品种页面初始只显示第一页内容
+    if (window.location.pathname.includes('DetailsofAppleVarieties.html')) {
+      console.log('初始化苹果品种页面显示');
+      setTimeout(() => {
+        // 获取所有苹果卡片
+        const appleCards = document.querySelectorAll('.apple-card');
+        const itemsPerPage = 12; // 每页显示数量
+        
+        // 默认只显示第一页
+        appleCards.forEach((card, index) => {
+          if (index < itemsPerPage) {
+            card.style.display = '';
+            // 添加淡入效果
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.3s ease';
+                card.style.opacity = '1';
+            }, 10 * index); // 依次淡入
+          } else {
+            card.style.display = 'none';
+          }
+        });
+        
+        // 更新页面信息
+        const pageInfoElement = document.querySelector('.text-gray-600');
+        if (pageInfoElement) {
+          pageInfoElement.textContent = `显示 1-${Math.min(itemsPerPage, appleCards.length)} 条，共 ${appleCards.length} 条`;
+        }
+        
+        // 设置第一页按钮为激活状态
+        const pageOneBtn = document.querySelector('.pagination-btn[data-page="1"]');
+        if (pageOneBtn) {
+          pageOneBtn.classList.add('active');
+        }
+        
+        console.log('苹果品种页面初始化显示完成');
+      }, 200);
+    }
+  });
+
+  // 调试脚本，确保筛选功能正确加载
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('页面已加载，开始调试筛选功能');
+    
+    // 检查关键元素是否存在
+    const searchInput = document.getElementById('searchInput');
+    const advancedFilterBtn = document.getElementById('advancedFilterBtn');
+    const advancedFilterPanel = document.getElementById('advancedFilterPanel');
+    const filterTags = document.querySelectorAll('.filter-tag');
+    const appleCards = document.querySelectorAll('.apple-card');
+    
+    console.log('搜索输入框:', searchInput ? '已找到' : '未找到');
+    console.log('高级筛选按钮:', advancedFilterBtn ? '已找到' : '未找到');
+    console.log('高级筛选面板:', advancedFilterPanel ? '已找到' : '未找到');
+    console.log('筛选标签数量:', filterTags.length);
+    console.log('苹果卡片数量:', appleCards.length);
+    
+    // 确保initAppleVarietiesFilter函数被正确执行
+    console.log('手动调用筛选初始化函数');
+    if(typeof initAppleVarietiesFilter === 'function') {
+      initAppleVarietiesFilter();
+    } else {
+      console.error('initAppleVarietiesFilter函数未定义！检查main.js是否正确加载');
+    }
+  });
+
+  // 初始化侧边购物车
+  function loadInitialCartData() {
+      const cartCount = document.getElementById('cartCount');
+      const headerCartCount = document.getElementById('headerCartCount');
+      
+      if (!cartCount || !headerCartCount) return;
+      
+      try {
+          const cartData = localStorage.getItem('appleCart');
+          let cart = [];
+          
+          if (cartData) {
+              cart = JSON.parse(cartData);
+              if (!Array.isArray(cart)) cart = [];
+          }
+          
+          // 计算商品总数
+          const itemCount = cart.reduce((count, item) => count + (parseInt(item.quantity) || 1), 0);
+          
+          // 更新计数器
+          cartCount.textContent = itemCount.toString();
+          headerCartCount.textContent = itemCount.toString();
+          
+          // 隐藏或显示计数器
+          if (itemCount === 0) {
+              cartCount.classList.add('hidden');
+              headerCartCount.classList.add('hidden');
+          } else {
+              cartCount.classList.remove('hidden');
+              headerCartCount.classList.remove('hidden');
+          }
+      } catch (error) {
+          console.error('初始化购物车数据失败:', error);
+      }
+  }
+  
+  // 页面加载时立即执行
+  loadInitialCartData();
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... 现有的筛选和过滤代码 ...
+
+        // 购物车功能
+        function initShoppingCart() {
+            // 获取所有加入购物车按钮
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+            
+            // 为每个按钮添加点击事件监听器
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // 获取商品数据
+                    const itemData = {
+                        id: this.dataset.id,
+                        name: this.dataset.name,
+                        price: parseFloat(this.dataset.price),
+                        image: this.dataset.image,
+                        quantity: 1
+                    };
+                    
+                    console.log('添加商品到购物车:', itemData);
+                    
+                    // 添加到购物车
+                    addToCart(itemData);
+                    
+                    // 显示成功提示
+                    createToast(`已将 ${itemData.name} 添加到购物车`);
+                    
+                    // 更新购物车显示
+                    updateCartDisplay();
+                });
+            });
+            
+            // 初始化购物车显示
+            updateCartDisplay();
+        }
+        
+        // 添加商品到购物车
+        function addToCart(item) {
+            try {
+                // 从localStorage获取现有购物车数据
+                let cart = [];
+                const cartData = localStorage.getItem('appleCart');
+                
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    
+                    // 确保cart是数组
+                    if (!Array.isArray(cart)) {
+                        console.warn('购物车数据格式错误，重置为空数组');
+                        cart = [];
+                    }
+                }
+                
+                // 检查商品是否已存在于购物车
+                const existingItemIndex = cart.findIndex(cartItem => cartItem.id === item.id);
+                
+                if (existingItemIndex !== -1) {
+                    // 如果已存在，增加数量
+                    cart[existingItemIndex].quantity += 1;
+                    console.log(`增加 ${item.name} 的数量，现在数量为: ${cart[existingItemIndex].quantity}`);
+                } else {
+                    // 如果不存在，添加到购物车
+                    cart.push(item);
+                    console.log(`添加新商品到购物车: ${item.name}`);
+                }
+                
+                // 更新localStorage
+                localStorage.setItem('appleCart', JSON.stringify(cart));
+                
+                // 触发自定义事件通知购物车更新
+                document.dispatchEvent(new CustomEvent('cartUpdated'));
+                
+                // 触发storage事件以便同一个标签页内的其他组件能够更新
+                window.dispatchEvent(new Event('storage'));
+                
+                return true;
+            } catch (error) {
+                console.error('添加商品到购物车失败:', error);
+                createToast('添加商品失败，请重试');
+                return false;
+            }
+        }
+        
+        // 更新购物车显示
+        function updateCartDisplay() {
+            try {
+                // 更新头部购物车图标数量
+                const headerCartCount = document.getElementById('headerCartCount');
+                const cartPreviewItems = document.getElementById('cartPreviewItems');
+                const cartPreviewCount = document.getElementById('cartPreviewCount');
+                
+                if (!headerCartCount || !cartPreviewItems || !cartPreviewCount) return;
+                
+                // 获取购物车数据
+                const cartData = localStorage.getItem('appleCart');
+                let cart = [];
+                
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    if (!Array.isArray(cart)) {
+                        cart = [];
+                    }
+                }
+                
+                // 更新购物车数量
+                const itemCount = cart.reduce((count, item) => count + (parseInt(item.quantity) || 1), 0);
+                headerCartCount.textContent = itemCount.toString();
+                cartPreviewCount.textContent = itemCount.toString();
+                
+                // 更新购物车预览内容
+                if (cart.length === 0) {
+                    cartPreviewItems.innerHTML = '<div class="text-gray-500 text-center py-4">购物车为空</div>';
+                } else {
+                    cartPreviewItems.innerHTML = '';
+                    
+                    // 只显示前3个商品
+                    const displayItems = cart.slice(0, 3);
+                    
+                    displayItems.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0';
+                        itemElement.innerHTML = `
+                            <div class="w-12 h-12 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                                <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h5 class="text-sm font-medium text-gray-900 truncate">${item.name}</h5>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500">¥${item.price.toFixed(2)} × ${item.quantity}</span>
+                                    <span class="text-xs font-medium text-primary">¥${(item.price * item.quantity).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        `;
+                        cartPreviewItems.appendChild(itemElement);
+                    });
+                    
+                    // 如果有更多商品，显示提示
+                    if (cart.length > 3) {
+                        const moreElement = document.createElement('div');
+                        moreElement.className = 'text-xs text-gray-500 text-center mt-2';
+                        moreElement.textContent = `...还有 ${cart.length - 3} 件商品`;
+                        cartPreviewItems.appendChild(moreElement);
+                    }
+                }
+            } catch (error) {
+                console.error('更新购物车显示失败:', error);
+            }
+        }
+        
+        // 创建提示消息
+        function createToast(message) {
+            try {
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 opacity-0 transition-opacity duration-300';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                
+                // 显示toast
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                }, 10);
+                
+                // 2秒后隐藏并移除toast
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            } catch (error) {
+                console.error('创建提示消息失败:', error);
+            }
+        }
+        
+        // 初始化购物车功能
+        initShoppingCart();
+        
+        // 监听storage事件，当其他页面修改购物车数据时更新显示
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'appleCart' || e.key === null) {
+                updateCartDisplay();
+            }
+        });
+        
+        // 监听自定义购物车更新事件
+        document.addEventListener('cartUpdated', function() {
+            updateCartDisplay();
+        });
+        
+        // 页面加载时也更新购物车显示
+        updateCartDisplay();
+        
+        // 初始化侧边购物车
+        function initSideCart() {
+            const cartToggle = document.getElementById('cartToggle');
+            const shoppingCart = document.getElementById('shoppingCart');
+            const closeCart = document.getElementById('closeCart');
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const clearCart = document.getElementById('clearCart');
+            
+            // 检查购物车元素是否存在
+            if (!cartToggle || !shoppingCart || !cartItems) {
+                console.error('侧边购物车元素不存在');
+                return;
+            }
+            
+            // 切换购物车显示
+            cartToggle.addEventListener('click', function() {
+                shoppingCart.classList.toggle('visible');
+            });
+            
+            // 关闭购物车
+            if (closeCart) {
+                closeCart.addEventListener('click', function() {
+                    shoppingCart.classList.remove('visible');
+                });
+            }
+            
+            // 清空购物车
+            if (clearCart) {
+                clearCart.addEventListener('click', function() {
+                    // 清空localStorage中的购物车数据
+                    localStorage.removeItem('appleCart');
+                    
+                    // 更新显示
+                    updateSideCart();
+                    updateCartDisplay();
+                    
+                    // 显示提示
+                    createToast('购物车已清空');
+                });
+            }
+            
+            // 初始更新购物车
+            updateSideCart();
+        }
+        
+        // 更新侧边购物车内容
+        function updateSideCart() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            
+            if (!cartCount || !cartItems) return;
+            
+            // 获取购物车数据
+            let cart = [];
+            try {
+                const cartData = localStorage.getItem('appleCart');
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    if (!Array.isArray(cart)) cart = [];
+                }
+            } catch (error) {
+                console.error('读取购物车数据失败:', error);
+                cart = [];
+            }
+            
+            // 更新购物车数量
+            const itemCount = cart.reduce((count, item) => count + (parseInt(item.quantity) || 1), 0);
+            if (cartCount) cartCount.textContent = itemCount.toString();
+            
+            // 更新购物车内容
+            if (cartItems) {
+                if (cart.length === 0) {
+                    cartItems.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-32 text-gray-400">
+                            <i class="ri-shopping-cart-line text-4xl mb-2"></i>
+                            <p>您的购物车是空的</p>
+                            <p class="text-xs mt-2">将喜欢的苹果添加到购物车中</p>
+                        </div>
+                    `;
+                } else {
+                    cartItems.innerHTML = '';
+                    
+                    // 添加每个商品
+                    cart.forEach((item, index) => {
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'cart-item';
+                        itemEl.innerHTML = `
+                            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+                            <div class="cart-item-info">
+                                <div class="cart-item-title">${item.name}</div>
+                                <div class="cart-item-price">¥${item.price.toFixed(2)}</div>
+                            </div>
+                            <div class="cart-item-actions">
+                                <button class="quantity-btn minus" data-index="${index}">-</button>
+                                <input type="number" class="cart-item-quantity" value="${item.quantity}" min="1" data-index="${index}">
+                                <button class="quantity-btn plus" data-index="${index}">+</button>
+                                <button class="remove-btn" data-index="${index}">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </div>
+                        `;
+                        cartItems.appendChild(itemEl);
+                    });
+                    
+                    // 添加删除和数量变更事件
+                    const removeBtns = cartItems.querySelectorAll('.remove-btn');
+                    removeBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.dataset.index);
+                            removeFromCart(index);
+                        });
+                    });
+                    
+                    const minusBtns = cartItems.querySelectorAll('.quantity-btn.minus');
+                    minusBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.dataset.index);
+                            changeQuantity(index, -1);
+                        });
+                    });
+                    
+                    const plusBtns = cartItems.querySelectorAll('.quantity-btn.plus');
+                    plusBtns.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.dataset.index);
+                            changeQuantity(index, 1);
+                        });
+                    });
+                    
+                    const quantityInputs = cartItems.querySelectorAll('.cart-item-quantity');
+                    quantityInputs.forEach(input => {
+                        input.addEventListener('change', function() {
+                            const index = parseInt(this.dataset.index);
+                            const value = parseInt(this.value);
+                            if (value > 0) {
+                                setQuantity(index, value);
+                            } else {
+                                this.value = 1;
+                                setQuantity(index, 1);
+                            }
+                        });
+                    });
+                }
+            }
+            
+            // 更新总金额
+            if (cartTotal) {
+                const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+                cartTotal.textContent = `¥${total.toFixed(2)}`;
+            }
+        }
+        
+        // 从购物车中移除商品
+        function removeFromCart(index) {
+            try {
+                let cart = [];
+                const cartData = localStorage.getItem('appleCart');
+                
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    if (!Array.isArray(cart)) cart = [];
+                }
+                
+                if (index >= 0 && index < cart.length) {
+                    const removedItem = cart[index];
+                    cart.splice(index, 1);
+                    localStorage.setItem('appleCart', JSON.stringify(cart));
+                    
+                    // 更新显示
+                    updateSideCart();
+                    updateCartDisplay();
+                    
+                    // 显示提示
+                    createToast(`已从购物车中移除 ${removedItem.name}`);
+                }
+            } catch (error) {
+                console.error('移除商品失败:', error);
+            }
+        }
+        
+        // 更改购物车商品数量
+        function changeQuantity(index, delta) {
+            try {
+                let cart = [];
+                const cartData = localStorage.getItem('appleCart');
+                
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    if (!Array.isArray(cart)) cart = [];
+                }
+                
+                if (index >= 0 && index < cart.length) {
+                    const newQuantity = (parseInt(cart[index].quantity) || 1) + delta;
+                    
+                    if (newQuantity <= 0) {
+                        // 如果数量为0或负数，移除商品
+                        removeFromCart(index);
+                    } else {
+                        // 更新数量
+                        cart[index].quantity = newQuantity;
+                        localStorage.setItem('appleCart', JSON.stringify(cart));
+                        
+                        // 更新显示
+                        updateSideCart();
+                        updateCartDisplay();
+                    }
+                }
+            } catch (error) {
+                console.error('更改商品数量失败:', error);
+            }
+        }
+        
+        // 设置购物车商品数量
+        function setQuantity(index, quantity) {
+            try {
+                let cart = [];
+                const cartData = localStorage.getItem('appleCart');
+                
+                if (cartData) {
+                    cart = JSON.parse(cartData);
+                    if (!Array.isArray(cart)) cart = [];
+                }
+                
+                if (index >= 0 && index < cart.length) {
+                    cart[index].quantity = quantity;
+                    localStorage.setItem('appleCart', JSON.stringify(cart));
+                    
+                    // 更新显示
+                    updateSideCart();
+                    updateCartDisplay();
+                }
+            } catch (error) {
+                console.error('设置商品数量失败:', error);
+            }
+        }
+        
+        // 初始化侧边购物车
+        initSideCart();
+    });
+</script>
+</body>
+</html>

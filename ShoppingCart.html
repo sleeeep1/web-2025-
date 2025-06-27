@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>购物车 - 苹果世界</title>
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+  <link rel="stylesheet" href="promo-popup.css">
+  <script src="main.js"></script>
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .quantity-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f7fafc;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .quantity-btn:hover {
+      background: #edf2f7;
+    }
+    .quantity-input {
+      width: 40px;
+      height: 32px;
+      text-align: center;
+      border: none;
+      border-left: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+    }
+    .quantity-input:focus {
+      outline: none;
+    }
+    .checkout-btn {
+      transition: all 0.3s ease;
+    }
+    .checkout-btn:hover {
+      transform: translateY(-2px);
+    }
+    .empty-cart-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- 头部导航 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a href="index.html" class="flex items-center gap-2">
+          <div class="w-10 h-10 flex items-center justify-center text-primary">
+            <i class="ri-apple-fill ri-2x"></i>
+          </div>
+          <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+        </a>
+        <nav class="hidden md:flex items-center space-x-8">
+          <a href="index.html" class="text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+          <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+          <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+          <a href="index.html#nutrition" class="text-gray-700 hover:text-primary font-medium transition-colors">营养分析</a>
+          <a href="AppleCulture.html" class="text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+          <a href="SnakeGame.html" class="text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+          <a href="ContactUs.html" class="text-gray-700 hover:text-primary font-medium transition-colors">联系我们</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="relative hidden md:block">
+          <input type="text" placeholder="搜索苹果品种、食谱..." class="pl-10 pr-4 py-2 rounded border border-gray-200 focus:outline-none focus:border-primary text-sm">
+          <div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+            <i class="ri-search-line"></i>
+          </div>
+        </div>
+        <a href="ShoppingCart.html" class="w-10 h-10 flex items-center justify-center text-primary rounded-full bg-red-50 transition-colors relative">
+          <i class="ri-shopping-cart-line"></i>
+          <span id="headerCartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs flex items-center justify-center rounded-full">0</span>
+        </a>
+        <a href="Favorites.html" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+          <i class="ri-heart-line"></i>
+        </a>
+        <div class="relative group">
+          <button id="userButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+            <i class="ri-user-line"></i>
+          </button>
+          <div id="userDropdown" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-100 py-2 hidden">
+            <!-- 用户菜单内容 -->
+            <div class="absolute -top-2 right-4 w-4 h-4 bg-white border-t border-l border-gray-100 transform rotate-45"></div>
+            <div class="px-4 py-3 border-b border-gray-100">
+              <p class="font-medium text-gray-900" id="userDropdownName">张三</p>
+              <p class="text-sm text-gray-500" id="userDropdownEmail">zhangsan@example.com</p>
+            </div>
+            <div class="py-2">
+              <a href="UserProfile.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="ri-user-line w-5 h-5"></i>
+                <span>个人资料</span>
+              </a>
+              <a href="Favorites.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="ri-heart-line w-5 h-5"></i>
+                <span>我的收藏</span>
+              </a>
+              <a href="OrderHistory.html" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50">
+                <i class="ri-file-list-line w-5 h-5"></i>
+                <span>订单历史</span>
+              </a>
+              <hr class="my-2">
+              <button id="logoutButton" class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50 w-full text-left">
+                <i class="ri-logout-box-line w-5 h-5"></i>
+                <span>退出登录</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+          <i class="ri-menu-line"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold">我的购物车</h1>
+        <div class="flex items-center gap-4">
+          <button id="refreshCartButton" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-button hover:bg-blue-600 transition-colors">
+            <i class="ri-refresh-line"></i>
+            <span>刷新购物车</span>
+          </button>
+          <a href="DetailsofAppleVarieties.html" class="flex items-center gap-2 text-primary hover:underline">
+            <i class="ri-arrow-left-line"></i>
+            <span>继续选购</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 购物车内容区 -->
+      <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+        <!-- 购物车为空状态 -->
+        <div id="emptyCart" class="hidden py-16 flex flex-col items-center justify-center">
+          <div class="w-32 h-32 flex items-center justify-center text-gray-300 empty-cart-animation">
+            <i class="ri-shopping-cart-line text-8xl"></i>
+          </div>
+          <h3 class="text-xl font-bold mt-6 mb-2">购物车空空如也</h3>
+          <p class="text-gray-500 mb-6">您的购物车还没有任何商品</p>
+          <a href="DetailsofAppleVarieties.html" class="bg-primary text-white px-6 py-3 rounded-button font-medium hover:bg-primary/90 transition-colors">
+            浏览苹果品种
+          </a>
+        </div>
+
+        <!-- 购物车有商品状态 -->
+        <div id="cartWithItems">
+          <!-- 表头 -->
+          <div class="grid grid-cols-12 gap-4 py-4 px-6 bg-gray-50 border-b border-gray-100 hidden md:grid">
+            <div class="col-span-6">
+              <span class="font-medium text-gray-700">商品</span>
+            </div>
+            <div class="col-span-2 text-center">
+              <span class="font-medium text-gray-700">单价</span>
+            </div>
+            <div class="col-span-2 text-center">
+              <span class="font-medium text-gray-700">数量</span>
+            </div>
+            <div class="col-span-2 text-right">
+              <span class="font-medium text-gray-700">小计</span>
+            </div>
+          </div>
+
+          <!-- 购物车商品列表 -->
+          <div id="cartItemsList">
+            <!-- 购物车商品项将通过JavaScript动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 支付结算区 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="md:col-span-2">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-xl font-bold mb-4">购物备注</h3>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-primary resize-none" rows="3" placeholder="如有特殊要求，请在此备注..."></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-xl font-bold mb-4">订单摘要</h3>
+            <div class="space-y-3 mb-6">
+              <div class="flex justify-between">
+                <span class="text-gray-600">商品总额</span>
+                <span class="font-medium" id="subtotalAmount">￥0.00</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">运费</span>
+                <span class="font-medium" id="shippingFee">￥0.00</span>
+              </div>
+              <div class="border-t border-gray-100 pt-3 flex justify-between">
+                <span class="font-medium">订单总计</span>
+                <span class="text-xl font-bold text-primary" id="totalAmount">￥0.00</span>
+              </div>
+            </div>
+            <button id="checkoutButton" class="w-full bg-primary text-white py-3 rounded-button font-medium hover:bg-primary/90 shadow-sm checkout-btn">
+              结算 (<span id="checkoutItemCount">0</span>)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 -->
+  <footer class="bg-gray-800 text-white py-12 mt-16">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+          <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="ri-wechat-line"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="ri-weibo-line"></i>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors">
+              <i class="ri-instagram-line"></i>
+            </a>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+          <ul class="space-y-2">
+            <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+            <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+            <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+            <li><a href="index.html#nutrition" class="text-gray-400 hover:text-white transition-colors">营养分析</a></li>
+            <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+            <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+            <li><a href="ContactUs.html" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+          <ul class="space-y-2">
+            <li class="flex items-center text-gray-400">
+              <i class="ri-map-pin-line w-5"></i>
+              <span>中国·陕西·延安</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="ri-phone-line w-5"></i>
+              <span>400-123-4567</span>
+            </li>
+            <li class="flex items-center text-gray-400">
+              <i class="ri-mail-line w-5"></i>
+              <span>contact@appleway.com</span>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+          <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+          <form class="flex">
+            <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+            <button type="submit" class="bg-primary hover:bg-opacity-90 transition-colors px-4 py-2 rounded-r-lg">
+              <i class="ri-send-plane-line"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+          <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 购物车页面脚本 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      console.group('购物车页面初始化');
+      
+      // 获取DOM元素
+      const emptyCart = document.getElementById('emptyCart');
+      const cartWithItems = document.getElementById('cartWithItems');
+      const cartItemsList = document.getElementById('cartItemsList');
+      const subtotalAmount = document.getElementById('subtotalAmount');
+      const shippingFee = document.getElementById('shippingFee');
+      const totalAmount = document.getElementById('totalAmount');
+      const checkoutItemCount = document.getElementById('checkoutItemCount');
+      const checkoutButton = document.getElementById('checkoutButton');
+      const headerCartCount = document.getElementById('headerCartCount');
+      const refreshCartButton = document.getElementById('refreshCartButton');
+      
+      // 验证DOM元素
+      if (!emptyCart) console.warn('未找到emptyCart元素');
+      if (!cartWithItems) console.warn('未找到cartWithItems元素');
+      if (!cartItemsList) console.warn('未找到cartItemsList元素');
+      if (!headerCartCount) console.warn('未找到headerCartCount元素');
+      
+      console.log('购物车页面DOM元素检查完成');
+      
+      // 初始化购物车数据
+      let cart = [];
+      
+      try {
+        // 立即从localStorage加载购物车数据
+        const cartData = localStorage.getItem('appleCart');
+        if (cartData) {
+          cart = JSON.parse(cartData);
+          if (!Array.isArray(cart)) {
+            console.warn('购物车数据不是数组类型，重置为空数组');
+            cart = [];
+          }
+        }
+        console.log('初始购物车数据加载成功，商品数量:', cart.length);
+      } catch (error) {
+        console.error('加载购物车数据失败:', error);
+        cart = [];
+      }
+      
+      // 初始化页面时显示购物车数据
+      updateCartDisplay();
+      
+      // 更新购物车显示状态
+      function updateCartDisplay() {
+        console.log('更新购物车显示，当前商品数量:', cart.length);
+        
+        try {
+          if (!cart || !cart.length) {
+            console.log('购物车为空，显示空购物车视图');
+            if (emptyCart) emptyCart.classList.remove('hidden');
+            if (cartWithItems) cartWithItems.classList.add('hidden');
+          } else {
+            console.log('购物车有商品，显示商品列表');
+            if (emptyCart) emptyCart.classList.add('hidden');
+            if (cartWithItems) cartWithItems.classList.remove('hidden');
+            
+            // 渲染购物车商品
+            renderCartItems();
+            
+            // 计算并显示总额
+            calculateTotal();
+          }
+        } catch (displayError) {
+          console.error('更新购物车显示失败:', displayError);
+          // 尝试显示空购物车状态作为降级处理
+          if (emptyCart && cartWithItems) {
+            emptyCart.classList.remove('hidden');
+            cartWithItems.classList.add('hidden');
+          }
+          createToast('更新购物车显示出错，请刷新页面');
+        }
+      }
+      
+      // 渲染购物车商品列表
+      function renderCartItems() {
+        if (!cartItemsList) return;
+        
+        console.log('开始渲染购物车商品列表，商品数量:', cart.length);
+        cartItemsList.innerHTML = '';
+        
+        cart.forEach((item, index) => {
+          try {
+            // 确保商品有必要的属性
+            item.name = item.name || item.title || '未命名商品';
+            item.price = parseFloat(item.price) || 19.99;
+            item.quantity = parseInt(item.quantity) || 1;
+            item.id = item.id || `item_${index}`;
+            
+            const itemTotal = (item.price * item.quantity).toFixed(2);
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'grid grid-cols-1 md:grid-cols-12 gap-4 p-6 border-b border-gray-100 items-center';
+            itemElement.innerHTML = `
+              <div class="md:col-span-6 flex items-center gap-4">
+                <div class="w-20 h-20 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                  ${item.image ? `<img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover">` : 
+                  `<div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <i class="ri-image-line text-3xl"></i>
+                  </div>`}
+                </div>
+                <div>
+                  <h4 class="font-medium text-gray-900">${item.name}</h4>
+                  <p class="text-sm text-gray-500">规格：${item.id && item.id.includes('organic') ? '有机' : '标准'}</p>
+                  <button class="text-red-500 text-sm mt-2 hover:underline remove-item" data-index="${index}">
+                    <i class="ri-delete-bin-line"></i> 删除
+                  </button>
+                </div>
+              </div>
+              <div class="md:col-span-2 text-center">
+                <span class="md:hidden inline-block font-medium mr-2">单价：</span>
+                <span>￥${item.price.toFixed(2)}</span>
+              </div>
+              <div class="md:col-span-2 flex justify-center">
+                <div class="quantity-control">
+                  <div class="quantity-btn minus" data-index="${index}">-</div>
+                  <input type="number" min="1" value="${item.quantity}" class="quantity-input" data-index="${index}">
+                  <div class="quantity-btn plus" data-index="${index}">+</div>
+                </div>
+              </div>
+              <div class="md:col-span-2 text-right">
+                <span class="md:hidden inline-block font-medium mr-2">小计：</span>
+                <span class="font-medium text-primary">￥${itemTotal}</span>
+              </div>
+            `;
+            
+            cartItemsList.appendChild(itemElement);
+          } catch (itemError) {
+            console.error(`渲染商品 #${index} 失败:`, itemError);
+          }
+        });
+        
+        console.log('商品列表渲染完成');
+        
+        // 添加事件监听器
+        addEventListeners();
+      }
+      
+      // 添加事件监听器
+      function addEventListeners() {
+        // 添加删除按钮事件处理
+        const removeButtons = document.querySelectorAll('.remove-item');
+        removeButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            removeItemFromCart(index);
+          });
+        });
+        
+        // 减少数量
+        const minusButtons = document.querySelectorAll('.quantity-btn.minus');
+        minusButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            if (cart[index] && cart[index].quantity > 1) {
+              cart[index].quantity--;
+              updateCartInStorage();
+              updateCartDisplay();
+            }
+          });
+        });
+        
+        // 增加数量
+        const plusButtons = document.querySelectorAll('.quantity-btn.plus');
+        plusButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            if (cart[index]) {
+              cart[index].quantity++;
+              updateCartInStorage();
+              updateCartDisplay();
+            }
+          });
+        });
+        
+        // 直接修改数量
+        const quantityInputs = document.querySelectorAll('.quantity-input');
+        quantityInputs.forEach(input => {
+          input.addEventListener('change', function() {
+            const index = parseInt(this.dataset.index);
+            const newQuantity = parseInt(this.value);
+            
+            if (cart[index] && newQuantity > 0) {
+              cart[index].quantity = newQuantity;
+              updateCartInStorage();
+              updateCartDisplay();
+            } else {
+              this.value = cart[index] ? cart[index].quantity : 1;
+            }
+          });
+        });
+      }
+      
+      // 从购物车移除商品
+      function removeItemFromCart(index) {
+        if (index < 0 || index >= cart.length) {
+          console.error('移除商品索引超出范围:', index);
+          return;
+        }
+        
+        try {
+          // 创建一个删除提示
+          const itemName = cart[index].name;
+          console.log(`从购物车移除商品: ${itemName}, 索引: ${index}`);
+          
+          cart.splice(index, 1);
+          updateCartInStorage();
+          updateCartDisplay();
+          
+          createToast(`已从购物车中移除 ${itemName}`);
+        } catch (error) {
+          console.error('移除商品失败:', error);
+          createToast('移除商品失败，请重试');
+        }
+      }
+      
+      // 计算总额
+      function calculateTotal() {
+        try {
+          // 商品总额
+          const subtotal = cart.reduce((total, item) => {
+            const price = parseFloat(item.price) || 0;
+            const quantity = parseInt(item.quantity) || 0;
+            return total + (price * quantity);
+          }, 0);
+          
+          // A设置运费
+          const shipping = subtotal > 100 ? 0 : 10;
+          
+          // 总计
+          const total = subtotal + shipping;
+          
+          // 商品总数
+          const itemCount = cart.reduce((count, item) => count + (parseInt(item.quantity) || 1), 0);
+          
+          // 显示金额
+          if (subtotalAmount) subtotalAmount.textContent = `￥${subtotal.toFixed(2)}`;
+          if (shippingFee) shippingFee.textContent = shipping === 0 ? '免运费' : `￥${shipping.toFixed(2)}`;
+          if (totalAmount) totalAmount.textContent = `￥${total.toFixed(2)}`;
+          if (checkoutItemCount) checkoutItemCount.textContent = itemCount;
+          
+          // 更新头部购物车图标
+          if (headerCartCount) {
+            headerCartCount.textContent = itemCount.toString();
+          }
+        } catch (error) {
+          console.error('计算总额失败:', error);
+        }
+      }
+      
+      // 创建提示信息
+      function createToast(message) {
+        try {
+          const toast = document.createElement('div');
+          toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 opacity-0 transition-opacity duration-300';
+          toast.textContent = message;
+          document.body.appendChild(toast);
+          
+          setTimeout(() => {
+            toast.style.opacity = '1';
+          }, 10);
+          
+          setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+          }, 2000);
+        } catch (error) {
+          console.error('创建提示消息失败:', error);
+        }
+      }
+      
+      // 更新本地存储中的购物车数据
+      function updateCartInStorage() {
+        try {
+          localStorage.setItem('appleCart', JSON.stringify(cart));
+          console.log('购物车数据已更新:', cart);
+          
+          // 更新头部计数
+          if (headerCartCount) {
+            const itemCount = cart.reduce((count, item) => count + (parseInt(item.quantity) || 1), 0);
+            headerCartCount.textContent = itemCount.toString();
+          }
+          
+          // 触发自定义事件通知购物车更新
+          document.dispatchEvent(new CustomEvent('cartUpdated'));
+          // 手动触发storage事件，确保同一个标签页内的其他组件能够更新
+          window.dispatchEvent(new Event('storage'));
+        } catch (error) {
+          console.error('更新购物车数据到localStorage失败:', error);
+          createToast('保存购物车数据失败，请重试');
+        }
+      }
+      
+      // 添加页面可见性变化检测，当页面从后台变为前台时，重新加载购物车数据
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+          console.log('页面变为可见，刷新购物车数据');
+          try {
+            const freshData = localStorage.getItem('appleCart');
+            if (freshData) {
+              cart = JSON.parse(freshData);
+              if (!Array.isArray(cart)) cart = [];
+              updateCartDisplay();
+            }
+          } catch (error) {
+            console.error('页面可见性变化时更新购物车失败:', error);
+          }
+        }
+      });
+      
+      // 监听storage事件，当其他页面修改购物车数据时更新显示
+      window.addEventListener('storage', function(e) {
+        console.log('检测到storage事件:', e.key);
+        if (e.key === 'appleCart' || e.key === null) {
+          try {
+            const freshData = localStorage.getItem('appleCart');
+            if (freshData) {
+              const newCart = JSON.parse(freshData);
+              if (Array.isArray(newCart) && JSON.stringify(cart) !== JSON.stringify(newCart)) {
+                cart = newCart;
+                updateCartDisplay();
+              }
+            }
+          } catch (error) {
+            console.error('处理storage事件失败:', error);
+          }
+        }
+      });
+      
+      // 添加window.storage事件监听器，确保即使在同一个页面也能接收到更新
+      window.addEventListener('storage', updateFromStorage);
+      function updateFromStorage(e) {
+        console.log('检测到storage事件，同步购物车数据', e ? e.key : 'null');
+        
+        // 检查事件是否为购物车数据变化或是手动触发的事件
+        if (!e || e.key === 'appleCart' || e.key === null) {
+          try {
+            const newCartData = localStorage.getItem('appleCart');
+            
+            // 检查是否真正有变化，避免无限循环
+            if (newCartData) {
+              const newCart = JSON.parse(newCartData);
+              if (Array.isArray(newCart) && JSON.stringify(cart) !== JSON.stringify(newCart)) {
+                console.log('购物车数据有变化，从', cart.length, '项到', newCart.length, '项');
+                cart = newCart;
+                updateCartDisplay();
+                
+                // 添加视觉提示
+                createToast('购物车数据已自动更新');
+              }
+            }
+          } catch (error) {
+            console.error('updateFromStorage处理数据失败:', error);
+          }
+        }
+      }
+      
+      // 刷新购物车按钮点击事件
+      if (refreshCartButton) {
+        refreshCartButton.addEventListener('click', function() {
+          console.log('刷新购物车按钮被点击');
+          // 添加旋转效果
+          const iconEl = this.querySelector('i');
+          if (iconEl) iconEl.classList.add('animate-spin');
+          
+          // 直接从localStorage重新加载数据
+          try {
+            // 存储当前数据的快照用于比较
+            const oldCartLength = cart.length;
+            
+            const freshData = localStorage.getItem('appleCart');
+            
+            if (freshData) {
+              const newCart = JSON.parse(freshData);
+              
+              if (Array.isArray(newCart) && JSON.stringify(cart) !== JSON.stringify(newCart)) {
+                console.log('数据已更新，旧数据长度:', oldCartLength, '新数据长度:', newCart.length);
+                cart = newCart;
+                updateCartDisplay();
+                
+                if (newCart.length > oldCartLength) {
+                  createToast(`购物车已更新，添加了 ${newCart.length - oldCartLength} 个新商品`);
+                } else if (newCart.length < oldCartLength) {
+                  createToast(`购物车已更新，移除了 ${oldCartLength - newCart.length} 个商品`);
+                } else {
+                  createToast('购物车数据已更新');
+                }
+              } else {
+                console.log('数据未变化');
+                createToast('购物车数据已是最新');
+              }
+            } else {
+              console.log('localStorage中没有购物车数据');
+              if (cart.length > 0) {
+                cart = [];
+                updateCartDisplay();
+                createToast('购物车已清空');
+              } else {
+                createToast('购物车为空');
+              }
+            }
+          } catch (error) {
+            console.error('刷新购物车数据失败:', error);
+            createToast('刷新失败，请重试');
+          }
+          
+          // 1秒后停止动画
+          setTimeout(() => {
+            if (iconEl) iconEl.classList.remove('animate-spin');
+          }, 1000);
+        });
+      }
+      
+      // 结算按钮事件
+      if (checkoutButton) {
+        checkoutButton.addEventListener('click', function() {
+          if (cart.length === 0) {
+            alert('您的购物车是空的，请先添加商品');
+            return;
+          }
+          
+          // 这里可以跳转到结算页或处理结算逻辑
+          alert('订单提交成功，即将为您跳转到支付页面');
+          
+          // 清空购物车
+          cart = [];
+          localStorage.setItem('appleCart', JSON.stringify([]));
+          
+          // 更新显示
+          updateCartDisplay();
+          
+          // 触发自定义事件通知购物车更新
+          document.dispatchEvent(new CustomEvent('cartUpdated'));
+          // 手动触发storage事件
+          window.dispatchEvent(new Event('storage'));
+          
+          createToast('订单已提交，购物车已清空');
+        });
+      }
+      
+      console.log('购物车页面初始化成功');
+      console.groupEnd();
+    });
+  </script>
+  
+  <!-- 浮动广告脚本 -->
+  <script src="promo-popup.js"></script>
+</body>
+</html> 

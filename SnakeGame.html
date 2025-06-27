@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃苹果 - 苹果之旅</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/3116686ac4.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .game-canvas {
+            border: 10px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .user-dropdown {
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+        }
+        .user-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+        /* 下拉菜单样式 */
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 240px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        .user-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 24px;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            transform: rotate(45deg);
+            border-top-left-radius: 2px;
+        }
+        .dropdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .dropdown-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 导航栏 -->
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-8">
+                <a href="index.html" class="text-red-600 font-bold text-2xl flex items-center">
+                    <i class="fas fa-apple-alt mr-2"></i>
+                    <span>苹果之旅</span>
+                </a>
+                <div class="hidden md:flex space-x-6">
+                    <a href="index.html" class="text-gray-600 hover:text-red-500 transition-colors">首页</a>
+                    <a href="DetailsofAppleVarieties.html" class="text-gray-600 hover:text-red-500 transition-colors">苹果品种</a>
+                    <a href="ListofAppleRecipes.html" class="text-gray-600 hover:text-red-500 transition-colors">美味食谱</a>
+                    <a href="AppleCulture.html" class="text-gray-600 hover:text-red-500 transition-colors">苹果文化</a>
+                    <a href="Community.html" class="text-gray-600 hover:text-red-500 transition-colors">社区交流</a>
+                    <a href="SnakeGame.html" class="text-red-500 font-medium">贪吃苹果</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="Favorites.html" class="text-gray-600 hover:text-red-500 transition-colors">
+                    <i class="far fa-heart"></i>
+                    <span class="ml-1 hidden lg:inline">收藏</span>
+                </a>
+                <div class="relative group">
+                    <button id="userButton" class="flex items-center text-gray-600 hover:text-red-500 transition-colors">
+                        <i class="far fa-user-circle text-xl"></i>
+                        <span class="ml-1 hidden lg:inline">账户</span>
+                    </button>
+                    <!-- 用户下拉菜单 -->
+                    <div id="userDropdown" class="user-dropdown hidden">
+                        <div class="flex items-center border-b border-gray-100 pb-3 mb-3">
+                            <div class="bg-gray-100 rounded-full p-3 mr-3">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <div>
+                                <div id="userDropdownName" class="font-medium">游客</div>
+                                <div id="userDropdownEmail" class="text-sm text-gray-500">未登录</div>
+                            </div>
+                        </div>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="UserProfile.html" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-user-cog text-gray-400 w-5 mr-3"></i>
+                                    <span>个人资料</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="Favorites.html" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-heart text-gray-400 w-5 mr-3"></i>
+                                    <span>我的收藏</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="OrderHistory.html" class="flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-shopping-bag text-gray-400 w-5 mr-3"></i>
+                                    <span>订单历史</span>
+                                </a>
+                            </li>
+                            <li class="border-t border-gray-100 mt-2 pt-2">
+                                <button id="logoutButton" class="w-full flex items-center py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors text-red-500">
+                                    <i class="fas fa-sign-out-alt w-5 mr-3"></i>
+                                    <span>退出登录</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold text-center mb-8">贪吃苹果小游戏</h1>
+            
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <div class="text-center mb-6">
+                    <p class="text-lg mb-4">得分: <span id="score" class="font-bold text-red-500">0</span></p>
+                    <div class="flex justify-center space-x-4 mb-6">
+                        <button id="startBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg shadow-sm transition-colors btn">
+                            开始游戏
+                        </button>
+                        <button id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-lg shadow-sm transition-colors btn hidden">
+                            暂停游戏
+                        </button>
+                        <button id="restartBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg shadow-sm transition-colors btn">
+                            重新开始
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <canvas id="gameCanvas" class="game-canvas" width="400" height="400"></canvas>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h2 class="text-xl font-bold mb-4">游戏说明</h2>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li>使用键盘的 <span class="font-medium">↑↓←→</span> 方向键或 <span class="font-medium">W A S D</span> 控制蛇的移动</li>
+                    <li>吃到红色苹果得 <span class="text-red-500 font-medium">1</span> 分，吃到金色苹果得 <span class="text-yellow-500 font-medium">5</span> 分</li>
+                    <li>撞到墙壁或自己的身体游戏结束</li>
+                    <li>随着分数增加，蛇的移动速度会逐渐加快</li>
+                    <li>按空格键可以暂停/继续游戏</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+                    <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-weixin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                        <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+                        <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+                        <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">社区交流</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-map-marker-alt w-5"></i>
+                            <span>中国·陕西·延安</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-phone w-5"></i>
+                            <span>400-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-envelope w-5"></i>
+                            <span>contact@appleway.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+                    <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 transition-colors px-4 py-2 rounded-r-lg">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 游戏变量
+        let canvas, ctx;
+        let snake, food, goldenApple;
+        let score = 0;
+        let gameSpeed = 150;
+        let gameInterval;
+        let isPaused = false;
+        let gameStarted = false;
+        let gameOver = false;
+
+        // 蛇类
+        class Snake {
+            constructor() {
+                // 蛇初始位置在画布中央
+                this.segments = [
+                    { x: 10, y: 10 },
+                    { x: 9, y: 10 },
+                    { x: 8, y: 10 }
+                ];
+                this.direction = 'right';
+                this.nextDirection = 'right';
+            }
+
+            changeDirection(newDirection) {
+                // 防止蛇直接掉头
+                if (
+                    (this.direction === 'up' && newDirection === 'down') ||
+                    (this.direction === 'down' && newDirection === 'up') ||
+                    (this.direction === 'left' && newDirection === 'right') ||
+                    (this.direction === 'right' && newDirection === 'left')
+                ) {
+                    return;
+                }
+                this.nextDirection = newDirection;
+            }
+
+            move() {
+                this.direction = this.nextDirection;
+                const head = { ...this.segments[0] };
+
+                // 根据方向移动蛇头
+                switch (this.direction) {
+                    case 'up':
+                        head.y -= 1;
+                        break;
+                    case 'down':
+                        head.y += 1;
+                        break;
+                    case 'left':
+                        head.x -= 1;
+                        break;
+                    case 'right':
+                        head.x += 1;
+                        break;
+                }
+
+                // 检查碰撞
+                if (this.checkCollision(head)) {
+                    endGame();
+                    return;
+                }
+
+                // 将新头部添加到蛇身体前部
+                this.segments.unshift(head);
+
+                // 检查是否吃到食物
+                if (head.x === food.x && head.y === food.y) {
+                    // 吃到食物，加分
+                    score += 1;
+                    updateScore();
+                    // 生成新食物
+                    generateFood();
+                    // 每吃到5个苹果，速度增加
+                    if (score % 5 === 0) {
+                        increaseSpeed();
+                    }
+                } else if (goldenApple && head.x === goldenApple.x && head.y === goldenApple.y) {
+                    // 吃到金苹果，加5分
+                    score += 5;
+                    updateScore();
+                    goldenApple = null;
+                    // 生成新的食物
+                    generateFood();
+                    // 加速
+                    increaseSpeed();
+                } else {
+                    // 没吃到食物，移除尾部
+                    this.segments.pop();
+                }
+
+                // 有10%的概率生成金苹果
+                if (!goldenApple && Math.random() < 0.01) {
+                    generateGoldenApple();
+                }
+            }
+
+            checkCollision(head) {
+                // 检查是否撞墙
+                if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+                    return true;
+                }
+
+                // 检查是否撞到自己的身体
+                for (let i = 0; i < this.segments.length; i++) {
+                    if (head.x === this.segments[i].x && head.y === this.segments[i].y) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            draw() {
+                // 绘制蛇身
+                ctx.fillStyle = '#4CAF50';
+                this.segments.forEach((segment, index) => {
+                    // 蛇头与蛇身使用不同颜色
+                    if (index === 0) {
+                        ctx.fillStyle = '#388E3C';
+                    } else {
+                        ctx.fillStyle = '#4CAF50';
+                    }
+                    ctx.fillRect(segment.x * 20, segment.y * 20, 20, 20);
+                    
+                    // 添加内部细节，使蛇身看起来更漂亮
+                    ctx.fillStyle = '#81C784';
+                    ctx.fillRect(segment.x * 20 + 4, segment.y * 20 + 4, 12, 12);
+                });
+
+                // 绘制蛇眼睛
+                const head = this.segments[0];
+                ctx.fillStyle = '#000';
+                
+                if (this.direction === 'right') {
+                    ctx.fillRect(head.x * 20 + 14, head.y * 20 + 6, 3, 3);
+                    ctx.fillRect(head.x * 20 + 14, head.y * 20 + 12, 3, 3);
+                } else if (this.direction === 'left') {
+                    ctx.fillRect(head.x * 20 + 3, head.y * 20 + 6, 3, 3);
+                    ctx.fillRect(head.x * 20 + 3, head.y * 20 + 12, 3, 3);
+                } else if (this.direction === 'up') {
+                    ctx.fillRect(head.x * 20 + 6, head.y * 20 + 3, 3, 3);
+                    ctx.fillRect(head.x * 20 + 12, head.y * 20 + 3, 3, 3);
+                } else if (this.direction === 'down') {
+                    ctx.fillRect(head.x * 20 + 6, head.y * 20 + 14, 3, 3);
+                    ctx.fillRect(head.x * 20 + 12, head.y * 20 + 14, 3, 3);
+                }
+            }
+        }
+
+        // 初始化游戏
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 重置游戏状态
+            snake = new Snake();
+            score = 0;
+            gameSpeed = 150;
+            isPaused = false;
+            gameStarted = false;
+            gameOver = false;
+            updateScore();
+            
+            // 生成食物
+            generateFood();
+            
+            // 绘制游戏初始画面
+            drawGame();
+
+            // 设置键盘控制
+            document.addEventListener('keydown', handleKeyDown);
+            
+            // 设置按钮事件
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('pauseBtn').addEventListener('click', togglePause);
+            document.getElementById('restartBtn').addEventListener('click', restartGame);
+        }
+
+        function startGame() {
+            if (!gameStarted && !gameOver) {
+                gameStarted = true;
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('pauseBtn').classList.remove('hidden');
+                gameInterval = setInterval(gameLoop, gameSpeed);
+            }
+        }
+
+        function togglePause() {
+            if (gameStarted && !gameOver) {
+                isPaused = !isPaused;
+                const pauseBtn = document.getElementById('pauseBtn');
+                
+                if (isPaused) {
+                    clearInterval(gameInterval);
+                    pauseBtn.textContent = '继续游戏';
+                    pauseBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
+                    pauseBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                } else {
+                    gameInterval = setInterval(gameLoop, gameSpeed);
+                    pauseBtn.textContent = '暂停游戏';
+                    pauseBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    pauseBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+                }
+            }
+        }
+
+        function restartGame() {
+            // 清除之前的游戏循环
+            clearInterval(gameInterval);
+            
+            // 初始化新游戏
+            initGame();
+            
+            // 自动开始游戏
+            startGame();
+        }
+
+        function gameLoop() {
+            snake.move();
+            drawGame();
+        }
+
+        function drawGame() {
+            // 清空画布
+            ctx.fillStyle = '#f9fafb';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制网格
+            ctx.strokeStyle = '#e5e7eb';
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let j = 0; j < canvas.height; j += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(canvas.width, j);
+                ctx.stroke();
+            }
+            
+            // 绘制蛇
+            snake.draw();
+            
+            // 绘制食物（红苹果）
+            drawApple(food.x, food.y, '#E53935');
+            
+            // 绘制金苹果（如果存在）
+            if (goldenApple) {
+                drawApple(goldenApple.x, goldenApple.y, '#FFD700');
+            }
+            
+            // 如果游戏结束，显示游戏结束文字
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.font = 'bold 36px "Noto Sans SC"';
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.fillText('游戏结束', canvas.width / 2, canvas.height / 2 - 20);
+                
+                ctx.font = '24px "Noto Sans SC"';
+                ctx.fillText(`最终得分: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+            }
+        }
+
+        function drawApple(x, y, color) {
+            // 绘制苹果主体
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x * 20 + 10, y * 20 + 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 绘制苹果柄
+            ctx.fillStyle = '#795548';
+            ctx.fillRect(x * 20 + 9, y * 20 + 3, 2, 4);
+            
+            // 绘制叶子
+            ctx.fillStyle = '#4CAF50';
+            ctx.beginPath();
+            ctx.ellipse(x * 20 + 13, y * 20 + 4, 4, 2, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function generateFood() {
+            // 在随机位置生成食物，但不能与蛇身体重叠
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * 20),
+                    y: Math.floor(Math.random() * 20)
+                };
+            } while (isOnSnake(newFood));
+            
+            food = newFood;
+        }
+
+        function generateGoldenApple() {
+            // 在随机位置生成金苹果，但不能与蛇身体或普通食物重叠
+            let newApple;
+            do {
+                newApple = {
+                    x: Math.floor(Math.random() * 20),
+                    y: Math.floor(Math.random() * 20)
+                };
+            } while (
+                isOnSnake(newApple) || 
+                (food && newApple.x === food.x && newApple.y === food.y)
+            );
+            
+            goldenApple = newApple;
+            
+            // 金苹果会在10秒后消失
+            setTimeout(() => {
+                if (goldenApple) {
+                    goldenApple = null;
+                    drawGame();
+                }
+            }, 10000);
+        }
+
+        function isOnSnake(position) {
+            // 检查位置是否与蛇身体重叠
+            return snake.segments.some(segment => 
+                segment.x === position.x && segment.y === position.y
+            );
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+        }
+
+        function increaseSpeed() {
+            // 加快游戏速度，但有最低限制
+            gameSpeed = Math.max(60, gameSpeed - 10);
+            if (gameInterval) {
+                clearInterval(gameInterval);
+                gameInterval = setInterval(gameLoop, gameSpeed);
+            }
+        }
+
+        function endGame() {
+            gameOver = true;
+            gameStarted = false;
+            clearInterval(gameInterval);
+            drawGame();
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+        }
+
+        function handleKeyDown(e) {
+            if (gameStarted && !gameOver) {
+                switch (e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        snake.changeDirection('up');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        snake.changeDirection('down');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        snake.changeDirection('left');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        snake.changeDirection('right');
+                        break;
+                    case ' ':
+                        togglePause();
+                        break;
+                }
+            }
+        }
+
+        // 用户菜单交互
+        const userButton = document.getElementById('userButton');
+        const userDropdown = document.getElementById('userDropdown');
+        
+        userButton.addEventListener('click', () => {
+            userDropdown.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!userButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // 页面加载完成后初始化游戏
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html> 

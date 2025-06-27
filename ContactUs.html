@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 苹果世界</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#FF3B30',secondary:'#4CD964'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="main.js"></script>
+    <style>
+        /* 记录卡片动画效果 */
+        #recordsList > div {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        #recordsList > div.new-record {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        
+        /* 状态标签样式 */
+        .status-pending {
+            background-color: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .status-processing {
+            background-color: #E0F2FE;
+            color: #075985;
+        }
+        
+        .status-completed {
+            background-color: #D1FAE5;
+            color: #065F46;
+        }
+        
+        /* 回复区域动画 */
+        .reply-area {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .reply-area.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="flex items-center gap-2">
+                    <div class="w-10 h-10 flex items-center justify-center text-primary">
+                        <i class="ri-apple-fill ri-2x"></i>
+                    </div>
+                    <span class="text-2xl font-['Pacifico'] text-primary">苹果世界</span>
+                </a>
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-700 hover:text-primary font-medium transition-colors">首页</a>
+                    <a href="DetailsofAppleVarieties.html" class="text-gray-700 hover:text-primary font-medium transition-colors">苹果品种</a>
+                    <a href="ListofAppleRecipes.html" class="text-gray-700 hover:text-primary font-medium transition-colors">美食食谱</a>
+                    <a href="AppleCulture.html" class="text-gray-700 hover:text-primary font-medium transition-colors">文学文化</a>
+                    <a href="Community.html" class="text-gray-700 hover:text-primary font-medium transition-colors">互动社区</a>
+                    <a href="SnakeGame.html" class="text-gray-700 hover:text-primary font-medium transition-colors">贪吃苹果</a>
+                    <a href="ContactUs.html" class="text-primary font-medium transition-colors">联系我们</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="favorite-btn w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-heart-line"></i>
+                </button>
+                <button id="userButton" class="w-10 h-10 flex items-center justify-center text-gray-700 hover:text-primary rounded-full hover:bg-gray-100 transition-colors">
+                    <i class="ri-user-line"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 页面标题 -->
+        <section class="bg-gradient-to-r from-primary/10 to-primary/5 py-12">
+            <div class="container mx-auto px-4">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">联系我们</h1>
+                <p class="text-lg text-gray-700 max-w-2xl">您有任何问题、建议或合作意向，请随时联系我们。我们将竭诚为您服务，期待与您的沟通。</p>
+            </div>
+        </section>
+
+        <!-- 联系信息和表单 -->
+        <section class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- 联系方式 -->
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <h2 class="text-2xl font-bold mb-8 text-gray-900">联系方式</h2>
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-primary">
+                                <i class="ri-map-pin-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium mb-2">公司地址</h3>
+                                <p class="text-gray-600">中国·陕西省·延安市宝塔区<br>苹果文化产业园A3栋</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-primary">
+                                <i class="ri-phone-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium mb-2">联系电话</h3>
+                                <p class="text-gray-600">客服热线: 400-123-4567<br>商务合作: 029-8765-4321</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-primary">
+                                <i class="ri-mail-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium mb-2">电子邮箱</h3>
+                                <p class="text-gray-600">客户服务: service@appleway.com<br>商务合作: business@appleway.com</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-primary">
+                                <i class="ri-time-line text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-medium mb-2">工作时间</h3>
+                                <p class="text-gray-600">周一至周五: 9:00 - 18:00<br>周六: 10:00 - 16:00 (节假日休息)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 社交媒体 -->
+                    <div class="mt-10">
+                        <h3 class="text-lg font-medium mb-4">关注我们</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="ri-wechat-line"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="ri-weibo-line"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="ri-instagram-line"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-primary hover:text-white transition-colors">
+                                <i class="ri-youtube-line"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 联系表单 -->
+                <div class="bg-white rounded-lg shadow-sm p-8">
+                    <h2 class="text-2xl font-bold mb-8 text-gray-900">给我们留言</h2>
+                    <form id="contactForm" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-gray-700 font-medium mb-2">姓名 <span class="text-primary">*</span></label>
+                                <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary" placeholder="请输入您的姓名">
+                                <p class="error-msg text-primary text-sm mt-1 hidden">请输入您的姓名</p>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-gray-700 font-medium mb-2">邮箱 <span class="text-primary">*</span></label>
+                                <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary" placeholder="请输入您的邮箱">
+                                <p class="error-msg text-primary text-sm mt-1 hidden">请输入有效的邮箱地址</p>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-gray-700 font-medium mb-2">电话</label>
+                            <input type="tel" id="phone" name="phone" class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary" placeholder="请输入您的电话号码">
+                            <p class="error-msg text-primary text-sm mt-1 hidden">请输入有效的电话号码</p>
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-gray-700 font-medium mb-2">主题 <span class="text-primary">*</span></label>
+                            <select id="subject" name="subject" required class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary">
+                                <option value="">请选择联系主题</option>
+                                <option value="咨询">产品咨询</option>
+                                <option value="建议">意见建议</option>
+                                <option value="合作">商务合作</option>
+                                <option value="投诉">投诉反馈</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <p class="error-msg text-primary text-sm mt-1 hidden">请选择联系主题</p>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-gray-700 font-medium mb-2">留言内容 <span class="text-primary">*</span></label>
+                            <textarea id="message" name="message" required class="w-full px-4 py-2 border border-gray-200 rounded focus:outline-none focus:border-primary resize-none" rows="5" placeholder="请输入您的留言内容"></textarea>
+                            <p class="error-msg text-primary text-sm mt-1 hidden">请输入留言内容</p>
+                        </div>
+                        <div>
+                            <label class="flex items-center gap-2 select-none">
+                                <input type="checkbox" name="agreement" required class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-gray-700">我同意网站 <a href="#" class="text-primary hover:underline">隐私政策</a>，并允许处理我的个人信息</span>
+                            </label>
+                            <p class="error-msg text-primary text-sm mt-1 hidden">请阅读并同意隐私政策</p>
+                        </div>
+                        <div class="pt-4">
+                            <button type="submit" class="bg-primary text-white px-8 py-3 rounded-button font-medium hover:bg-primary/90 transition-colors">提交留言</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 地图位置 -->
+        <section class="container mx-auto px-4 py-12">
+            <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                <h2 class="text-2xl font-bold p-8 border-b border-gray-100">我们的位置</h2>
+                <div class="h-96 w-full bg-gray-200">
+                    <!-- 这里插入地图 -->
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115296.40823235684!2d109.3859256761123!3d36.603994337174634!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3666d9fafd6e10c5%3A0xe52b918a5b8a025a!2z5bq15rGJ5biC!5e0!3m2!1szh-CN!2scn!4v1653576235413!5m2!1szh-CN!2scn" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- 常见问题 -->
+        <section class="container mx-auto px-4 py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">常见问题</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">以下是我们收到的一些常见问题，如果您有其他疑问，请随时联系我们。</p>
+            </div>
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4">
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <button class="w-full text-left p-6 focus:outline-none flex items-center justify-between">
+                            <span class="font-medium text-lg">如何成为您的会员？</span>
+                            <i class="ri-arrow-down-s-line text-xl"></i>
+                        </button>
+                        <div class="px-6 pb-6">
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-gray-600">您可以通过网站右上角的用户按钮进行注册，填写基本信息后即可成为我们的会员，享受更多专属福利。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <button class="w-full text-left p-6 focus:outline-none flex items-center justify-between">
+                            <span class="font-medium text-lg">您们提供苹果寄送服务吗？</span>
+                            <i class="ri-arrow-down-s-line text-xl"></i>
+                        </button>
+                        <div class="px-6 pb-6 hidden">
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-gray-600">是的，我们提供全国范围内的苹果寄送服务。您可以在网站上选择喜欢的苹果品种进行订购，我们会为您安排配送。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <button class="w-full text-left p-6 focus:outline-none flex items-center justify-between">
+                            <span class="font-medium text-lg">可以参观您的苹果种植基地吗？</span>
+                            <i class="ri-arrow-down-s-line text-xl"></i>
+                        </button>
+                        <div class="px-6 pb-6 hidden">
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-gray-600">当然可以！我们在陕西延安设有多个苹果种植基地，欢迎预约参观。您可以通过联系表单或电话预约，我们会安排专人接待。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <button class="w-full text-left p-6 focus:outline-none flex items-center justify-between">
+                            <span class="font-medium text-lg">如何成为您的供应商或合作伙伴？</span>
+                            <i class="ri-arrow-down-s-line text-xl"></i>
+                        </button>
+                        <div class="px-6 pb-6 hidden">
+                            <div class="border-t border-gray-100 pt-4">
+                                <p class="text-gray-600">我们一直在寻找优质的供应商和合作伙伴。如果您有意向，请通过商务合作邮箱联系我们，并附上您的公司介绍和合作方案。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 提交记录展示区域 -->
+        <section id="submissionRecords" class="container mx-auto px-4 py-12 border-t border-gray-200">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">您的反馈记录</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">以下是您提交的意见与建议，我们将认真处理每一条反馈。</p>
+            </div>
+            
+            <!-- 提交记录列表 -->
+            <div id="recordsList" class="max-w-4xl mx-auto space-y-6">
+                <!-- 提交记录将通过JavaScript动态添加到这里 -->
+                <div id="noRecords" class="text-center py-8">
+                    <i class="ri-inbox-line text-5xl text-gray-300 mb-4 block mx-auto"></i>
+                    <p class="text-gray-500">您尚未提交任何反馈意见</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">苹果之旅</h3>
+                    <p class="text-gray-400 mb-4">探索苹果世界的无限魅力，品味自然的甜蜜馈赠。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-wechat-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-weibo-line"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="ri-instagram-line"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-white transition-colors">首页</a></li>
+                        <li><a href="DetailsofAppleVarieties.html" class="text-gray-400 hover:text-white transition-colors">苹果品种</a></li>
+                        <li><a href="ListofAppleRecipes.html" class="text-gray-400 hover:text-white transition-colors">美味食谱</a></li>
+                        <li><a href="AppleCulture.html" class="text-gray-400 hover:text-white transition-colors">苹果文化</a></li>
+                        <li><a href="Community.html" class="text-gray-400 hover:text-white transition-colors">社区交流</a></li>
+                        <li><a href="SnakeGame.html" class="text-gray-400 hover:text-white transition-colors">贪吃苹果</a></li>
+                        <li><a href="ContactUs.html" class="text-gray-400 hover:text-white transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-map-pin-line w-5"></i>
+                            <span>中国·陕西·延安</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-phone-line w-5"></i>
+                            <span>400-123-4567</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="ri-mail-line w-5"></i>
+                            <span>contact@appleway.com</span>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">订阅通讯</h3>
+                    <p class="text-gray-400 mb-4">获取最新的苹果资讯和优惠信息</p>
+                    <form class="flex">
+                        <input type="email" placeholder="您的邮箱地址" class="px-4 py-2 rounded-l-lg w-full focus:outline-none text-gray-800">
+                        <button type="submit" class="bg-primary hover:bg-opacity-90 transition-colors px-4 py-2 rounded-r-lg">
+                            <i class="ri-send-plane-line"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2023 苹果之旅. 保留所有权利.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">隐私政策</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">使用条款</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors text-sm">Cookie 政策</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单验证
+            const contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (validateForm()) {
+                        // 模拟提交
+                        showSuccessMessage();
+                        this.reset();
+                    }
+                });
+            }
+            
+            // 实时验证
+            const inputs = document.querySelectorAll('#contactForm input, #contactForm textarea, #contactForm select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+                
+                input.addEventListener('input', function() {
+                    // 如果之前有错误，在用户开始输入时清除错误提示
+                    if (this.classList.contains('border-primary')) {
+                        this.classList.remove('border-primary');
+                        const errorMsg = this.nextElementSibling;
+                        if (errorMsg && errorMsg.classList.contains('error-msg')) {
+                            errorMsg.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+            
+            // FAQ 手风琴效果
+            const faqButtons = document.querySelectorAll('.bg-white.rounded-lg.shadow-sm button');
+            if (faqButtons.length) {
+                faqButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const content = this.nextElementSibling;
+                        const icon = this.querySelector('i');
+                        
+                        // 切换显示/隐藏
+                        content.classList.toggle('hidden');
+                        
+                        // 切换图标
+                        if (content.classList.contains('hidden')) {
+                            icon.classList.remove('ri-arrow-up-s-line');
+                            icon.classList.add('ri-arrow-down-s-line');
+                        } else {
+                            icon.classList.remove('ri-arrow-down-s-line');
+                            icon.classList.add('ri-arrow-up-s-line');
+                        }
+                    });
+                });
+            }
+            
+            // 打开第一个FAQ
+            if (faqButtons.length) {
+                faqButtons[0].click();
+            }
+            
+            // 加载提交记录
+            loadRecordsFromStorage();
+        });
+        
+        // 验证单个字段
+        function validateField(field) {
+            let valid = true;
+            
+            // 清除之前的错误
+            field.classList.remove('border-primary');
+            const errorMsg = field.nextElementSibling;
+            if (errorMsg && errorMsg.classList.contains('error-msg')) {
+                errorMsg.classList.add('hidden');
+            }
+            
+            // 验证必填
+            if (field.required && !field.value.trim()) {
+                valid = false;
+                showError(field.id, `请输入${getFieldName(field.id)}`);
+            }
+            
+            // 特殊验证
+            if (field.id === 'email' && field.value.trim() && !isValidEmail(field.value)) {
+                valid = false;
+                showError('email', '请输入有效的邮箱地址');
+            }
+            
+            if (field.id === 'phone' && field.value.trim() && !isValidPhone(field.value)) {
+                valid = false;
+                showError('phone', '请输入有效的电话号码');
+            }
+            
+            return valid;
+        }
+        
+        // 表单验证函数
+        function validateForm() {
+            let valid = true;
+            const requiredFields = ['name', 'email', 'subject', 'message'];
+            
+            // 重置错误信息
+            const errorMessages = document.querySelectorAll('.error-msg');
+            errorMessages.forEach(msg => msg.classList.add('hidden'));
+            
+            // 验证必填字段
+            requiredFields.forEach(field => {
+                const input = document.getElementById(field);
+                if (!input.value.trim()) {
+                    valid = false;
+                    showError(field, `请输入${getFieldName(field)}`);
+                }
+            });
+            
+            // 验证邮箱格式
+            const email = document.getElementById('email');
+            if (email.value.trim() && !isValidEmail(email.value)) {
+                valid = false;
+                showError('email', '请输入有效的邮箱地址');
+            }
+            
+            // 验证电话格式(如果填写了)
+            const phone = document.getElementById('phone');
+            if (phone.value.trim() && !isValidPhone(phone.value)) {
+                valid = false;
+                showError('phone', '请输入有效的电话号码');
+            }
+            
+            // 验证协议勾选
+            const agreement = document.querySelector('input[name="agreement"]');
+            if (!agreement.checked) {
+                valid = false;
+                const errorElement = agreement.closest('label').nextElementSibling;
+                if (errorElement && errorElement.classList.contains('error-msg')) {
+                    errorElement.textContent = '请阅读并同意隐私政策';
+                    errorElement.classList.remove('hidden');
+                }
+            }
+            
+            return valid;
+        }
+        
+        // 显示错误信息
+        function showError(field, message) {
+            const input = document.getElementById(field);
+            const errorElement = input.nextElementSibling;
+            
+            if (errorElement && errorElement.classList.contains('error-msg')) {
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+                
+                // 添加错误样式
+                input.classList.add('border-primary');
+            }
+        }
+        
+        // 获取字段名称
+        function getFieldName(field) {
+            const fieldNames = {
+                'name': '您的姓名',
+                'email': '您的邮箱',
+                'subject': '联系主题',
+                'message': '留言内容'
+            };
+            return fieldNames[field] || field;
+        }
+        
+        // 验证邮箱
+        function isValidEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email.toLowerCase());
+        }
+        
+        // 验证电话号码
+        function isValidPhone(phone) {
+            const re = /^1[3-9]\d{9}$|^(0\d{2,3}-?)?[2-9]\d{6,7}$/;
+            return re.test(phone);
+        }
+        
+        // 显示成功消息
+        function showSuccessMessage() {
+            // 创建成功提示
+            const successMessage = document.createElement('div');
+            successMessage.className = 'fixed top-20 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 transition-opacity duration-300';
+            successMessage.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="ri-check-line text-xl"></i>
+                    <div>
+                        <h4 class="font-semibold">提交成功</h4>
+                        <p class="text-sm">感谢您的留言，我们会尽快回复您！</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(successMessage);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                successMessage.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(successMessage);
+                }, 300);
+            }, 3000);
+            
+            // 添加提交记录到列表
+            addSubmissionRecord();
+        }
+        
+        // 添加提交记录到列表
+        function addSubmissionRecord() {
+            // 获取表单数据
+            const nameValue = document.getElementById('name').value;
+            const emailValue = document.getElementById('email').value;
+            const phoneValue = document.getElementById('phone').value || '未提供';
+            const subjectValue = document.getElementById('subject').options[document.getElementById('subject').selectedIndex].text;
+            const messageValue = document.getElementById('message').value;
+            
+            // 生成随机ID
+            const recordId = 'record-' + Math.floor(Math.random() * 1000000);
+            
+            // 创建时间戳
+            const now = new Date();
+            const dateString = now.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const timeString = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // 创建记录元素
+            const recordElement = document.createElement('div');
+            recordElement.id = recordId;
+            recordElement.className = 'bg-white rounded-lg shadow-sm overflow-hidden transition-all duration-300 transform new-record';
+            recordElement.innerHTML = `
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <span class="text-lg font-semibold">${subjectValue}</span>
+                            <span class="ml-3 px-3 py-1 text-xs rounded-full status-pending">待处理</span>
+                        </div>
+                        <div class="text-gray-500 text-sm">${dateString} ${timeString}</div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">联系人</p>
+                            <p class="font-medium">${nameValue}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">联系方式</p>
+                            <p class="font-medium">${emailValue}</p>
+                            <p class="text-sm text-gray-500 mt-1">电话: ${phoneValue}</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500">留言内容</p>
+                        <p class="mt-1 text-gray-600 whitespace-pre-line">${messageValue}</p>
+                    </div>
+                    <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-500">预计回复时间: 1-2个工作日</span>
+                        </div>
+                        <button class="text-sm text-primary hover:underline" onclick="toggleReply('${recordId}')">
+                            查看回复
+                        </button>
+                    </div>
+                    <div id="reply-${recordId}" class="reply-area mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="text-gray-500 text-sm">暂无回复，请耐心等待...</p>
+                    </div>
+                </div>
+            `;
+            
+            // 添加到记录列表
+            const recordsList = document.getElementById('recordsList');
+            const noRecords = document.getElementById('noRecords');
+            
+            // 如果有"无记录"提示，则移除它
+            if (noRecords) {
+                noRecords.remove();
+            }
+            
+            // 将新记录添加到列表顶部
+            recordsList.insertBefore(recordElement, recordsList.firstChild);
+            
+            // 添加动画效果 - 延迟执行以确保DOM已更新
+            setTimeout(() => {
+                recordElement.classList.remove('new-record');
+            }, 10);
+            
+            // 创建模拟回复（仅用于演示）
+            setTimeout(() => {
+                simulateResponse(recordId);
+            }, 10000); // 10秒后模拟回复
+            
+            // 保存到本地存储
+            saveRecordsToStorage();
+            
+            // 自动滚动到提交记录区域
+            document.getElementById('submissionRecords').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // 切换显示回复
+        function toggleReply(recordId) {
+            const replyDiv = document.getElementById('reply-' + recordId);
+            replyDiv.classList.toggle('open');
+        }
+        
+        // 模拟客服回复（仅用于演示）
+        function simulateResponse(recordId) {
+            const statusLabel = document.querySelector(`#${recordId} .status-pending`);
+            const replyArea = document.getElementById('reply-' + recordId);
+            
+            if (statusLabel && replyArea) {
+                // 更新状态为"处理中"
+                statusLabel.textContent = '处理中';
+                statusLabel.classList.remove('status-pending');
+                statusLabel.classList.add('status-processing');
+                
+                // 模拟客服回复
+                setTimeout(() => {
+                    // 更新状态为"已完成"
+                    statusLabel.textContent = '已处理';
+                    statusLabel.classList.remove('status-processing');
+                    statusLabel.classList.add('status-completed');
+                    
+                    // 添加回复内容
+                    replyArea.innerHTML = `
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 text-primary">
+                                <i class="ri-customer-service-line"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <p class="font-medium">客服人员</p>
+                                    <span class="text-xs text-gray-500">${new Date().toLocaleString('zh-CN')}</span>
+                                </div>
+                                <p class="mt-1 text-gray-600">感谢您的反馈！我们已收到您的留言，并会尽快处理您提出的问题。如有进一步疑问，可以随时联系我们的客服热线。</p>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 自动打开回复区域
+                    replyArea.classList.add('open');
+                    
+                    // 保存更新后的记录
+                    saveRecordsToStorage();
+                }, 5000); // 再过5秒后显示回复
+            }
+        }
+        
+        // 保存记录到本地存储
+        function saveRecordsToStorage() {
+            const recordsList = document.getElementById('recordsList');
+            const records = recordsList.innerHTML;
+            localStorage.setItem('contactSubmissions', records);
+        }
+        
+        // 从本地存储加载记录
+        function loadRecordsFromStorage() {
+            const recordsList = document.getElementById('recordsList');
+            const savedRecords = localStorage.getItem('contactSubmissions');
+            
+            if (savedRecords && savedRecords.trim() !== '') {
+                recordsList.innerHTML = savedRecords;
+                
+                // 移除"无记录"提示
+                const noRecords = document.getElementById('noRecords');
+                if (noRecords) {
+                    noRecords.remove();
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
